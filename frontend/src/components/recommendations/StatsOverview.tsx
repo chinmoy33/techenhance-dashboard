@@ -9,19 +9,19 @@ interface StatsOverviewProps {
 
 export const StatsOverview: React.FC<StatsOverviewProps> = ({ applicants, filteredApplicants }) => {
   
-  const [creditScore, setCreditScore] = React.useState<number>(0);
+  //const [creditScore, setCreditScore] = React.useState<number>(0);
   const totalApplicants = filteredApplicants.length;
   const lowRiskCount = filteredApplicants.filter(a => a.risklevel === 'low').length;
   console.log('Filtered Applicants:', filteredApplicants);
   const avgCreditScore = Math.round(
-    filteredApplicants.reduce((sum, a) => sum + a.creditScore, 0) / totalApplicants || 0
+    filteredApplicants.reduce((sum, a) => sum + a.creditscore, 0) / totalApplicants || 0
   );
-  useEffect(() => {
-    setCreditScore(avgCreditScore);
-  },[]);
+  // useEffect(() => {
+  //   setCreditScore(avgCreditScore);
+  // },[]);
   //setCreditScore(avgCreditScore);
   const totalRequestedAmount = filteredApplicants.reduce((sum, a) => sum + a.requestedamount, 0);
-  console.log("average credit score:", creditScore);
+  //console.log("average credit score:", creditScore);
   const stats = [
     {
       title: 'Total Applicants',
@@ -39,7 +39,7 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ applicants, filter
     },
     {
       title: 'Avg Credit Score',
-      value: creditScore.toString(),
+      value: avgCreditScore.toString(),
       icon: <AlertTriangle className="w-6 h-6" />,
       color: 'text-yellow-400',
       bgColor: 'bg-yellow-900/20'

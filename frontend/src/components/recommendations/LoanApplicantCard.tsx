@@ -21,7 +21,7 @@ interface LoanApplicantCardProps {
 }
 
 export const LoanApplicantCard: React.FC<LoanApplicantCardProps> = ({ applicant }) => {
-   // console.log("Rendering LoanApplicantCard for:", applicant);
+   console.log("Rendering LoanApplicantCard for:", applicant);
   const getLoanTypeIcon = (type: string) => {
     switch (type) {
       case 'car': return <Car className="w-4 h-4" />;
@@ -59,9 +59,9 @@ export const LoanApplicantCard: React.FC<LoanApplicantCardProps> = ({ applicant 
       default: return 'bg-gray-900/30 text-gray-300 border-gray-700';
     }
   };
-
-  const debtToIncomeRatio = ((applicant.monthlyExpenses / (applicant.salary / 12)) * 100).toFixed(1);
-
+  //console.log("Applicant data:", applicant.monthlyExpenses, applicant.salary);
+  const debtToIncomeRatio = ((applicant.monthlyexpenses / (applicant.salary / 12)) * 100).toFixed(1);
+  console.log("Debt-to-Income Ratio:", debtToIncomeRatio);
   return (
     <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-slate-600 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10">
       <div className="flex items-start gap-4 mb-4">
@@ -102,7 +102,7 @@ export const LoanApplicantCard: React.FC<LoanApplicantCardProps> = ({ applicant 
             <TrendingUp className="w-4 h-4" />
             <span>Credit Score</span>
           </div>
-          <p className="text-white font-semibold">{applicant.creditScore}</p>
+          <p className="text-white font-semibold">{applicant.creditscore}</p>
         </div>
       </div>
 
@@ -112,7 +112,7 @@ export const LoanApplicantCard: React.FC<LoanApplicantCardProps> = ({ applicant 
             <Calendar className="w-4 h-4" />
             <span>Experience</span>
           </div>
-          <p className="text-white font-semibold">{applicant.employmentYears} years</p>
+          <p className="text-white font-semibold">{applicant.employmentyears} years</p>
         </div>
         <div className="bg-slate-900/50 rounded-lg p-3">
           <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">

@@ -5,15 +5,15 @@ export interface LoanApplicant {
   phone: string;
   age: number;
   salary: number;
-  creditScore: number;
-  employmentYears: number;
+  creditscore: number;
+  employmentyears: number;
   loantype: LoanType;
   requestedamount: number;
   risklevel: RiskLevel;
-  employmentType: string;
-  monthlyExpenses: number;
+  employmenttype: string;
+  monthlyexpenses: number;
   assets: number;
-  previousLoans: number;
+  previousloans: number;
   avatar: string;
 }
 
