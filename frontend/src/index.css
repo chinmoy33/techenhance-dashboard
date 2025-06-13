@@ -4,7 +4,8 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 text-white font-sans;
+    @apply bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900;
+    @apply text-white font-sans;
   }
 }
 
@@ -15,7 +16,7 @@
   
   .glass-button {
     @apply backdrop-blur-sm bg-white/10 hover:bg-white/20 border border-white/20;
-    @apply transition-all duration-200 ease-in-out text-white;
+    @apply transition-all duration-200 ease-in-out;
   }
   
   .gradient-text {
