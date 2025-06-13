@@ -1,11 +1,26 @@
-import React from "react";
-import { BarChart3, Sparkles } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { BarChart3, Sparkles, User as LucideUser } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { LogOut } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Header: React.FC = () => {
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser({
+          username: user.user_metadata.full_name || user.email,
+          avatarUrl: user.user_metadata.avatar_url,
+        });
+      }
+    };
+
+    getUser();
+  }, []);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -18,6 +33,8 @@ const Header: React.FC = () => {
       navigate("/login");
     }
   };
+
+  const [user, setUser] = useState<any>(null);
 
   return (
     <header className="glass-card border-b border-white/10 p-4">
@@ -32,19 +49,44 @@ const Header: React.FC = () => {
           </div>
           <div>
             <h1 className="text-2xl font-bold gradient-text">
-              Data Visualizer
+              Data Visualizer Pro
             </h1>
+            <p className="text-sm text-gray-400">
+              Professional data analytics & visualization platform
+            </p>
           </div>
         </div>
 
-        {/* Right side: Logout Button */}
-        <button
-          onClick={handleLogout}
-          className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition duration-200"
-        >
-          <LogOut size={18} />
-          <span>Logout</span>
-        </button>
+        <div className="flex items-center space-x-4">
+          {user && (
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 glass-card px-3 py-2 rounded-lg">
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.username}
+                    className="w-6 h-6 rounded-full"
+                  />
+                ) : (
+                  <LucideUser size={16} className="text-gray-400" />
+                )}
+                <span className="text-sm text-gray-300">{user.username}</span>
+              </div>
+
+              {/* Right side: Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="glass-button p-2 rounded-lg hover:bg-red-500/20 transition-colors"
+                title="Logout"
+              >
+                <LogOut
+                  size={16}
+                  className="text-gray-400 hover:text-red-400"
+                />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
