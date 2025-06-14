@@ -55,35 +55,31 @@
 //   getRecommendations,
 // };
 
-
-const supabase = require('../supabaseClient.ts');
+const supabase = require("../supabaseClient.ts");
 
 const getRecommendations = async (req, res) => {
-    try {
+  try {
+    // Here you would typically run your machine learning model logic
+    // For now, we will simulate recommendations with a simple query
 
-        // Here you would typically run your machine learning model logic
-        // For now, we will simulate recommendations with a simple query
+    const { data, error } = await supabase.from("recommendations").select("*");
 
-        const { data, error } = await supabase
-            .from('recommendations')
-            .select('*');
-
-        if (error) {
-            console.error("Supabase error:", error);
-            return res.status(500).json({ error: "Supabase error" });
-        }
-
-        if (!data || data.length === 0) {
-            return res.status(404).json({ message: "No recommendations found" });
-        }
-
-        return res.json(data);
-    } catch (error) {
-        console.error("Unexpected error:", error);
-        res.status(500).json({ error: "Internal server error" });
+    if (error) {
+      console.error("Supabase error:", error);
+      return res.status(500).json({ error: "Supabase error" });
     }
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ message: "No recommendations found" });
+    }
+
+    return res.json(data);
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 module.exports = {
-    getRecommendations,
+  getRecommendations,
 };

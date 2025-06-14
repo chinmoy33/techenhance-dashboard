@@ -1,5 +1,5 @@
-import React from 'react';
-import { BarChart3, Sparkles } from 'lucide-react';
+import React from "react";
+import { BarChart3, Sparkles } from "lucide-react";
 
 const LoadingSpinner: React.FC = () => {
   return (
@@ -11,13 +11,15 @@ const LoadingSpinner: React.FC = () => {
             <BarChart3 size={24} className="text-primary-400" />
           </div>
         </div>
-        
+
         <div className="flex items-center justify-center space-x-2 mb-4">
           <BarChart3 size={24} className="text-primary-400" />
           <Sparkles size={16} className="text-accent-400" />
-          <h1 className="text-xl font-bold gradient-text">Data Visualizer Pro</h1>
+          <h1 className="text-xl font-bold gradient-text">
+            Data Visualizer Pro
+          </h1>
         </div>
-        
+
         <p className="text-gray-400 animate-pulse">Loading your dashboard...</p>
       </div>
     </div>

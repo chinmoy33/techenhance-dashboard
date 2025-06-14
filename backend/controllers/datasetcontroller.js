@@ -1,5 +1,5 @@
 //const pool = require("../db");
-const supabase =require('../supabaseClient.ts');
+const supabase = require("../supabaseClient.ts");
 
 // let datasets = [
 //   {
@@ -106,22 +106,24 @@ const supabase =require('../supabaseClient.ts');
 const getDataSet = async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('datasets')
-      .select(`
+      .from("datasets")
+      .select(
+        `
         id,
         name,
         type,
         created_at,
         data
-      `)
-      .order('created_at', { ascending: false });
+      `
+      )
+      .order("created_at", { ascending: false });
 
     if (error) {
       throw error;
     }
 
     // Include full data content
-    const formatted = data.map(dataset => ({
+    const formatted = data.map((dataset) => ({
       id: dataset.id,
       name: dataset.name,
       type: dataset.type,
@@ -169,13 +171,14 @@ const getDataSet = async (req, res) => {
 const getDataSetById = async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('datasets')
-      .select('*')
-      .eq('id', req.params.id)
+      .from("datasets")
+      .select("*")
+      .eq("id", req.params.id)
       .single(); // ensures one result
 
     if (error) {
-      if (error.code === 'PGRST116') { // Not found
+      if (error.code === "PGRST116") {
+        // Not found
         return res.status(404).json({ error: "Dataset not found" });
       }
       throw error;
@@ -304,14 +307,15 @@ const getDataSetById = async (req, res) => {
 const deleteDataSet = async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('datasets')
+      .from("datasets")
       .delete()
-      .eq('id', req.params.id)
-      .select()  // Needed to return the deleted row(s)
+      .eq("id", req.params.id)
+      .select() // Needed to return the deleted row(s)
       .single(); // Expecting only one
 
     if (error) {
-      if (error.code === 'PGRST116') { // Not found
+      if (error.code === "PGRST116") {
+        // Not found
         return res.status(404).json({ error: "Dataset not found" });
       }
       throw error;

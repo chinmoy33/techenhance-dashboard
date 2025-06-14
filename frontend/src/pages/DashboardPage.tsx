@@ -45,7 +45,6 @@
 // //   }
 // // }, []);
 
-
 //   // Load datasets on initial mount
 //   useEffect(() => {
 //     loadDatasets();
@@ -77,7 +76,6 @@
 //   useEffect(()=>{
 //     renderContent();
 //   },[currentView]);
-
 
 //   //Render content based on the current view
 //   const renderContent = () => {
@@ -129,7 +127,7 @@
 //   //             <Route path="/" element={<LandingPage />} />
 //   //             <Route path="/Login" element={<AuthPage />} />
 //   //             {/* <Route path="/Login" element={<AuthPage />} /> */}
-              
+
 //   //             <Route
 //   //               path="/charts"
 //   //               element={
@@ -197,7 +195,7 @@
 //               <Route path="/Login" element={<AuthPage />} />
 //               <Route path="/auth/callback" element={<OAuthCallback />} />
 //               {/* <Route path="/Login" element={<AuthPage />} /> */}
-              
+
 //               <Route
 //                 path="/charts"
 //                 element={
@@ -243,7 +241,7 @@
 //         }}
 //       />
 //     </div>
-    
+
 //       // <div className="min-h-screen flex flex-col">
 //       //   <div className="flex flex-1">
 //       //     <Sidebar currentView={currentView} onViewChange={setCurrentView} />
@@ -263,7 +261,7 @@
 //       //         <Route path="/" element={<LandingPage />} />
 //       //         <Route path="/Login" element={<AuthPage />} />
 //       //         {/* <Route path="/Login" element={<AuthPage />} /> */}
-              
+
 //       //         <Route
 //       //           path="/charts"
 //       //           element={
@@ -315,19 +313,21 @@
 // }
 
 // export default DashboardPage;
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
-import DashboardView from '../components/Dashboard';
-import ChartView from '../components/ChartView';
-import DataManager from '../components/DataManager';
-import { Dataset } from '../types';
-import { dataService } from '../services/dataService';
-import Recommendations from '../components/Recommendations';
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import DashboardView from "../components/Dashboard";
+import ChartView from "../components/ChartView";
+import DataManager from "../components/DataManager";
+import { Dataset } from "../types";
+import { dataService } from "../services/dataService";
+import Recommendations from "../components/Recommendations";
 
 const Dashboard: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'charts' | 'data' | 'recommendations'>('dashboard');
+  const [currentView, setCurrentView] = useState<
+    "dashboard" | "charts" | "data" | "recommendations"
+  >("dashboard");
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
   const [loading, setLoading] = useState(true);
@@ -342,7 +342,7 @@ const Dashboard: React.FC = () => {
       const data = await dataService.getDatasets();
       setDatasets(data);
     } catch (error) {
-      console.error('Failed to load datasets:', error);
+      console.error("Failed to load datasets:", error);
     } finally {
       setLoading(false);
     }
@@ -352,30 +352,44 @@ const Dashboard: React.FC = () => {
     try {
       const dataset = await dataService.getDataset(datasetId);
       setSelectedDataset(dataset);
-      setCurrentView('charts');
+      setCurrentView("charts");
     } catch (error) {
-      console.error('Failed to load dataset:', error);
+      console.error("Failed to load dataset:", error);
     }
   };
 
   const renderContent = () => {
     switch (currentView) {
-      case 'dashboard':
-        return <DashboardView datasets={datasets} onDatasetSelect={handleDatasetSelect} />;
-      case 'charts':
+      case "dashboard":
+        return (
+          <DashboardView
+            datasets={datasets}
+            onDatasetSelect={handleDatasetSelect}
+          />
+        );
+      case "charts":
         return selectedDataset ? (
           <ChartView dataset={selectedDataset} />
         ) : (
           <div className="flex items-center justify-center h-64">
-            <p className="text-gray-400">Please select a dataset to visualize</p>
+            <p className="text-gray-400">
+              Please select a dataset to visualize
+            </p>
           </div>
         );
-      case 'data':
-        return <DataManager datasets={datasets} onDatasetChange={loadDatasets} />;
-      case 'recommendations':
-        return <Recommendations/>
+      case "data":
+        return (
+          <DataManager datasets={datasets} onDatasetChange={loadDatasets} />
+        );
+      case "recommendations":
+        return <Recommendations />;
       default:
-        return <DashboardView datasets={datasets} onDatasetSelect={handleDatasetSelect} />;
+        return (
+          <DashboardView
+            datasets={datasets}
+            onDatasetSelect={handleDatasetSelect}
+          />
+        );
     }
   };
 

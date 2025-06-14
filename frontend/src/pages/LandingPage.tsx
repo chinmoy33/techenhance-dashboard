@@ -26,7 +26,7 @@ import {
   ArcElement,
 } from "chart.js";
 import { Line, Bar, Pie } from "react-chartjs-2";
-import  {dataService}  from "../services/dataService.ts";
+import { dataService } from "../services/dataService.ts";
 
 ChartJS.register(
   CategoryScale,
@@ -44,11 +44,10 @@ const LandingPage: React.FC = () => {
   const [demoDatasets, setDemoDatasets] = useState<any[]>([]);
   const [selectedDemo, setSelectedDemo] = useState(0);
   const [loading, setLoading] = useState(true);
-  console.log("demodatasets are :",demoDatasets);
+  console.log("demodatasets are :", demoDatasets);
   useEffect(() => {
     loadDemoData();
   }, []);
-
 
   const loadDemoData = async () => {
     try {
@@ -407,7 +406,7 @@ const LandingPage: React.FC = () => {
             </span>
           </div>
           <p className="text-gray-400">
-            © 2024 Data Visualizer Pro. All rights reserved.
+            © 2025 Data Visualizer Pro. All rights reserved.
           </p>
         </div>
       </footer>
