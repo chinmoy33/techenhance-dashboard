@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../src/supabaseClient.ts";
+//import LoadingSpinner from "../src/components/LoadingSpinning.tsx";
 
 function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const exchangeSession = async () => {
+      setLoading(true);
       const url = new URL(window.location.href);
       const code = url.searchParams.get("code");
 
@@ -23,7 +25,7 @@ function AuthProvider({ children }) {
     exchangeSession();
   }, []);
 
-  if (loading) return <div>Loading auth...</div>;
+  if (loading) return <div></div>;
 
   return children;
 }
