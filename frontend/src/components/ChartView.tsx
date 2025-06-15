@@ -15,9 +15,10 @@ import { Line, Bar, Pie, Doughnut, Scatter } from "react-chartjs-2";
 import {
   // Settings,
   // Download,
-  // Maximize2,
+  Maximize2,
   BarChart3,
   LineChart,
+  X,
   PieChart as PieChartIcon,
 } from "lucide-react";
 import { Dataset, ChartConfig } from "../types";
@@ -41,6 +42,7 @@ interface ChartViewProps {
 const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
   const [selectedChartType, setSelectedChartType] =
     useState<ChartConfig["type"]>("line");
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [chartConfig, setChartConfig] = useState<ChartConfig>({
     type: "line",
     title: `${dataset.name} Visualization`,
@@ -214,15 +216,31 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
     }
   };
 
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div
+      className={`space-y-6 animate-fade-in ${
+        isFullscreen ? "fixed inset-0 z-50 bg-slate-900 p-6 overflow-auto" : ""
+      }`}
+    >
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex space-x-2">
           <h1 className="text-2xl font-bold text-white mb-2">{dataset.name}</h1>
           <p className="text-gray-400">
             {dataset.dataPoints || dataset.data?.length || 0} data points •{" "}
             {dataset.type.replace("_", " ")}
           </p>
+
+          <button
+            onClick={toggleFullscreen}
+            className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
+          >
+            {isFullscreen ? <X size={16} /> : <Maximize2 size={16} />}
+            <span>{isFullscreen ? "Exit" : "Fullscreen"}</span>
+          </button>
         </div>
       </div>
 
@@ -251,7 +269,13 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
 
       {/* Chart Container */}
       <div className="glass-card p-6">
-        <div className="h-96 w-full">{renderChart()}</div>
+        <div
+          className={`w-full ${
+            isFullscreen ? "h-[calc(100vh-300px)]" : "h-96"
+          }`}
+        >
+          {renderChart()}
+        </div>
       </div>
 
       {/* Data Preview */}
