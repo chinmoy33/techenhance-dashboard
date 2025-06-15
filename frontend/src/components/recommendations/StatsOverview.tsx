@@ -12,7 +12,6 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ applicants, filter
   //const [creditScore, setCreditScore] = React.useState<number>(0);
   const totalApplicants = filteredApplicants.length;
   const lowRiskCount = filteredApplicants.filter(a => a.risklevel === 'low').length;
-  console.log('Filtered Applicants:', filteredApplicants);
   const avgCreditScore = Math.round(
     filteredApplicants.reduce((sum, a) => sum + a.creditscore, 0) / totalApplicants || 0
   );

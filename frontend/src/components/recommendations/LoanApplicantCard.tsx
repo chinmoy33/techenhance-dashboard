@@ -21,7 +21,6 @@ interface LoanApplicantCardProps {
 }
 
 export const LoanApplicantCard: React.FC<LoanApplicantCardProps> = ({ applicant }) => {
-   console.log("Rendering LoanApplicantCard for:", applicant);
   const getLoanTypeIcon = (type: string) => {
     switch (type) {
       case 'car': return <Car className="w-4 h-4" />;
@@ -61,7 +60,6 @@ export const LoanApplicantCard: React.FC<LoanApplicantCardProps> = ({ applicant 
   };
   //console.log("Applicant data:", applicant.monthlyExpenses, applicant.salary);
   const debtToIncomeRatio = ((applicant.monthlyexpenses / (applicant.salary / 12)) * 100).toFixed(1);
-  console.log("Debt-to-Income Ratio:", debtToIncomeRatio);
   return (
     <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-slate-600 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10">
       <div className="flex items-start gap-4 mb-4">

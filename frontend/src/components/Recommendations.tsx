@@ -22,7 +22,7 @@ function Recommendations() {
     const fetchData = async () => {
       const data = await dataService.getRecommendations();
       if (data) {
-        console.log("Fetched recommendations:", data);
+        console.log("inside fetchData");
         setLoanApplicant(data);
       }
       // axios.get('http://localhost:5000/api/some-data') // change to your backend route
@@ -36,16 +36,15 @@ function Recommendations() {
 
     // Call immediately once on mount
     fetchData();
-
+    console.log("outside fetchData");
     // Set interval for every 2 minutes (120000 ms)
-    const interval = setInterval(fetchData, 120000);
+    const interval = setInterval(fetchData, 30000);
 
     // Cleanup on unmount
     return () => clearInterval(interval);
   }, []);
 
   const filteredApplicants = useMemo(() => {
-    console.log("Filtering loan applicants:", loanApplicant);
     return loanApplicant.filter((applicant) => {
       const matchesSearch =
         applicant.name.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -96,7 +95,7 @@ function Recommendations() {
       if (a.risklevel !== b.risklevel) {
         return riskOrder[a.risklevel] - riskOrder[b.risklevel];
       }
-      return b.creditScore - a.creditScore;
+      return b.creditscore - a.creditscore;
     });
   }, [filteredApplicants]);
   // console.log("loan applicants:", loanApplicants); // how many fetched?

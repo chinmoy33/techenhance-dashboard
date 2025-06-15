@@ -19,9 +19,6 @@ import { useSessionContext } from '@supabase/auth-helpers-react';
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { session, isLoading } = useSessionContext();
 
-  console.log("Session loading:", isLoading);
-  console.log("Session:", session);
-
   if (isLoading) return <div>Loading...</div>;
   if (!session) return <Navigate to="/Login" />;
 
