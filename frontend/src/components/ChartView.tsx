@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,7 +14,7 @@ import {
 import { Line, Bar, Pie, Doughnut, Scatter } from "react-chartjs-2";
 import {
   // Settings,
-  // Download,
+  Download,
   Maximize2,
   BarChart3,
   LineChart,
@@ -22,6 +22,7 @@ import {
   PieChart as PieChartIcon,
 } from "lucide-react";
 import { Dataset, ChartConfig } from "../types";
+import toast from "react-hot-toast";
 
 ChartJS.register(
   CategoryScale,
@@ -43,10 +44,13 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
   const [selectedChartType, setSelectedChartType] =
     useState<ChartConfig["type"]>("line");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [chartConfig, setChartConfig] = useState<ChartConfig>({
     type: "line",
     title: `${dataset.name} Visualization`,
   });
+
+  const chartRef = useRef<any>(null);
 
   const chartTypes = [
     { type: "line" as const, label: "Line Chart", icon: LineChart },
@@ -195,6 +199,7 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
     if (!chartData) return null;
 
     const commonProps = {
+      ref: chartRef,
       data: chartData,
       options: chartOptions,
       className: "chart-container",
@@ -220,6 +225,85 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
     setIsFullscreen(!isFullscreen);
   };
 
+  const exportChart = (format: "png" | "jpg" | "svg" | "pdf") => {
+    if (!chartRef.current) {
+      toast.error("Chart not available for export");
+      return;
+    }
+
+    try {
+      const canvas = chartRef.current.canvas;
+      const link = document.createElement("a");
+
+      if (format === "png" || format === "jpg") {
+        const url = canvas.toDataURL(`image/${format}`, 1.0);
+        link.href = url;
+        link.download = `${dataset.name}-${selectedChartType}.${format}`;
+      } else if (format === "svg") {
+        // For SVG, we'll export as PNG since Chart.js doesn't natively support SVG
+        const url = canvas.toDataURL("image/png", 1.0);
+        link.href = url;
+        link.download = `${dataset.name}-${selectedChartType}.png`;
+      }
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success(`Chart exported as ${format.toUpperCase()}`);
+    } catch (error) {
+      toast.error("Failed to export chart");
+      console.error("Export error:", error);
+    }
+  };
+
+  const exportData = (format: "csv" | "json") => {
+    try {
+      let content = "";
+      let mimeType = "";
+      let extension = "";
+
+      if (format === "csv") {
+        const headers = Object.keys(dataset.data[0] || {});
+        const csvContent = [
+          headers.join(","),
+          ...dataset.data.map((row) =>
+            headers
+              .map((header) =>
+                typeof row[header] === "string" && row[header].includes(",")
+                  ? `"${row[header]}"`
+                  : row[header]
+              )
+              .join(",")
+          ),
+        ].join("\n");
+
+        content = csvContent;
+        mimeType = "text/csv";
+        extension = "csv";
+      } else {
+        content = JSON.stringify(dataset.data, null, 2);
+        mimeType = "application/json";
+        extension = "json";
+      }
+
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${dataset.name}-data.${extension}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success(`Data exported as ${format.toUpperCase()}`);
+    } catch (error) {
+      toast.error("Failed to export data");
+      console.error("Export error:", error);
+    }
+  };
+
   return (
     <div
       className={`space-y-6 animate-fade-in ${
@@ -227,12 +311,62 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
       }`}
     >
       <div className="flex items-center justify-between">
-        <div className="flex space-x-2">
+        <div>
           <h1 className="text-2xl font-bold text-white mb-2">{dataset.name}</h1>
           <p className="text-gray-400">
             {dataset.dataPoints || dataset.data?.length || 0} data points •{" "}
             {dataset.type.replace("_", " ")}
           </p>
+        </div>
+
+        <div className="flex space-x-2">
+          <div className="relative">
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
+            >
+              <Download size={16} />
+              <span>Export</span>
+            </button>
+
+            {showSettings && (
+              <div className="absolute right-0 top-full mt-2 w-48 glass-card p-3 rounded-lg z-10">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-white mb-2">
+                    Export Chart
+                  </p>
+                  <button
+                    onClick={() => exportChart("png")}
+                    className="w-full text-left px-3 py-2 hover:bg-white/10 rounded text-sm text-gray-300"
+                  >
+                    PNG Image
+                  </button>
+                  <button
+                    onClick={() => exportChart("jpg")}
+                    className="w-full text-left px-3 py-2 hover:bg-white/10 rounded text-sm text-gray-300"
+                  >
+                    JPG Image
+                  </button>
+                  <hr className="border-white/10 my-2" />
+                  <p className="text-sm font-medium text-white mb-2">
+                    Export Data
+                  </p>
+                  <button
+                    onClick={() => exportData("csv")}
+                    className="w-full text-left px-3 py-2 hover:bg-white/10 rounded text-sm text-gray-300"
+                  >
+                    CSV File
+                  </button>
+                  <button
+                    onClick={() => exportData("json")}
+                    className="w-full text-left px-3 py-2 hover:bg-white/10 rounded text-sm text-gray-300"
+                  >
+                    JSON File
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={toggleFullscreen}
