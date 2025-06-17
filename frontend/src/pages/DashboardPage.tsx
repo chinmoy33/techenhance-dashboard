@@ -40,7 +40,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleDatasetSelect = async (datasetId: string) => {
+  const handleDatasetSelect = async (datasetId: number) => {
     try {
       const dataset = await dataService.getDataset(datasetId);
       setSelectedDataset(dataset);
