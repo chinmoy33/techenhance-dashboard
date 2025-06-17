@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useRef } from "react";
+
+// Import Chart.js components - a popular charting library for web applications
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,8 +12,14 @@ import {
   Tooltip,
   Legend,
   ArcElement,
+  RadialLinearScale,
+  Filler,
 } from "chart.js";
-import { Line, Bar, Pie, Doughnut, Scatter } from "react-chartjs-2";
+
+// Import React wrappers for different chart types
+import { Line, Bar, Pie, Doughnut, Scatter, Radar } from "react-chartjs-2";
+
+// Import Lucide React icons for the UI
 import {
   // Settings,
   Download,
@@ -20,10 +28,16 @@ import {
   LineChart,
   X,
   PieChart as PieChartIcon,
+  Target,
+  Zap,
 } from "lucide-react";
+
+// Import TypeScript types (assuming they exist in a types file)
 import { Dataset, ChartConfig } from "../types";
+// Import toast notifications for user feedback
 import toast from "react-hot-toast";
 
+// Register Chart.js components - required for Chart.js to work properly
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -33,13 +47,17 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
+  RadialLinearScale,
+  Filler
 );
 
+// Define the props interface for the component
 interface ChartViewProps {
-  dataset: Dataset;
+  dataset: Dataset; // The data to be visualized
 }
 
+// Main ChartView component - displays interactive charts with multiple visualization types
 const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
   const [selectedChartType, setSelectedChartType] =
     useState<ChartConfig["type"]>("line");
@@ -50,35 +68,76 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
     title: `${dataset.name} Visualization`,
   });
 
+  // Ref to access the chart instance for export functionality
   const chartRef = useRef<any>(null);
 
+  // Configuration for different chart types with their icons and descriptions
   const chartTypes = [
-    { type: "line" as const, label: "Line Chart", icon: LineChart },
-    { type: "bar" as const, label: "Bar Chart", icon: BarChart3 },
-    { type: "pie" as const, label: "Pie Chart", icon: PieChartIcon },
-    { type: "doughnut" as const, label: "Doughnut", icon: PieChartIcon },
-    { type: "scatter" as const, label: "Scatter Plot", icon: BarChart3 },
+    {
+      type: "line" as const,
+      label: "Line Chart",
+      icon: LineChart,
+      description: "Show trends over time",
+    },
+    {
+      type: "bar" as const,
+      label: "Bar Chart",
+      icon: BarChart3,
+      description: "Compare categories",
+    },
+    {
+      type: "pie" as const,
+      label: "Pie Chart",
+      icon: PieChartIcon,
+      description: "Show proportions",
+    },
+    {
+      type: "doughnut" as const,
+      label: "Doughnut",
+      icon: PieChartIcon,
+      description: "Modern pie chart",
+    },
+    {
+      type: "scatter" as const,
+      label: "Scatter Plot",
+      icon: Target,
+      description: "Show correlations",
+    },
+    {
+      type: "radar" as const,
+      label: "Radar Chart",
+      icon: Zap,
+      description: "Multi-dimensional data",
+    },
   ];
 
+  // Memoized chart data processing - recalculates only when dataset or chart type changes
   const chartData = useMemo(() => {
     const data = dataset.data;
+
+    // Return null if no data available
     if (!data || data.length === 0) return null;
 
+    // Define color palette for chart elements
     const colors = [
-      "rgba(59, 130, 246, 0.8)",
-      "rgba(139, 92, 246, 0.8)",
-      "rgba(16, 185, 129, 0.8)",
-      "rgba(245, 158, 11, 0.8)",
-      "rgba(239, 68, 68, 0.8)",
-      "rgba(236, 72, 153, 0.8)",
+      "rgba(59, 130, 246, 0.8)", // Blue
+      "rgba(139, 92, 246, 0.8)", // Purple
+      "rgba(16, 185, 129, 0.8)", // Green
+      "rgba(245, 158, 11, 0.8)", // Orange
+      "rgba(239, 68, 68, 0.8)", // Red
+      "rgba(236, 72, 153, 0.8)", // Pink
     ];
 
+    // Special handling for pie and doughnut charts
     if (selectedChartType === "pie" || selectedChartType === "doughnut") {
       // For pie/doughnut charts, use categorical data
+      // Extract labels from various possible property names
       const labels = data.map(
         (item, index) =>
           item.category || item.label || item.name || `Item ${index + 1}`
       );
+
+      // Extract values from various possible property names
       const values = data.map(
         (item) =>
           item.value || item.count || item.y || Object.values(item)[1] || 1
@@ -90,33 +149,36 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
           {
             label: dataset.name,
             data: values,
-            backgroundColor: colors,
-            borderColor: colors.map((color) => color.replace("0.8", "1")),
+            backgroundColor: colors, // Fill colors for each slice
+            borderColor: colors.map((color) => color.replace("0.8", "1")), // Border colors (more opaque)
             borderWidth: 2,
           },
         ],
       };
     }
 
+    // Special handling for scatter plots
     if (selectedChartType === "scatter") {
       return {
         datasets: [
           {
             label: dataset.name,
+            // Map data to x,y coordinates, trying different property names
             data: data.map((item) => ({
               x: item.x || item.sales || item.value || Math.random() * 100,
               y: item.y || item.revenue || item.count || Math.random() * 100,
             })),
             backgroundColor: colors[0],
             borderColor: colors[0].replace("0.8", "1"),
-            pointRadius: 6,
-            pointHoverRadius: 8,
+            pointRadius: 6, // Size of scatter points
+            pointHoverRadius: 8, // Size when hovering
           },
         ],
       };
     }
 
-    // For line/bar charts
+    // Handling for line and bar charts
+    // Extract labels from various possible property names
     const labels = data.map(
       (item, index) =>
         item.month ||
@@ -127,6 +189,8 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
     );
 
     const datasets = [];
+
+    // Find all numeric properties to use as data series (excluding label properties)
     const keys = Object.keys(data[0] || {}).filter(
       (key) =>
         key !== "month" &&
@@ -136,6 +200,7 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
         typeof data[0][key] === "number"
     );
 
+    // Create a dataset for each numeric property
     keys.forEach((key, index) => {
       datasets.push({
         label: key.charAt(0).toUpperCase() + key.slice(1),
@@ -151,6 +216,7 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
     return { labels, datasets };
   }, [dataset.data, selectedChartType]);
 
+  // Chart.js configuration options
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -176,6 +242,8 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
         borderWidth: 1,
       },
     },
+
+    // Configure axes (not needed for pie/doughnut charts)
     scales:
       selectedChartType !== "pie" && selectedChartType !== "doughnut"
         ? {
@@ -189,12 +257,15 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
             },
           }
         : {},
+
+    // Animation Configuration
     animation: {
-      duration: 1000,
-      easing: "easeInOutQuart",
+      duration: 1000, // 1 Second
+      easing: "easeInOutQuart", // Smooth easing function
     },
   };
 
+  // Function to render the appropriate chart component based on selected type
   const renderChart = () => {
     if (!chartData) return null;
 

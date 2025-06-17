@@ -12,7 +12,7 @@ export interface Dataset {
 
 // Configuration for a chart visualization
 export interface ChartConfig {
-  type: 'line' | 'bar' | 'pie' | 'doughnut' | 'scatter' | 'histogram';
+  type: 'line' | 'bar' | 'pie' | 'doughnut' | 'scatter'|'radar' | 'histogram';
   title: string;
   xAxis?: string;
   yAxis?: string;
@@ -20,4 +20,4 @@ export interface ChartConfig {
 }
 
 // Supported view types in the app
-export type ViewType = 'dashboard' | 'charts' | 'data';
+export type ViewType = 'dashboard' | 'charts' |'allCharts'| 'data';
