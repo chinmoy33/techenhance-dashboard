@@ -62,6 +62,7 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
   const [selectedChartType, setSelectedChartType] =
     useState<ChartConfig["type"]>("line");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [chartConfig, setChartConfig] = useState<ChartConfig>({
     type: "line",
@@ -128,7 +129,7 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
       "rgba(236, 72, 153, 0.8)", // Pink
     ];
 
-    // Special handling for pie and doughnut charts
+    // Special handling for pie, doughnut and radar charts
     if (selectedChartType === "pie" || selectedChartType === "doughnut") {
       // For pie/doughnut charts, use categorical data
       // Extract labels from various possible property names
@@ -172,6 +173,40 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
             borderColor: colors[0].replace("0.8", "1"),
             pointRadius: 6, // Size of scatter points
             pointHoverRadius: 8, // Size when hovering
+          },
+        ],
+      };
+    }
+
+    // Special handling for radar chart
+    if (selectedChartType === "radar") {
+      const keys = Object.keys(data[0] || {}).filter(
+        (key) =>
+          key !== "month" &&
+          key !== "category" &&
+          key !== "label" &&
+          key !== "x" &&
+          typeof data[0][key] === "number"
+      );
+
+      const labels = keys.map(
+        (key) => key.charAt(0).toUpperCase() + key.slice(1)
+      );
+      const avgValues = keys.map((key) => {
+        const sum = data.reduce((acc, item) => acc + (item[key] || 0), 0);
+        return sum / data.length;
+      });
+
+      return {
+        labels,
+        datasets: [
+          {
+            label: dataset.name,
+            data: avgValues,
+            backgroundColor: colors[0],
+            borderColor: colors[0].replace("0.8", "1"),
+            borderWidth: 2,
+            fill: true,
           },
         ],
       };
@@ -245,7 +280,15 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
 
     // Configure axes (not needed for pie/doughnut charts)
     scales:
-      selectedChartType !== "pie" && selectedChartType !== "doughnut"
+      selectedChartType === "radar"
+        ? {
+            r: {
+              ticks: { color: "rgba(255, 255, 255, 0.7)" },
+              grid: { color: "rgba(255, 255, 255, 0.2)" },
+              pointLabels: { color: "rgba(255, 255, 255, 0.8)" },
+            },
+          }
+        : selectedChartType !== "pie" && selectedChartType !== "doughnut"
         ? {
             x: {
               ticks: { color: "rgba(255, 255, 255, 0.7)" },
@@ -287,6 +330,8 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
         return <Doughnut {...commonProps} />;
       case "scatter":
         return <Scatter {...commonProps} />;
+      case "radar":
+        return <Radar {...commonProps} />;
       default:
         return <Line {...commonProps} />;
     }
@@ -393,14 +438,14 @@ const ChartView: React.FC<ChartViewProps> = ({ dataset }) => {
         <div className="flex space-x-2">
           <div className="relative">
             <button
-              onClick={() => setShowSettings(!showSettings)}
+              onClick={() => setShowExportDropdown(!showExportDropdown)}
               className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
             >
               <Download size={16} />
               <span>Export</span>
             </button>
 
-            {showSettings && (
+            {showExportDropdown && (
               <div className="absolute right-0 top-full mt-2 w-48 glass-card p-3 rounded-lg z-10">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-white mb-2">
