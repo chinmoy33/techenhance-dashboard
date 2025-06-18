@@ -36,7 +36,6 @@ import {
   TrendingUp,
   Grid3X3,
   X,
-  Upload,
   Palette,
   RotateCcw,
   Filter,
@@ -45,6 +44,7 @@ import { Dataset, ChartConfig } from "../types";
 import AttributeSelector from "./AttributeSelector";
 import toast from "react-hot-toast";
 
+// Register Chart.js components for all chart types
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -72,12 +72,12 @@ const ChartView: React.FC<ChartViewProps> = ({
   showAllCharts = false,
   onChartSelect,
 }) => {
+  // ===== STATE MANAGEMENT =====
   const [selectedChartType, setSelectedChartType] =
     useState<ChartConfig["type"]>(initialChartType);
   const [selectedAttributes, setSelectedAttributes] = useState<string[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
   const [showAttributeSelector, setShowAttributeSelector] = useState(true);
   const [chartConfig, setChartConfig] = useState<ChartConfig>({
     type: initialChartType,
@@ -94,41 +94,11 @@ const ChartView: React.FC<ChartViewProps> = ({
     ],
   });
 
+  // ===== REFS =====
   const chartRef = useRef<any>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize selected attributes when dataset changes
-  React.useEffect(() => {
-    if (
-      dataset.data &&
-      dataset.data.length > 0 &&
-      selectedAttributes.length === 0
-    ) {
-      const firstRow = dataset.data[0];
-      const numericColumns = Object.keys(firstRow).filter((key) => {
-        const values = dataset.data
-          .map((row) => row[key])
-          .filter((val) => val !== null && val !== undefined && val !== "");
-        const numericValues = values.filter(
-          (val) => !isNaN(Number(val)) && val !== ""
-        );
-        return numericValues.length > values.length * 0.5; // At least 50% numeric
-      });
-
-      // Auto-select first 2-3 numeric columns or all if less than 3
-      const autoSelected = numericColumns.slice(
-        0,
-        Math.min(3, numericColumns.length)
-      );
-      if (autoSelected.length === 0) {
-        // If no numeric columns, select first 2 columns
-        setSelectedAttributes(Object.keys(firstRow).slice(0, 2));
-      } else {
-        setSelectedAttributes(autoSelected);
-      }
-    }
-  }, [dataset.data]);
-
+  // ===== CONSTANTS =====
+  // Available chart types with their metadata
   const chartTypes = [
     {
       type: "line" as const,
@@ -180,6 +150,7 @@ const ChartView: React.FC<ChartViewProps> = ({
     },
   ];
 
+  // Predefined color themes for charts
   const colorThemes = [
     {
       name: "Default",
@@ -235,6 +206,47 @@ const ChartView: React.FC<ChartViewProps> = ({
     },
   ];
 
+  // ===== AUTO-INITIALIZATION EFFECT =====
+  // Initialize selected attributes when dataset changes
+  React.useEffect(() => {
+    if (
+      dataset.data &&
+      dataset.data.length > 0 &&
+      selectedAttributes.length === 0
+    ) {
+      const firstRow = dataset.data[0];
+
+      // Find numeric columns by checking if values can be converted to numbers
+      const numericColumns = Object.keys(firstRow).filter((key) => {
+        const values = dataset.data
+          .map((row) => row[key])
+          .filter((val) => val !== null && val !== undefined && val !== "");
+        const numericValues = values.filter(
+          (val) => !isNaN(Number(val)) && val !== ""
+        );
+        return numericValues.length > values.length * 0.5; // At least 50% numeric
+      });
+
+      // Auto-select first 2-3 numeric columns or all if less than 3
+      const autoSelected = numericColumns.slice(
+        0,
+        Math.min(3, numericColumns.length)
+      );
+      if (autoSelected.length === 0) {
+        // If no numeric columns, select first 2 columns
+        setSelectedAttributes(Object.keys(firstRow).slice(0, 2));
+      } else {
+        setSelectedAttributes(autoSelected);
+      }
+    }
+  }, [dataset.data]);
+
+  // ===== DATA PROCESSING FUNCTIONS =====
+
+  /**
+   * Filters dataset to only include selected attributes
+   * @returns Filtered data array with only selected columns
+   */
   const getFilteredData = () => {
     if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
 
@@ -247,115 +259,154 @@ const ChartView: React.FC<ChartViewProps> = ({
     });
   };
 
+  /**
+   * Generates chart data based on chart type and selected attributes
+   * @param chartType - Type of chart to generate data for
+   * @returns Chart.js compatible data object
+   */
   const getChartData = (chartType: ChartConfig["type"]) => {
     const filteredData = getFilteredData();
     if (!filteredData || filteredData.length === 0) return null;
 
+    // Handle pie/doughnut/polar area charts (categorical data)
     if (
       chartType === "pie" ||
       chartType === "doughnut" ||
       chartType === "polarArea"
     ) {
-      // For pie charts, use first categorical attribute for labels and first numeric for values
-      const categoricalAttr = selectedAttributes.find((attr) => {
-        const values = dataset.data.map((row) => row[attr]);
-        const numericValues = values.filter(
-          (val) => !isNaN(Number(val)) && val !== ""
-        );
-        return numericValues.length < values.length * 0.5; // Less than 50% numeric = categorical
-      });
-
-      const numericAttr = selectedAttributes.find((attr) => {
-        const values = dataset.data.map((row) => row[attr]);
-        const numericValues = values.filter(
-          (val) => !isNaN(Number(val)) && val !== ""
-        );
-        return numericValues.length > values.length * 0.5; // More than 50% numeric
-      });
-
-      if (!categoricalAttr && !numericAttr) return null;
-
-      const labels = filteredData.map(
-        (item, index) =>
-          item[categoricalAttr || selectedAttributes[0]] || `Item ${index + 1}`
-      );
-      const values = filteredData.map(
-        (item) => Number(item[numericAttr || selectedAttributes[0]]) || 1
-      );
-
-      return {
-        labels,
-        datasets: [
-          {
-            label: dataset.name,
-            data: values,
-            backgroundColor: chartConfig.colors,
-            borderColor: chartConfig.colors?.map((color) =>
-              color.replace("0.8", "1")
-            ),
-            borderWidth: 2,
-          },
-        ],
-      };
+      return generateCategoricalChartData(filteredData);
     }
 
+    // Handle scatter/bubble charts (correlation data)
     if (chartType === "scatter" || chartType === "bubble") {
-      if (selectedAttributes.length < 2) return null;
-
-      const xAttr = selectedAttributes[0];
-      const yAttr = selectedAttributes[1];
-      const sizeAttr = selectedAttributes[2]; // For bubble charts
-
-      const scatterData = filteredData.map((item) => ({
-        x: Number(item[xAttr]) || 0,
-        y: Number(item[yAttr]) || 0,
-        r:
-          chartType === "bubble" && sizeAttr
-            ? Number(item[sizeAttr]) || 5
-            : undefined,
-      }));
-
-      return {
-        datasets: [
-          {
-            label: `${xAttr} vs ${yAttr}`,
-            data: scatterData,
-            backgroundColor: chartConfig.colors?.[0],
-            borderColor: chartConfig.colors?.[0]?.replace("0.8", "1"),
-            pointRadius: chartType === "bubble" ? undefined : 6,
-            pointHoverRadius: chartType === "bubble" ? undefined : 8,
-          },
-        ],
-      };
+      return generateScatterChartData(filteredData, chartType);
     }
 
+    // Handle radar charts (multi-dimensional data)
     if (chartType === "radar") {
-      if (selectedAttributes.length === 0) return null;
-
-      const labels = selectedAttributes.map(
-        (attr) => attr.charAt(0).toUpperCase() + attr.slice(1)
-      );
-      const avgValues = selectedAttributes.map((attr) => {
-        const values = filteredData.map((item) => Number(item[attr]) || 0);
-        return values.reduce((sum, val) => sum + val, 0) / values.length;
-      });
-
-      return {
-        labels,
-        datasets: [
-          {
-            label: dataset.name,
-            data: avgValues,
-            backgroundColor: chartConfig.colors?.[0],
-            borderColor: chartConfig.colors?.[0]?.replace("0.8", "1"),
-            borderWidth: 2,
-            fill: true,
-          },
-        ],
-      };
+      return generateRadarChartData(filteredData);
     }
 
-    // For line/bar charts
+    // Handle line/bar charts (time series or categorical comparison)
+    return generateLineBarChartData(filteredData);
+  };
+
+  /**
+   * Generates data for pie, doughnut, and polar area charts
+   */
+  const generateCategoricalChartData = (filteredData: any[]) => {
+    // Find first categorical attribute for labels and first numeric for values
+    const categoricalAttr = selectedAttributes.find((attr) => {
+      const values = dataset.data.map((row) => row[attr]);
+      const numericValues = values.filter(
+        (val) => !isNaN(Number(val)) && val !== ""
+      );
+      return numericValues.length < values.length * 0.5; // Less than 50% numeric = categorical
+    });
+
+    const numericAttr = selectedAttributes.find((attr) => {
+      const values = dataset.data.map((row) => row[attr]);
+      const numericValues = values.filter(
+        (val) => !isNaN(Number(val)) && val !== ""
+      );
+      return numericValues.length > values.length * 0.5; // More than 50% numeric
+    });
+
+    if (!categoricalAttr && !numericAttr) return null;
+
+    const labels = filteredData.map(
+      (item, index) =>
+        item[categoricalAttr || selectedAttributes[0]] || `Item ${index + 1}`
+    );
+    const values = filteredData.map(
+      (item) => Number(item[numericAttr || selectedAttributes[0]]) || 1
+    );
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: dataset.name,
+          data: values,
+          backgroundColor: chartConfig.colors,
+          borderColor: chartConfig.colors?.map((color) =>
+            color.replace("0.8", "1")
+          ),
+          borderWidth: 2,
+        },
+      ],
+    };
+  };
+
+  /**
+   * Generates data for scatter and bubble charts
+   */
+  const generateScatterChartData = (
+    filteredData: any[],
+    chartType: "scatter" | "bubble"
+  ) => {
+    if (selectedAttributes.length < 2) return null;
+
+    const xAttr = selectedAttributes[0];
+    const yAttr = selectedAttributes[1];
+    const sizeAttr = selectedAttributes[2]; // For bubble charts
+
+    const scatterData = filteredData.map((item) => ({
+      x: Number(item[xAttr]) || 0,
+      y: Number(item[yAttr]) || 0,
+      r:
+        chartType === "bubble" && sizeAttr
+          ? Number(item[sizeAttr]) || 5
+          : undefined,
+    }));
+
+    return {
+      datasets: [
+        {
+          label: `${xAttr} vs ${yAttr}`,
+          data: scatterData,
+          backgroundColor: chartConfig.colors?.[0],
+          borderColor: chartConfig.colors?.[0]?.replace("0.8", "1"),
+          pointRadius: chartType === "bubble" ? undefined : 6,
+          pointHoverRadius: chartType === "bubble" ? undefined : 8,
+        },
+      ],
+    };
+  };
+
+  /**
+   * Generates data for radar charts
+   */
+  const generateRadarChartData = (filteredData: any[]) => {
+    if (selectedAttributes.length === 0) return null;
+
+    const labels = selectedAttributes.map(
+      (attr) => attr.charAt(0).toUpperCase() + attr.slice(1)
+    );
+    const avgValues = selectedAttributes.map((attr) => {
+      const values = filteredData.map((item) => Number(item[attr]) || 0);
+      return values.reduce((sum, val) => sum + val, 0) / values.length;
+    });
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: dataset.name,
+          data: avgValues,
+          backgroundColor: chartConfig.colors?.[0],
+          borderColor: chartConfig.colors?.[0]?.replace("0.8", "1"),
+          borderWidth: 2,
+          fill: true,
+        },
+      ],
+    };
+  };
+
+  /**
+   * Generates data for line and bar charts
+   */
+  const generateLineBarChartData = (filteredData: any[]) => {
     if (selectedAttributes.length === 0) return null;
 
     // Use first attribute for labels (x-axis)
@@ -384,7 +435,7 @@ const ChartView: React.FC<ChartViewProps> = ({
           index % chartConfig.colors.length
         ]?.replace("0.8", "1"),
         borderWidth: 2,
-        fill: chartType === "line" ? false : true,
+        fill: selectedChartType === "line" ? false : true,
         tension: 0.4,
       });
     });
@@ -392,11 +443,11 @@ const ChartView: React.FC<ChartViewProps> = ({
     return { labels, datasets };
   };
 
-  const chartData = useMemo(
-    () => getChartData(selectedChartType),
-    [dataset.data, selectedChartType, selectedAttributes, chartConfig.colors]
-  );
+  // ===== CHART CONFIGURATION =====
 
+  /**
+   * Generates Chart.js options based on chart type
+   */
   const getChartOptions = (chartType: ChartConfig["type"]) => ({
     responsive: true,
     maintainAspectRatio: false,
@@ -426,6 +477,7 @@ const ChartView: React.FC<ChartViewProps> = ({
         borderWidth: 1,
       },
     },
+    // Configure scales based on chart type
     scales: !["pie", "doughnut", "radar", "polarArea"].includes(chartType)
       ? {
           x: {
@@ -452,6 +504,9 @@ const ChartView: React.FC<ChartViewProps> = ({
     },
   });
 
+  /**
+   * Renders the appropriate chart component based on type
+   */
   const renderChart = (chartType: ChartConfig["type"], data: any) => {
     if (!data) return null;
 
@@ -462,6 +517,7 @@ const ChartView: React.FC<ChartViewProps> = ({
       className: "chart-container",
     };
 
+    // Return appropriate chart component
     switch (chartType) {
       case "line":
         return <Line {...commonProps} />;
@@ -484,6 +540,11 @@ const ChartView: React.FC<ChartViewProps> = ({
     }
   };
 
+  // ===== EVENT HANDLERS =====
+
+  /**
+   * Handles chart type selection
+   */
   const handleChartTypeChange = (chartType: ChartConfig["type"]) => {
     setSelectedChartType(chartType);
     if (onChartSelect) {
@@ -491,10 +552,16 @@ const ChartView: React.FC<ChartViewProps> = ({
     }
   };
 
+  /**
+   * Toggles fullscreen mode
+   */
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
   };
 
+  /**
+   * Exports chart as image
+   */
   const exportChart = (format: "png" | "jpg" | "svg" | "pdf") => {
     if (!chartRef.current) {
       toast.error("Chart not available for export");
@@ -527,6 +594,9 @@ const ChartView: React.FC<ChartViewProps> = ({
     }
   };
 
+  /**
+   * Exports filtered data
+   */
   const exportData = (format: "csv" | "json") => {
     try {
       const filteredData = getFilteredData();
@@ -578,54 +648,16 @@ const ChartView: React.FC<ChartViewProps> = ({
     }
   };
 
-  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (file.type !== "text/csv") {
-      toast.error("Please select a CSV file");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const csv = e.target?.result as string;
-        const lines = csv.split("\n");
-        const headers = lines[0].split(",").map((h) => h.trim());
-
-        const data = lines
-          .slice(1)
-          .filter((line) => line.trim())
-          .map((line) => {
-            const values = line.split(",").map((v) => v.trim());
-            const row: any = {};
-            headers.forEach((header, index) => {
-              const value = values[index];
-              // Try to parse as number, otherwise keep as string
-              row[header] = isNaN(Number(value)) ? value : Number(value);
-            });
-            return row;
-          });
-
-        // Here you would typically update the dataset
-        // For now, we'll just show a success message
-        toast.success(`Imported ${data.length} rows from CSV`);
-        setShowImportModal(false);
-      } catch (error) {
-        toast.error("Failed to parse CSV file");
-        console.error("CSV parse error:", error);
-      }
-    };
-
-    reader.readAsText(file);
-    event.target.value = "";
-  };
-
+  /**
+   * Updates chart configuration
+   */
   const updateChartConfig = (updates: Partial<ChartConfig>) => {
     setChartConfig((prev) => ({ ...prev, ...updates }));
   };
 
+  /**
+   * Resets settings to default
+   */
   const resetSettings = () => {
     setChartConfig({
       type: selectedChartType,
@@ -635,9 +667,19 @@ const ChartView: React.FC<ChartViewProps> = ({
     toast.success("Settings reset to default");
   };
 
+  // ===== MEMOIZED VALUES =====
+  const chartData = useMemo(
+    () => getChartData(selectedChartType),
+    [dataset.data, selectedChartType, selectedAttributes, chartConfig.colors]
+  );
+
+  // ===== RENDER LOGIC =====
+
+  // Render All Charts View (grid of all chart types)
   if (showAllCharts) {
     return (
       <div className="space-y-6 animate-fade-in">
+        {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
@@ -650,6 +692,7 @@ const ChartView: React.FC<ChartViewProps> = ({
             </p>
           </div>
 
+          {/* Control Buttons */}
           <div className="flex space-x-2">
             <button
               onClick={() => setShowAttributeSelector(!showAttributeSelector)}
@@ -661,13 +704,6 @@ const ChartView: React.FC<ChartViewProps> = ({
             >
               <Filter size={16} />
               <span>Attributes</span>
-            </button>
-            <button
-              onClick={() => setShowImportModal(true)}
-              className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
-            >
-              <Upload size={16} />
-              <span>Import CSV</span>
             </button>
           </div>
         </div>
@@ -712,7 +748,7 @@ const ChartView: React.FC<ChartViewProps> = ({
           })}
         </div>
 
-        {/* Data Preview */}
+        {/* Data Preview Section */}
         <div className="glass-card p-6">
           <h3 className="text-lg font-semibold text-white mb-4">
             Filtered Data Preview
@@ -758,59 +794,18 @@ const ChartView: React.FC<ChartViewProps> = ({
             )}
           </div>
         </div>
-
-        {/* Import CSV Modal */}
-        {showImportModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="glass-card p-6 max-w-md w-full mx-4 animate-scale-in">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">
-                  Import CSV Data
-                </h3>
-                <button
-                  onClick={() => setShowImportModal(false)}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                >
-                  <X size={20} className="text-gray-400" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <p className="text-gray-400">
-                  Select a CSV file to import data. The first row should contain
-                  column headers.
-                </p>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv"
-                  onChange={handleImportCSV}
-                  className="hidden"
-                />
-
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full glass-button p-4 rounded-lg border-2 border-dashed border-white/20 hover:border-primary-400/50 transition-all"
-                >
-                  <Upload size={24} className="mx-auto mb-2 text-primary-400" />
-                  <p className="text-white font-medium">Choose CSV File</p>
-                  <p className="text-sm text-gray-400">Click to browse files</p>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
 
+  // Render Single Chart View
   return (
     <div
       className={`space-y-6 animate-fade-in ${
         isFullscreen ? "fixed inset-0 z-50 bg-slate-900 p-6 overflow-auto" : ""
       }`}
     >
+      {/* Header Section */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white mb-2">{dataset.name}</h1>
@@ -820,6 +815,7 @@ const ChartView: React.FC<ChartViewProps> = ({
           </p>
         </div>
 
+        {/* Control Buttons */}
         <div className="flex space-x-2">
           <button
             onClick={() => setShowAttributeSelector(!showAttributeSelector)}
@@ -833,6 +829,7 @@ const ChartView: React.FC<ChartViewProps> = ({
             <span>Attributes</span>
           </button>
 
+          {/* Export Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowSettings(!showSettings)}
@@ -932,7 +929,7 @@ const ChartView: React.FC<ChartViewProps> = ({
         </div>
       </div>
 
-      {/* Chart Container */}
+      {/* Main Chart Container */}
       <div className="glass-card p-6">
         <div
           className={`w-full ${
@@ -973,7 +970,7 @@ const ChartView: React.FC<ChartViewProps> = ({
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Chart Title */}
+            {/* Chart Title Input */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Chart Title
@@ -987,7 +984,7 @@ const ChartView: React.FC<ChartViewProps> = ({
               />
             </div>
 
-            {/* Color Theme */}
+            {/* Color Theme Selector */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Color Theme
@@ -1025,7 +1022,7 @@ const ChartView: React.FC<ChartViewProps> = ({
         </div>
       )}
 
-      {/* Chart Info */}
+      {/* Chart Information Panel */}
       <div className="glass-card p-6">
         <div className="flex items-start space-x-4">
           <div className="p-3 bg-primary-500/20 rounded-lg">
@@ -1076,7 +1073,7 @@ const ChartView: React.FC<ChartViewProps> = ({
         </div>
       </div>
 
-      {/* Data Preview */}
+      {/* Data Preview Table */}
       <div className="glass-card p-6">
         <h3 className="text-lg font-semibold text-white mb-4">
           Filtered Data Preview

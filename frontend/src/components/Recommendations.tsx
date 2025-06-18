@@ -25,13 +25,6 @@ function Recommendations() {
         console.log("inside fetchData");
         setLoanApplicant(data);
       }
-      // axios.get('http://localhost:5000/api/some-data') // change to your backend route
-      //   .then(response => {
-      //     console.log("Fetched data:", response.data);
-      //   })
-      //   .catch(error => {
-      //     console.error("Error fetching data:", error);
-      //   });
     };
 
     // Call immediately once on mount
@@ -66,27 +59,6 @@ function Recommendations() {
       );
     });
   }, [filters, loanApplicant]);
-  //   const filteredApplicants = useMemo(() => {
-  //   return loanApplicants.filter(applicant => {
-  //     const matchesSearch =
-  //       applicant.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-  //       applicant.email.toLowerCase().includes(filters.search.toLowerCase());
-
-  //     const matchesLoanType = filters.loanType === 'all' || applicant.loanType === filters.loanType;
-
-  //     const matchesSalary =
-  //       applicant.salary >= filters.minSalary &&
-  //       applicant.salary <= filters.maxSalary;
-
-  //     const matchesRiskLevel = filters.riskLevel === 'all' || applicant.riskLevel === filters.riskLevel;
-
-  //     const passes = matchesSearch && matchesLoanType && matchesSalary && matchesRiskLevel;
-  //     if (!passes) {
-  //       console.log("Excluded:", applicant.name, { matchesSearch, matchesLoanType, matchesSalary, matchesRiskLevel });
-  //     }
-  //     return passes;
-  //   });
-  // }, [filters, loanApplicants]);
 
   const sortedApplicants = useMemo(() => {
     return [...filteredApplicants].sort((a, b) => {
@@ -98,9 +70,6 @@ function Recommendations() {
       return b.creditscore - a.creditscore;
     });
   }, [filteredApplicants]);
-  // console.log("loan applicants:", loanApplicants); // how many fetched?
-  //   console.log("Filtered Applicants:", filteredApplicants);      // how many left?
-  // console.log("Sorted Applicants:", sortedApplicants);
 
   return (
     <div className="min-h-screen bg-slate-900">

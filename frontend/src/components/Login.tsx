@@ -8,20 +8,6 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  // Check session on mount
-//   useEffect(() => {
-//     const getSession = async () => {
-//       const { data: { session }, error } = await supabase.auth.getSession();
-//       if (error) {
-//         console.error("❌ Error getting session:", error.message);
-//       } else if (session) {
-//         console.log("✅ Existing session:", session);
-//         navigate("/"); // already logged in
-//       }
-//     };
-//     getSession();
-//   }, []);
-
   // 👉 Email Login Handler
   const handleEmailLogin = async () => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -54,13 +40,13 @@ const Login = () => {
 
   // 🔐 Google OAuth Login
   const handleGoogleLogin = async () => {
-    const { data,error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-    //   options: {
-    //     queryParams: {
-    //       prompt: "select_account",
-    //     },
-    //   },
+      //   options: {
+      //     queryParams: {
+      //       prompt: "select_account",
+      //     },
+      //   },
     });
     console.log("Google OAuth data:", data);
     if (error) {
@@ -124,4 +110,3 @@ const Login = () => {
 };
 
 export default Login;
-

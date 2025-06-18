@@ -1,35 +1,3 @@
-// import { useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { supabase } from "../supabaseClient";
-
-// export default function OAuthCallback() {
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     const exchange = async () => {
-//         console.log("Exchanging OAuth code for session...");
-//         console.log(window.location.href)
-//       const url = new URL(window.location.href);
-//       const code = url.searchParams.get("code");
-//       if (code) {
-//         const { error } = await supabase.auth.exchangeCodeForSession(code);
-//         if (error) {
-//           console.error("Error exchanging code:", error);
-//         } else {
-//           // ✅ Supabase stores session in localStorage automatically
-//           console.log("OAuth exchange successful, session stored.");
-//           navigate("/Dashboard");
-//         }
-//       } else {
-//         console.error("No code found in URL");
-//       }
-//     };
-//     exchange();
-//   }, [navigate]);
-
-//   return <p>Signing in with Google...</p>;
-// }
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
