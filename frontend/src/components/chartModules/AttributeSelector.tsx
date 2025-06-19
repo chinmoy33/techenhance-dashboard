@@ -13,7 +13,7 @@ import {
   Palette,
   RefreshCw,
 } from "lucide-react";
-import { Dataset } from "../types";
+import { Dataset } from "../../types";
 import toast from "react-hot-toast";
 
 interface AttributeSelectorProps {
