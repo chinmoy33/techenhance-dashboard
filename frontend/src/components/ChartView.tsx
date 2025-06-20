@@ -41,10 +41,8 @@ import {
   Filter,
 } from "lucide-react";
 import { Dataset, ChartConfig } from "../types";
-import AttributeSelector from "./chartModules/AttributeSelector";
+import AttributeSelector from "./AttributeSelector";
 import toast from "react-hot-toast";
-import { chartTypes, colorThemes } from "./chartModules/ChartConstants";
-import { getFilteredData, getChartData } from "./chartModules/ChartUtils";
 
 // Register Chart.js components for all chart types
 ChartJS.register(
@@ -99,6 +97,115 @@ const ChartView: React.FC<ChartViewProps> = ({
   // ===== REFS =====
   const chartRef = useRef<any>(null);
 
+  // ===== CONSTANTS =====
+  // Available chart types with their metadata
+  const chartTypes = [
+    {
+      type: "line" as const,
+      label: "Line Chart",
+      icon: LineChart,
+      description: "Show trends over time",
+    },
+    {
+      type: "bar" as const,
+      label: "Bar Chart",
+      icon: BarChart3,
+      description: "Compare categories",
+    },
+    {
+      type: "pie" as const,
+      label: "Pie Chart",
+      icon: PieChartIcon,
+      description: "Show proportions",
+    },
+    {
+      type: "doughnut" as const,
+      label: "Doughnut",
+      icon: PieChartIcon,
+      description: "Modern pie chart",
+    },
+    {
+      type: "scatter" as const,
+      label: "Scatter Plot",
+      icon: Target,
+      description: "Show correlations",
+    },
+    {
+      type: "radar" as const,
+      label: "Radar Chart",
+      icon: Zap,
+      description: "Multi-dimensional data",
+    },
+    {
+      type: "polarArea" as const,
+      label: "Polar Area",
+      icon: Activity,
+      description: "Radial bar chart",
+    },
+    {
+      type: "bubble" as const,
+      label: "Bubble Chart",
+      icon: TrendingUp,
+      description: "3D scatter plot",
+    },
+  ];
+
+  // Predefined color themes for charts
+  const colorThemes = [
+    {
+      name: "Default",
+      colors: [
+        "rgba(59, 130, 246, 0.8)",
+        "rgba(139, 92, 246, 0.8)",
+        "rgba(16, 185, 129, 0.8)",
+        "rgba(245, 158, 11, 0.8)",
+        "rgba(239, 68, 68, 0.8)",
+        "rgba(236, 72, 153, 0.8)",
+        "rgba(14, 165, 233, 0.8)",
+        "rgba(168, 85, 247, 0.8)",
+      ],
+    },
+    {
+      name: "Ocean",
+      colors: [
+        "rgba(6, 182, 212, 0.8)",
+        "rgba(59, 130, 246, 0.8)",
+        "rgba(99, 102, 241, 0.8)",
+        "rgba(139, 92, 246, 0.8)",
+        "rgba(168, 85, 247, 0.8)",
+        "rgba(192, 132, 252, 0.8)",
+        "rgba(196, 181, 253, 0.8)",
+        "rgba(221, 214, 254, 0.8)",
+      ],
+    },
+    {
+      name: "Sunset",
+      colors: [
+        "rgba(251, 146, 60, 0.8)",
+        "rgba(245, 158, 11, 0.8)",
+        "rgba(239, 68, 68, 0.8)",
+        "rgba(236, 72, 153, 0.8)",
+        "rgba(168, 85, 247, 0.8)",
+        "rgba(139, 92, 246, 0.8)",
+        "rgba(99, 102, 241, 0.8)",
+        "rgba(59, 130, 246, 0.8)",
+      ],
+    },
+    {
+      name: "Forest",
+      colors: [
+        "rgba(34, 197, 94, 0.8)",
+        "rgba(16, 185, 129, 0.8)",
+        "rgba(6, 182, 212, 0.8)",
+        "rgba(14, 165, 233, 0.8)",
+        "rgba(59, 130, 246, 0.8)",
+        "rgba(99, 102, 241, 0.8)",
+        "rgba(139, 92, 246, 0.8)",
+        "rgba(168, 85, 247, 0.8)",
+      ],
+    },
+  ];
+
   // ===== AUTO-INITIALIZATION EFFECT =====
   // Initialize selected attributes when dataset changes
   React.useEffect(() => {
@@ -133,6 +240,208 @@ const ChartView: React.FC<ChartViewProps> = ({
       }
     }
   }, [dataset.data]);
+
+  // ===== DATA PROCESSING FUNCTIONS =====
+
+  /**
+   * Filters dataset to only include selected attributes
+   * @returns Filtered data array with only selected columns
+   */
+  const getFilteredData = () => {
+    if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
+
+    return dataset.data.map((row) => {
+      const filteredRow: any = {};
+      selectedAttributes.forEach((attr) => {
+        filteredRow[attr] = row[attr];
+      });
+      return filteredRow;
+    });
+  };
+
+  /**
+   * Generates chart data based on chart type and selected attributes
+   * @param chartType - Type of chart to generate data for
+   * @returns Chart.js compatible data object
+   */
+  const getChartData = (chartType: ChartConfig["type"]) => {
+    const filteredData = getFilteredData();
+    if (!filteredData || filteredData.length === 0) return null;
+
+    // Handle pie/doughnut/polar area charts (categorical data)
+    if (
+      chartType === "pie" ||
+      chartType === "doughnut" ||
+      chartType === "polarArea"
+    ) {
+      return generateCategoricalChartData(filteredData);
+    }
+
+    // Handle scatter/bubble charts (correlation data)
+    if (chartType === "scatter" || chartType === "bubble") {
+      return generateScatterChartData(filteredData, chartType);
+    }
+
+    // Handle radar charts (multi-dimensional data)
+    if (chartType === "radar") {
+      return generateRadarChartData(filteredData);
+    }
+
+    // Handle line/bar charts (time series or categorical comparison)
+    return generateLineBarChartData(filteredData);
+  };
+
+  /**
+   * Generates data for pie, doughnut, and polar area charts
+   */
+  const generateCategoricalChartData = (filteredData: any[]) => {
+    // Find first categorical attribute for labels and first numeric for values
+    const categoricalAttr = selectedAttributes.find((attr) => {
+      const values = dataset.data.map((row) => row[attr]);
+      const numericValues = values.filter(
+        (val) => !isNaN(Number(val)) && val !== ""
+      );
+      return numericValues.length < values.length * 0.5; // Less than 50% numeric = categorical
+    });
+
+    const numericAttr = selectedAttributes.find((attr) => {
+      const values = dataset.data.map((row) => row[attr]);
+      const numericValues = values.filter(
+        (val) => !isNaN(Number(val)) && val !== ""
+      );
+      return numericValues.length > values.length * 0.5; // More than 50% numeric
+    });
+
+    if (!categoricalAttr && !numericAttr) return null;
+
+    const labels = filteredData.map(
+      (item, index) =>
+        item[categoricalAttr || selectedAttributes[0]] || `Item ${index + 1}`
+    );
+    const values = filteredData.map(
+      (item) => Number(item[numericAttr || selectedAttributes[0]]) || 1
+    );
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: dataset.name,
+          data: values,
+          backgroundColor: chartConfig.colors,
+          borderColor: chartConfig.colors?.map((color) =>
+            color.replace("0.8", "1")
+          ),
+          borderWidth: 2,
+        },
+      ],
+    };
+  };
+
+  /**
+   * Generates data for scatter and bubble charts
+   */
+  const generateScatterChartData = (
+    filteredData: any[],
+    chartType: "scatter" | "bubble"
+  ) => {
+    if (selectedAttributes.length < 2) return null;
+
+    const xAttr = selectedAttributes[0];
+    const yAttr = selectedAttributes[1];
+    const sizeAttr = selectedAttributes[2]; // For bubble charts
+
+    const scatterData = filteredData.map((item) => ({
+      x: Number(item[xAttr]) || 0,
+      y: Number(item[yAttr]) || 0,
+      r:
+        chartType === "bubble" && sizeAttr
+          ? Number(item[sizeAttr]) || 5
+          : undefined,
+    }));
+
+    return {
+      datasets: [
+        {
+          label: `${xAttr} vs ${yAttr}`,
+          data: scatterData,
+          backgroundColor: chartConfig.colors?.[0],
+          borderColor: chartConfig.colors?.[0]?.replace("0.8", "1"),
+          pointRadius: chartType === "bubble" ? undefined : 6,
+          pointHoverRadius: chartType === "bubble" ? undefined : 8,
+        },
+      ],
+    };
+  };
+
+  /**
+   * Generates data for radar charts
+   */
+  const generateRadarChartData = (filteredData: any[]) => {
+    if (selectedAttributes.length === 0) return null;
+
+    const labels = selectedAttributes.map(
+      (attr) => attr.charAt(0).toUpperCase() + attr.slice(1)
+    );
+    const avgValues = selectedAttributes.map((attr) => {
+      const values = filteredData.map((item) => Number(item[attr]) || 0);
+      return values.reduce((sum, val) => sum + val, 0) / values.length;
+    });
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: dataset.name,
+          data: avgValues,
+          backgroundColor: chartConfig.colors?.[0],
+          borderColor: chartConfig.colors?.[0]?.replace("0.8", "1"),
+          borderWidth: 2,
+          fill: true,
+        },
+      ],
+    };
+  };
+
+  /**
+   * Generates data for line and bar charts
+   */
+  const generateLineBarChartData = (filteredData: any[]) => {
+    if (selectedAttributes.length === 0) return null;
+
+    // Use first attribute for labels (x-axis)
+    const labelAttr = selectedAttributes[0];
+    const labels = filteredData.map(
+      (item, index) => item[labelAttr] || `Point ${index + 1}`
+    );
+
+    const datasets = [];
+    const dataAttributes = selectedAttributes.slice(1); // Skip first attribute used for labels
+
+    if (dataAttributes.length === 0) {
+      // If only one attribute selected, use it for both labels and data
+      dataAttributes.push(labelAttr);
+    }
+
+    dataAttributes.forEach((attr, index) => {
+      const values = filteredData.map((item) => Number(item[attr]) || 0);
+
+      datasets.push({
+        label: attr.charAt(0).toUpperCase() + attr.slice(1),
+        data: values,
+        backgroundColor:
+          chartConfig.colors?.[index % chartConfig.colors.length],
+        borderColor: chartConfig.colors?.[
+          index % chartConfig.colors.length
+        ]?.replace("0.8", "1"),
+        borderWidth: 2,
+        fill: selectedChartType === "line" ? false : true,
+        tension: 0.4,
+      });
+    });
+
+    return { labels, datasets };
+  };
 
   // ===== CHART CONFIGURATION =====
 
@@ -290,7 +599,7 @@ const ChartView: React.FC<ChartViewProps> = ({
    */
   const exportData = (format: "csv" | "json") => {
     try {
-      const filteredData = getFilteredData(dataset, selectedAttributes);
+      const filteredData = getFilteredData();
       let content = "";
       let mimeType = "";
       let extension = "";
@@ -360,9 +669,8 @@ const ChartView: React.FC<ChartViewProps> = ({
 
   // ===== MEMOIZED VALUES =====
   const chartData = useMemo(
-    () =>
-      getChartData(selectedChartType, dataset, selectedAttributes, chartConfig),
-    [dataset, selectedChartType, selectedAttributes, chartConfig]
+    () => getChartData(selectedChartType),
+    [dataset.data, selectedChartType, selectedAttributes, chartConfig.colors]
   );
 
   // ===== RENDER LOGIC =====
@@ -460,7 +768,7 @@ const ChartView: React.FC<ChartViewProps> = ({
                 </tr>
               </thead>
               <tbody>
-                {getFilteredData(dataset, selectedAttributes)
+                {getFilteredData()
                   ?.slice(0, 5)
                   .map((row, index) => (
                     <tr
@@ -479,13 +787,11 @@ const ChartView: React.FC<ChartViewProps> = ({
               </tbody>
             </table>
 
-            {getFilteredData(dataset, selectedAttributes) &&
-              getFilteredData(dataset, selectedAttributes).length > 5 && (
-                <p className="text-center text-gray-500 mt-4">
-                  Showing 5 of{" "}
-                  {getFilteredData(dataset, selectedAttributes).length} rows
-                </p>
-              )}
+            {getFilteredData() && getFilteredData().length > 5 && (
+              <p className="text-center text-gray-500 mt-4">
+                Showing 5 of {getFilteredData().length} rows
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -747,7 +1053,7 @@ const ChartView: React.FC<ChartViewProps> = ({
               <div>
                 <span className="text-gray-500">Data Points</span>
                 <p className="text-white font-medium">
-                  {getFilteredData(dataset, selectedAttributes)?.length || 0}
+                  {getFilteredData()?.length || 0}
                 </p>
               </div>
               <div>
@@ -787,7 +1093,7 @@ const ChartView: React.FC<ChartViewProps> = ({
               </tr>
             </thead>
             <tbody>
-              {getFilteredData(dataset, selectedAttributes)
+              {getFilteredData()
                 ?.slice(0, 5)
                 .map((row, index) => (
                   <tr
@@ -806,13 +1112,11 @@ const ChartView: React.FC<ChartViewProps> = ({
             </tbody>
           </table>
 
-          {getFilteredData(dataset, selectedAttributes) &&
-            getFilteredData(dataset, selectedAttributes).length > 5 && (
-              <p className="text-center text-gray-500 mt-4">
-                Showing 5 of{" "}
-                {getFilteredData(dataset, selectedAttributes).length} rows
-              </p>
-            )}
+          {getFilteredData() && getFilteredData().length > 5 && (
+            <p className="text-center text-gray-500 mt-4">
+              Showing 5 of {getFilteredData().length} rows
+            </p>
+          )}
         </div>
       </div>
     </div>
