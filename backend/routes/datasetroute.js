@@ -11,6 +11,8 @@ const {
   deleteDataSet,
 } = require("../controllers/datasetcontroller");
 
+const supabase = require("../supabaseClient.ts");
+
 // File upload configuration
 // const storage = multer.diskStorage({
 //   destination: (req, file, cb) => {

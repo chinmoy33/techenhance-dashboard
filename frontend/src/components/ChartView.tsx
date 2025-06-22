@@ -80,6 +80,7 @@ const ChartView: React.FC<ChartViewProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAttributeSelector, setShowAttributeSelector] = useState(true);
+  const [showExport, setShowExport] = useState(false);
   const [chartConfig, setChartConfig] = useState<ChartConfig>({
     type: initialChartType,
     title: `${dataset.name} Visualization`,
@@ -724,14 +725,14 @@ const ChartView: React.FC<ChartViewProps> = ({
           {/* Export Dropdown */}
           <div className="relative">
             <button
-              onClick={() => setShowSettings(!showSettings)}
+              onClick={() => setShowExport(!showExport)}
               className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
             >
               <Download size={16} />
               <span>Export</span>
             </button>
 
-            {showSettings && (
+            {showExport && (
               <div className="absolute right-0 top-full mt-2 w-48 glass-card p-3 rounded-lg z-10">
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-white mb-2">
@@ -778,13 +779,83 @@ const ChartView: React.FC<ChartViewProps> = ({
             <span>{isFullscreen ? "Exit" : "Fullscreen"}</span>
           </button>
 
-          <button
+          <div className="relative">
+            <button
             onClick={() => setShowSettings(!showSettings)}
             className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
           >
             <Settings size={16} />
             <span>Settings</span>
           </button>
+             {/* Settings Panel */}
+        {showSettings && (
+    <div className="absolute right-0 top-full mt-2 w-80 glass-card p-4 rounded-lg z-10">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-semibold text-white">Chart Settings</h3>
+        <button
+          onClick={resetSettings}
+          className="glass-button px-2 py-1 rounded flex items-center space-x-1 text-xs"
+        >
+          <RotateCcw size={12} />
+          <span>Reset</span>
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        {/* Chart Title Input */}
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">
+            Chart Title
+          </label>
+          <input
+            type="text"
+            value={chartConfig.title}
+            onChange={(e) => updateChartConfig({ title: e.target.value })}
+            className="w-full px-3 py-2 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white placeholder-gray-400 text-sm"
+            placeholder="Enter chart title"
+          />
+        </div>
+
+        {/* Color Theme Selector */}
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">
+            Color Theme
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {colorThemes.map((theme) => (
+              <button
+                key={theme.name}
+                onClick={() => updateChartConfig({ colors: theme.colors })}
+                className={`p-2 rounded-lg border transition-all text-left ${
+                  JSON.stringify(chartConfig.colors) ===
+                  JSON.stringify(theme.colors)
+                    ? "border-primary-400 bg-primary-500/20"
+                    : "border-white/20 hover:border-white/40"
+                }`}
+              >
+                <div className="flex items-center space-x-2 mb-1">
+                  <Palette size={12} className="text-gray-400" />
+                  <span className="text-xs text-white">{theme.name}</span>
+                </div>
+                <div className="flex space-x-1">
+                  {theme.colors.slice(0, 4).map((color, index) => (
+                    <div
+                      key={index}
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+          </div>
+
+          
         </div>
       </div>
 
@@ -847,72 +918,8 @@ const ChartView: React.FC<ChartViewProps> = ({
         </div>
       </div>
 
-      {/* Settings Panel */}
-      {showSettings && (
-        <div className="glass-card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-white">Chart Settings</h3>
-            <button
-              onClick={resetSettings}
-              className="glass-button px-3 py-1 rounded-lg flex items-center space-x-2 text-sm"
-            >
-              <RotateCcw size={14} />
-              <span>Reset</span>
-            </button>
-          </div>
+     
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Chart Title Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Chart Title
-              </label>
-              <input
-                type="text"
-                value={chartConfig.title}
-                onChange={(e) => updateChartConfig({ title: e.target.value })}
-                className="w-full px-3 py-2 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white placeholder-gray-400"
-                placeholder="Enter chart title"
-              />
-            </div>
-
-            {/* Color Theme Selector */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Color Theme
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {colorThemes.map((theme) => (
-                  <button
-                    key={theme.name}
-                    onClick={() => updateChartConfig({ colors: theme.colors })}
-                    className={`p-3 rounded-lg border transition-all ${
-                      JSON.stringify(chartConfig.colors) ===
-                      JSON.stringify(theme.colors)
-                        ? "border-primary-400 bg-primary-500/20"
-                        : "border-white/20 hover:border-white/40"
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2 mb-1">
-                      <Palette size={14} className="text-gray-400" />
-                      <span className="text-sm text-white">{theme.name}</span>
-                    </div>
-                    <div className="flex space-x-1">
-                      {theme.colors.slice(0, 4).map((color, index) => (
-                        <div
-                          key={index}
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Chart Information Panel */}
       <div className="glass-card p-6">
