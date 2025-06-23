@@ -8,13 +8,14 @@ const API_BASE_URL = '/api';
 // Create an Axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000, // 10 seconds timeout
+  //timeout: 10000, // 10 seconds timeout
 });
 
 // Service object for dataset-related API calls
 export const dataService = {
   // Fetch all datasets
   async getDatasets(): Promise<Dataset[]> {
+    console.log('Fetching all datasets from API');
     const response = await api.get('/datasets');
     return response.data;
   },

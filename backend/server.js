@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
 const pool = require("./db");
+const multer = require("multer");
 
 // Load environment variables
 require("dotenv").config();

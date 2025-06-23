@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useCallback } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -101,6 +101,7 @@ const ChartView: React.FC<ChartViewProps> = ({
 
   // ===== AUTO-INITIALIZATION EFFECT =====
   // Initialize selected attributes when dataset changes
+
   React.useEffect(() => {
     if (
       dataset.data &&
@@ -136,53 +137,56 @@ const ChartView: React.FC<ChartViewProps> = ({
 
   // ===== DATA PROCESSING FUNCTIONS =====
 
+  
+
+
   /**
    * Filters dataset to only include selected attributes
    * @returns Filtered data array with only selected columns
    */
-  const getFilteredData = () => {
-    if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
+  // const getFilteredData = () => {
+  //   if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
 
-    return dataset.data.map((row) => {
-      const filteredRow: any = {};
-      selectedAttributes.forEach((attr) => {
-        filteredRow[attr] = row[attr];
-      });
-      return filteredRow;
-    });
-  };
+  //   return dataset.data.map((row) => {
+  //     const filteredRow: any = {};
+  //     selectedAttributes.forEach((attr) => {
+  //       filteredRow[attr] = row[attr];
+  //     });
+  //     return filteredRow;
+  //   });
+  // };
 
   /**
    * Generates chart data based on chart type and selected attributes
    * @param chartType - Type of chart to generate data for
    * @returns Chart.js compatible data object
    */
-  const getChartData = (chartType: ChartConfig["type"]) => {
-    const filteredData = getFilteredData();
-    if (!filteredData || filteredData.length === 0) return null;
+  // const getChartData = (chartType: ChartConfig["type"]) => {
+  //   const filteredData = getFilteredData();
+  //   if (!filteredData || filteredData.length === 0) return null;
 
-    // Handle pie/doughnut/polar area charts (categorical data)
-    if (
-      chartType === "pie" ||
-      chartType === "doughnut" ||
-      chartType === "polarArea"
-    ) {
-      return generateCategoricalChartData(filteredData);
-    }
+  //   // Handle pie/doughnut/polar area charts (categorical data)
+  //   if (
+  //     chartType === "pie" ||
+  //     chartType === "doughnut" ||
+  //     chartType === "polarArea"
+  //   ) {
+  //     return generateCategoricalChartData(filteredData);
+  //   }
 
-    // Handle scatter/bubble charts (correlation data)
-    if (chartType === "scatter" || chartType === "bubble") {
-      return generateScatterChartData(filteredData, chartType);
-    }
+  //   // Handle scatter/bubble charts (correlation data)
+  //   if (chartType === "scatter" || chartType === "bubble") {
+  //     return generateScatterChartData(filteredData, chartType);
+  //   }
 
-    // Handle radar charts (multi-dimensional data)
-    if (chartType === "radar") {
-      return generateRadarChartData(filteredData);
-    }
+  //   // Handle radar charts (multi-dimensional data)
+  //   if (chartType === "radar") {
+  //     return generateRadarChartData(filteredData);
+  //   }
 
-    // Handle line/bar charts (time series or categorical comparison)
-    return generateLineBarChartData(filteredData);
-  };
+  //   // Handle line/bar charts (time series or categorical comparison)
+  //   return generateLineBarChartData(filteredData);
+  // };
 
   /**
    * Generates data for pie, doughnut, and polar area charts
@@ -335,6 +339,66 @@ const ChartView: React.FC<ChartViewProps> = ({
 
     return { labels, datasets };
   };
+
+
+//   const getFilteredData = useMemo(() => {
+//   if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
+
+//   return dataset.data.map((row) => {
+//     const filteredRow: any = {};
+//     selectedAttributes.forEach((attr) => {
+//       filteredRow[attr] = row[attr];
+//     });
+//     return filteredRow;
+//   });
+// }, [dataset.data, selectedAttributes]);
+const getFilteredData = useMemo(() => {
+  if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
+
+  // Filter only selected attributes
+  const filtered = dataset.data.map((row) => {
+    const filteredRow: any = {};
+    selectedAttributes.forEach((attr) => {
+      filteredRow[attr] = row[attr];
+    });
+    return filteredRow;
+  });
+
+  // Downsample the filtered result to a max of 1000 rows
+  const downsampleToSize = (data: any[], maxPoints: number): any[] => {
+    const sampleRate = Math.ceil(data.length / maxPoints);
+    return data.filter((_, index) => index % sampleRate === 0);
+  };
+  if(filtered.length > 1000) {
+  return downsampleToSize(filtered, 1000); // Downsample here
+  }
+  else{
+    return filtered;
+  }
+}, [dataset.data, selectedAttributes]);
+
+
+const getChartData = useCallback((chartType: ChartConfig["type"]) => {
+  if (!getFilteredData || getFilteredData.length === 0) return null;
+
+  switch (chartType) {
+    case "pie":
+    case "doughnut":
+    case "polarArea":
+      return generateCategoricalChartData(getFilteredData);
+
+    case "scatter":
+    case "bubble":
+      return generateScatterChartData(getFilteredData, chartType);
+
+    case "radar":
+      return generateRadarChartData(getFilteredData);
+
+    default:
+      return generateLineBarChartData(getFilteredData);
+  }
+}, [getFilteredData, selectedAttributes, chartConfig.colors]);
+
 
   // ===== CHART CONFIGURATION =====
 
@@ -492,7 +556,8 @@ const ChartView: React.FC<ChartViewProps> = ({
    */
   const exportData = (format: "csv" | "json") => {
     try {
-      const filteredData = getFilteredData();
+      //const filteredData = getFilteredData();
+      const filteredData = getFilteredData;
       let content = "";
       let mimeType = "";
       let extension = "";
@@ -661,7 +726,7 @@ const ChartView: React.FC<ChartViewProps> = ({
                 </tr>
               </thead>
               <tbody>
-                {getFilteredData()
+                {getFilteredData
                   ?.slice(0, 5)
                   .map((row, index) => (
                     <tr
@@ -680,9 +745,9 @@ const ChartView: React.FC<ChartViewProps> = ({
               </tbody>
             </table>
 
-            {getFilteredData() && getFilteredData().length > 5 && (
+            {getFilteredData && getFilteredData.length > 5 && (
               <p className="text-center text-gray-500 mt-4">
-                Showing 5 of {getFilteredData().length} rows
+                Showing 5 of {getFilteredData.length} rows
               </p>
             )}
           </div>
@@ -952,7 +1017,7 @@ const ChartView: React.FC<ChartViewProps> = ({
               <div>
                 <span className="text-gray-500">Data Points</span>
                 <p className="text-white font-medium">
-                  {getFilteredData()?.length || 0}
+                  {getFilteredData?.length || 0}
                 </p>
               </div>
               <div>
@@ -992,7 +1057,7 @@ const ChartView: React.FC<ChartViewProps> = ({
               </tr>
             </thead>
             <tbody>
-              {getFilteredData()
+              {getFilteredData
                 ?.slice(0, 5)
                 .map((row, index) => (
                   <tr
@@ -1011,9 +1076,9 @@ const ChartView: React.FC<ChartViewProps> = ({
             </tbody>
           </table>
 
-          {getFilteredData() && getFilteredData().length > 5 && (
+          {getFilteredData && getFilteredData.length > 5 && (
             <p className="text-center text-gray-500 mt-4">
-              Showing 5 of {getFilteredData().length} rows
+              Showing 5 of {getFilteredData.length} rows
             </p>
           )}
         </div>
