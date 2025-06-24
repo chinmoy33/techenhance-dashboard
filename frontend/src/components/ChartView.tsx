@@ -137,57 +137,6 @@ const ChartView: React.FC<ChartViewProps> = ({
 
   // ===== DATA PROCESSING FUNCTIONS =====
 
-  
-
-
-  /**
-   * Filters dataset to only include selected attributes
-   * @returns Filtered data array with only selected columns
-   */
-  // const getFilteredData = () => {
-  //   if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
-
-  //   return dataset.data.map((row) => {
-  //     const filteredRow: any = {};
-  //     selectedAttributes.forEach((attr) => {
-  //       filteredRow[attr] = row[attr];
-  //     });
-  //     return filteredRow;
-  //   });
-  // };
-
-  /**
-   * Generates chart data based on chart type and selected attributes
-   * @param chartType - Type of chart to generate data for
-   * @returns Chart.js compatible data object
-   */
-  // const getChartData = (chartType: ChartConfig["type"]) => {
-  //   const filteredData = getFilteredData();
-  //   if (!filteredData || filteredData.length === 0) return null;
-
-  //   // Handle pie/doughnut/polar area charts (categorical data)
-  //   if (
-  //     chartType === "pie" ||
-  //     chartType === "doughnut" ||
-  //     chartType === "polarArea"
-  //   ) {
-  //     return generateCategoricalChartData(filteredData);
-  //   }
-
-  //   // Handle scatter/bubble charts (correlation data)
-  //   if (chartType === "scatter" || chartType === "bubble") {
-  //     return generateScatterChartData(filteredData, chartType);
-  //   }
-
-  //   // Handle radar charts (multi-dimensional data)
-  //   if (chartType === "radar") {
-  //     return generateRadarChartData(filteredData);
-  //   }
-
-  //   // Handle line/bar charts (time series or categorical comparison)
-  //   return generateLineBarChartData(filteredData);
-  // };
-
   /**
    * Generates data for pie, doughnut, and polar area charts
    */
@@ -340,18 +289,6 @@ const ChartView: React.FC<ChartViewProps> = ({
     return { labels, datasets };
   };
 
-
-//   const getFilteredData = useMemo(() => {
-//   if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
-
-//   return dataset.data.map((row) => {
-//     const filteredRow: any = {};
-//     selectedAttributes.forEach((attr) => {
-//       filteredRow[attr] = row[attr];
-//     });
-//     return filteredRow;
-//   });
-// }, [dataset.data, selectedAttributes]);
 const getFilteredData = useMemo(() => {
   if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
 

@@ -16,23 +16,6 @@ const AuthPage: React.FC = () => {
     password: ''
   });
 
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-//     setLoading(true);
-
-//     try {
-//       if (isLogin) {
-//         await login(formData.email, formData.password);
-//       } else {
-//         await register(formData.username, formData.email, formData.password);
-//       }
-//     } catch (error) {
-//       // Error handling is done in the auth context
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault
     setLoading(true);
@@ -157,25 +140,6 @@ const AuthPage: React.FC = () => {
             }}
             className="space-y-6"
           >
-            {/* {!isLogin && (
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Username
-                </label>
-                <div className="relative">
-                  <User size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white placeholder-gray-400"
-                    placeholder="Enter your username"
-                    required={!isLogin}
-                  />
-                </div>
-              </div>
-            )} */}
 
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
