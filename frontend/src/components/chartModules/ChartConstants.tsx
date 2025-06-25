@@ -9,53 +9,61 @@ import {
   BarChart2,
 } from "lucide-react";
 
-// ===== CONSTANTS =====
-// Available chart types with their metadata
+// ===== CHART TYPE DEFINITIONS =====
+// Available chart types with their metadata and compatibility rules
 export const chartTypes = [
-  {
-    type: "histogram" as const,
-    label: "Histogram",
-    icon: BarChart2,
-    description: "Show data distribution",
-  },
   {
     type: "line" as const,
     label: "Line Chart",
     icon: LineChart,
     description: "Show trends over time",
+    compatibility: ["1-numeric", "1-numeric-1-categorical", "2-numeric"],
   },
   {
     type: "bar" as const,
     label: "Bar Chart",
     icon: BarChart3,
     description: "Compare categories",
+    compatibility: ["1-categorical", "1-numeric-1-categorical"],
+  },
+  {
+    type: "histogram" as const,
+    label: "Histogram",
+    icon: BarChart2,
+    description: "Show data distribution",
+    compatibility: ["1-numeric"],
   },
   {
     type: "pie" as const,
     label: "Pie Chart",
     icon: PieChartIcon,
     description: "Show proportions",
+    compatibility: ["1-categorical"],
   },
   {
     type: "scatter" as const,
     label: "Scatter Plot",
     icon: Target,
     description: "Show correlations",
+    compatibility: ["2-numeric", "1-categorical"],
   },
   {
     type: "radar" as const,
     label: "Radar Chart",
     icon: Zap,
     description: "Multi-dimensional data",
+    compatibility: ["2-numeric", "3-numeric"],
   },
   {
     type: "polarArea" as const,
     label: "Polar Area",
     icon: Activity,
     description: "Radial bar chart",
+    compatibility: ["1-categorical"],
   },
 ];
 
+// ===== COLOR THEMES =====
 // Predefined color themes for charts
 export const colorThemes = [
   {

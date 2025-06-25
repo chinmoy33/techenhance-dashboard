@@ -39,11 +39,13 @@ import {
   Palette,
   RotateCcw,
   Filter,
+  RotateCw,
 } from "lucide-react";
 import { Dataset, ChartConfig } from "../types";
 import AttributeSelector from "./chartModules/AttributeSelector";
 import { chartTypes, colorThemes } from "./chartModules/ChartConstants";
 import toast from "react-hot-toast";
+import zoomPlugin from "chartjs-plugin-zoom";
 
 // Register Chart.js components for all chart types
 ChartJS.register(
@@ -57,7 +59,8 @@ ChartJS.register(
   Legend,
   ArcElement,
   RadialLinearScale,
-  Filler
+  Filler,
+  zoomPlugin // Add zoom plugin
 );
 
 interface ChartViewProps {
@@ -313,8 +316,8 @@ const ChartView: React.FC<ChartViewProps> = ({
           borderColor:
             chartConfig.colors?.[0]?.replace("0.8", "1") ||
             "rgba(59, 130, 246, 1)",
-          borderWidth: 2,
-          borderRadius: 4,
+          borderWidth: 1,
+          borderRadius: 2,
           borderSkipped: false,
           // Custom histogram styling
           barPercentage: 1.0, // Full width bars for histogram
@@ -462,6 +465,30 @@ const ChartView: React.FC<ChartViewProps> = ({
               }
             : undefined,
       },
+      // Add zoom plugin configuration
+      zoom: !["pie", "radar", "polarArea"].includes(chartType)
+        ? {
+            limits: {
+              x: { min: "original", max: "original" },
+              y: { min: "original", max: "original" },
+            },
+            pan: {
+              enabled: true,
+              mode: "xy" as const,
+              modifierKey: "ctrl" as const,
+            },
+            zoom: {
+              wheel: {
+                enabled: true,
+                modifierKey: "ctrl" as const,
+              },
+              pinch: {
+                enabled: true,
+              },
+              mode: "xy" as const,
+            },
+          }
+        : undefined,
     },
     // Configure scales based on chart type
     scales: !["pie", "radar", "polarArea"].includes(chartType)
@@ -564,6 +591,16 @@ const ChartView: React.FC<ChartViewProps> = ({
    */
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
+  };
+
+  /**
+   * Resets chart zoom to original view
+   */
+  const resetZoom = () => {
+    if (chartRef.current) {
+      chartRef.current.resetZoom();
+      toast.success("Chart zoom reset");
+    }
   };
 
   /**
@@ -712,6 +749,16 @@ const ChartView: React.FC<ChartViewProps> = ({
             >
               <Filter size={16} />
               <span>Attributes</span>
+            </button>
+
+            {/* Add Reset Zoom Button */}
+            <button
+              onClick={resetZoom}
+              className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
+              title="Reset Zoom (Ctrl+Wheel to zoom)"
+            >
+              <RotateCw size={16} />
+              <span>Reset Zoom</span>
             </button>
           </div>
         </div>
@@ -1019,7 +1066,15 @@ const ChartView: React.FC<ChartViewProps> = ({
           }`}
         >
           {chartData && selectedAttributes.length > 0 ? (
-            renderChart(selectedChartType, chartData)
+            <div className="relative h-full">
+              {renderChart(selectedChartType, chartData)}
+              {/* Add Zoom Instructions */}
+              {!["pie", "radar", "polarArea"].includes(selectedChartType) && (
+                <div className="absolute top-2 right-2 text-xs text-gray-500 bg-black/50 px-2 py-1 rounded">
+                  Ctrl+Wheel: Zoom • Ctrl+Drag: Pan
+                </div>
+              )}
+            </div>
           ) : (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
