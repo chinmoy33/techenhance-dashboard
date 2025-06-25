@@ -12,7 +12,7 @@ export interface Dataset {
 
 // Configuration for a chart visualization
 export interface ChartConfig {
-  type: 'line' | 'bar' | 'pie' | 'doughnut' | 'scatter'|'radar' | 'polarArea' | 'bubble' | 'histogram';
+  type: 'line' | 'bar' | 'pie' | 'scatter'|'radar' | 'polarArea' | 'histogram';
   title: string;
   xAxis?: string;
   yAxis?: string;

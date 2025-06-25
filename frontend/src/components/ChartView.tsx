@@ -17,11 +17,11 @@ import {
   Line,
   Bar,
   Pie,
-  Doughnut,
+  // Doughnut,
   Scatter,
   Radar,
   PolarArea,
-  Bubble,
+  // Bubble,
 } from "react-chartjs-2";
 import {
   Settings,
@@ -189,21 +189,21 @@ const ChartView: React.FC<ChartViewProps> = ({
    */
   const generateScatterChartData = (
     filteredData: any[],
-    chartType: "scatter" | "bubble"
+    chartType: "scatter" //| "bubble"
   ) => {
     if (selectedAttributes.length < 2) return null;
 
     const xAttr = selectedAttributes[0];
     const yAttr = selectedAttributes[1];
-    const sizeAttr = selectedAttributes[2]; // For bubble charts
+    // const sizeAttr = selectedAttributes[2]; // For bubble charts
 
     const scatterData = filteredData.map((item) => ({
       x: Number(item[xAttr]) || 0,
       y: Number(item[yAttr]) || 0,
-      r:
-        chartType === "bubble" && sizeAttr
-          ? Number(item[sizeAttr]) || 5
-          : undefined,
+      // r:
+      // chartType === "bubble" && sizeAttr
+      //   ? Number(item[sizeAttr]) || 5
+      //   : undefined,
     }));
 
     return {
@@ -213,8 +213,8 @@ const ChartView: React.FC<ChartViewProps> = ({
           data: scatterData,
           backgroundColor: chartConfig.colors?.[0],
           borderColor: chartConfig.colors?.[0]?.replace("0.8", "1"),
-          pointRadius: chartType === "bubble" ? undefined : 6,
-          pointHoverRadius: chartType === "bubble" ? undefined : 8,
+          // pointRadius: chartType === "bubble" ? undefined : 6,
+          // pointHoverRadius: chartType === "bubble" ? undefined : 8,
         },
       ],
     };
@@ -244,6 +244,81 @@ const ChartView: React.FC<ChartViewProps> = ({
           borderColor: chartConfig.colors?.[0]?.replace("0.8", "1"),
           borderWidth: 2,
           fill: true,
+        },
+      ],
+    };
+  };
+  /**
+   * Generates data for histogram charts (frequency distribution)
+   * Creates bins and counts frequency of values in each bin
+   * Uses custom bar chart implementation since Chart.js doesn't have native histogram
+   */
+  const generateHistogramChartData = (filteredData: any[]) => {
+    if (selectedAttributes.length === 0) return null;
+
+    // Use first numeric attribute for histogram
+    const numericAttr = selectedAttributes.find((attr) => {
+      const values = dataset.data.map((row) => row[attr]);
+      const numericValues = values.filter(
+        (val) => !isNaN(Number(val)) && val !== ""
+      );
+      return numericValues.length > values.length * 0.5;
+    });
+
+    if (!numericAttr) return null;
+
+    // Extract numeric values and filter out non-numeric data
+    const values = filteredData
+      .map((item) => Number(item[numericAttr]))
+      .filter((val) => !isNaN(val))
+      .sort((a, b) => a - b);
+
+    if (values.length === 0) return null;
+
+    // Calculate optimal number of bins using Sturges' rule
+    const numBins = Math.max(5, Math.ceil(Math.log2(values.length) + 1));
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const binWidth = (max - min) / numBins;
+
+    // Create bins and count frequencies
+    const bins: { label: string; count: number; range: [number, number] }[] =
+      [];
+
+    for (let i = 0; i < numBins; i++) {
+      const binStart = min + i * binWidth;
+      const binEnd = i === numBins - 1 ? max : binStart + binWidth;
+
+      // Count values in this bin (inclusive start, exclusive end, except for last bin)
+      const count = values.filter(
+        (val) =>
+          val >= binStart && (i === numBins - 1 ? val <= binEnd : val < binEnd)
+      ).length;
+
+      bins.push({
+        label: `${binStart.toFixed(1)}-${binEnd.toFixed(1)}`,
+        count,
+        range: [binStart, binEnd],
+      });
+    }
+
+    // Return Chart.js bar chart data structure for histogram
+    return {
+      labels: bins.map((bin) => bin.label),
+      datasets: [
+        {
+          label: `Frequency of ${numericAttr}`,
+          data: bins.map((bin) => bin.count),
+          backgroundColor: chartConfig.colors?.[0] || "rgba(59, 130, 246, 0.8)",
+          borderColor:
+            chartConfig.colors?.[0]?.replace("0.8", "1") ||
+            "rgba(59, 130, 246, 1)",
+          borderWidth: 2,
+          borderRadius: 4,
+          borderSkipped: false,
+          // Custom histogram styling
+          barPercentage: 1.0, // Full width bars for histogram
+          categoryPercentage: 1.0, // No gaps between bars
         },
       ],
     };
@@ -289,53 +364,58 @@ const ChartView: React.FC<ChartViewProps> = ({
     return { labels, datasets };
   };
 
-const getFilteredData = useMemo(() => {
-  if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
+  const getFilteredData = useMemo(() => {
+    if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
 
-  // Filter only selected attributes
-  const filtered = dataset.data.map((row) => {
-    const filteredRow: any = {};
-    selectedAttributes.forEach((attr) => {
-      filteredRow[attr] = row[attr];
+    // Filter only selected attributes
+    const filtered = dataset.data.map((row) => {
+      const filteredRow: any = {};
+      selectedAttributes.forEach((attr) => {
+        filteredRow[attr] = row[attr];
+      });
+      return filteredRow;
     });
-    return filteredRow;
-  });
 
-  // Downsample the filtered result to a max of 1000 rows
-  const downsampleToSize = (data: any[], maxPoints: number): any[] => {
-    const sampleRate = Math.ceil(data.length / maxPoints);
-    return data.filter((_, index) => index % sampleRate === 0);
-  };
-  if(filtered.length > 1000) {
-  return downsampleToSize(filtered, 1000); // Downsample here
-  }
-  else{
-    return filtered;
-  }
-}, [dataset.data, selectedAttributes]);
+    // Downsample the filtered result to a max of 1000 rows
+    const downsampleToSize = (data: any[], maxPoints: number): any[] => {
+      const sampleRate = Math.ceil(data.length / maxPoints);
+      return data.filter((_, index) => index % sampleRate === 0);
+    };
+    if (filtered.length > 1000) {
+      return downsampleToSize(filtered, 1000); // Downsample here
+    } else {
+      return filtered;
+    }
+  }, [dataset.data, selectedAttributes]);
 
+  const getChartData = useCallback(
+    (chartType: ChartConfig["type"]) => {
+      if (!getFilteredData || getFilteredData.length === 0) return null;
 
-const getChartData = useCallback((chartType: ChartConfig["type"]) => {
-  if (!getFilteredData || getFilteredData.length === 0) return null;
+      switch (chartType) {
+        // case "doughnut":
+        case "pie":
+        case "polarArea":
+          return generateCategoricalChartData(getFilteredData);
 
-  switch (chartType) {
-    case "pie":
-    case "doughnut":
-    case "polarArea":
-      return generateCategoricalChartData(getFilteredData);
+        case "scatter":
+          // case "bubble":
+          return generateScatterChartData(getFilteredData, chartType);
 
-    case "scatter":
-    case "bubble":
-      return generateScatterChartData(getFilteredData, chartType);
+        case "radar":
+          return generateRadarChartData(getFilteredData);
 
-    case "radar":
-      return generateRadarChartData(getFilteredData);
+          // Handle histogram charts (distribution data) - Custom implementation
+          if (chartType === "histogram") {
+            return generateHistogramChartData(getFilteredData);
+          }
 
-    default:
-      return generateLineBarChartData(getFilteredData);
-  }
-}, [getFilteredData, selectedAttributes, chartConfig.colors]);
-
+        default:
+          return generateLineBarChartData(getFilteredData);
+      }
+    },
+    [getFilteredData, selectedAttributes, chartConfig.colors]
+  );
 
   // ===== CHART CONFIGURATION =====
 
@@ -369,18 +449,49 @@ const getChartData = useCallback((chartType: ChartConfig["type"]) => {
         bodyColor: "white",
         borderColor: "rgba(255, 255, 255, 0.2)",
         borderWidth: 1,
+        // Custom tooltip for histogram
+        callbacks:
+          chartType === "histogram"
+            ? {
+                title: function (context: any) {
+                  return `Range: ${context[0].label}`;
+                },
+                label: function (context: any) {
+                  return `Frequency: ${context.parsed.y}`;
+                },
+              }
+            : undefined,
       },
     },
     // Configure scales based on chart type
-    scales: !["pie", "doughnut", "radar", "polarArea"].includes(chartType)
+    scales: !["pie", "radar", "polarArea"].includes(chartType)
       ? {
           x: {
             ticks: { color: "rgba(255, 255, 255, 0.7)" },
             grid: { color: "rgba(255, 255, 255, 0.1)" },
+            title: {
+              display: chartType === "histogram",
+              text: chartType === "histogram" ? "Value Range" : "",
+              color: "rgba(255, 255, 255, 0.8)",
+            },
+            // Special configuration for histogram to remove gaps
+            ...(chartType === "histogram" && {
+              offset: false,
+              grid: {
+                offset: false,
+                color: "rgba(255, 255, 255, 0.1)",
+              },
+            }),
           },
           y: {
             ticks: { color: "rgba(255, 255, 255, 0.7)" },
             grid: { color: "rgba(255, 255, 255, 0.1)" },
+            title: {
+              display: chartType === "histogram",
+              text: chartType === "histogram" ? "Frequency" : "",
+              color: "rgba(255, 255, 255, 0.8)",
+            },
+            beginAtZero: chartType === "histogram",
           },
         }
       : chartType === "radar"
@@ -417,18 +528,20 @@ const getChartData = useCallback((chartType: ChartConfig["type"]) => {
         return <Line {...commonProps} />;
       case "bar":
         return <Bar {...commonProps} />;
+      case "histogram":
+        return <Bar {...commonProps} />; // Histogram uses Bar chart with special data processing
       case "pie":
         return <Pie {...commonProps} />;
-      case "doughnut":
-        return <Doughnut {...commonProps} />;
+      // case "doughnut":
+      //   return <Doughnut {...commonProps} />;
       case "scatter":
         return <Scatter {...commonProps} />;
       case "radar":
         return <Radar {...commonProps} />;
       case "polarArea":
         return <PolarArea {...commonProps} />;
-      case "bubble":
-        return <Bubble {...commonProps} />;
+      // case "bubble":
+      //   return <Bubble {...commonProps} />;
       default:
         return <Line {...commonProps} />;
     }
@@ -663,22 +776,20 @@ const getChartData = useCallback((chartType: ChartConfig["type"]) => {
                 </tr>
               </thead>
               <tbody>
-                {getFilteredData
-                  ?.slice(0, 5)
-                  .map((row, index) => (
-                    <tr
-                      key={index}
-                      className="border-b border-white/5 hover:bg-white/5"
-                    >
-                      {selectedAttributes.map((attr) => (
-                        <td key={attr} className="py-2 px-4 text-gray-400">
-                          {typeof row[attr] === "number"
-                            ? row[attr].toLocaleString()
-                            : String(row[attr])}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
+                {getFilteredData?.slice(0, 5).map((row, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-white/5 hover:bg-white/5"
+                  >
+                    {selectedAttributes.map((attr) => (
+                      <td key={attr} className="py-2 px-4 text-gray-400">
+                        {typeof row[attr] === "number"
+                          ? row[attr].toLocaleString()
+                          : String(row[attr])}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
 
@@ -783,81 +894,87 @@ const getChartData = useCallback((chartType: ChartConfig["type"]) => {
 
           <div className="relative">
             <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
-          >
-            <Settings size={16} />
-            <span>Settings</span>
-          </button>
-             {/* Settings Panel */}
-        {showSettings && (
-    <div className="absolute right-0 top-full mt-2 w-80 glass-card p-4 rounded-lg z-10">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-white">Chart Settings</h3>
-        <button
-          onClick={resetSettings}
-          className="glass-button px-2 py-1 rounded flex items-center space-x-1 text-xs"
-        >
-          <RotateCcw size={12} />
-          <span>Reset</span>
-        </button>
-      </div>
-
-      <div className="space-y-4">
-        {/* Chart Title Input */}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">
-            Chart Title
-          </label>
-          <input
-            type="text"
-            value={chartConfig.title}
-            onChange={(e) => updateChartConfig({ title: e.target.value })}
-            className="w-full px-3 py-2 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white placeholder-gray-400 text-sm"
-            placeholder="Enter chart title"
-          />
-        </div>
-
-        {/* Color Theme Selector */}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">
-            Color Theme
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            {colorThemes.map((theme) => (
-              <button
-                key={theme.name}
-                onClick={() => updateChartConfig({ colors: theme.colors })}
-                className={`p-2 rounded-lg border transition-all text-left ${
-                  JSON.stringify(chartConfig.colors) ===
-                  JSON.stringify(theme.colors)
-                    ? "border-primary-400 bg-primary-500/20"
-                    : "border-white/20 hover:border-white/40"
-                }`}
-              >
-                <div className="flex items-center space-x-2 mb-1">
-                  <Palette size={12} className="text-gray-400" />
-                  <span className="text-xs text-white">{theme.name}</span>
-                </div>
-                <div className="flex space-x-1">
-                  {theme.colors.slice(0, 4).map((color, index) => (
-                    <div
-                      key={index}
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-              </div>
+              onClick={() => setShowSettings(!showSettings)}
+              className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
+            >
+              <Settings size={16} />
+              <span>Settings</span>
             </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-          </div>
+            {/* Settings Panel */}
+            {showSettings && (
+              <div className="absolute right-0 top-full mt-2 w-80 glass-card p-4 rounded-lg z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-semibold text-white">
+                    Chart Settings
+                  </h3>
+                  <button
+                    onClick={resetSettings}
+                    className="glass-button px-2 py-1 rounded flex items-center space-x-1 text-xs"
+                  >
+                    <RotateCcw size={12} />
+                    <span>Reset</span>
+                  </button>
+                </div>
 
-          
+                <div className="space-y-4">
+                  {/* Chart Title Input */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Chart Title
+                    </label>
+                    <input
+                      type="text"
+                      value={chartConfig.title}
+                      onChange={(e) =>
+                        updateChartConfig({ title: e.target.value })
+                      }
+                      className="w-full px-3 py-2 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white placeholder-gray-400 text-sm"
+                      placeholder="Enter chart title"
+                    />
+                  </div>
+
+                  {/* Color Theme Selector */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Color Theme
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {colorThemes.map((theme) => (
+                        <button
+                          key={theme.name}
+                          onClick={() =>
+                            updateChartConfig({ colors: theme.colors })
+                          }
+                          className={`p-2 rounded-lg border transition-all text-left ${
+                            JSON.stringify(chartConfig.colors) ===
+                            JSON.stringify(theme.colors)
+                              ? "border-primary-400 bg-primary-500/20"
+                              : "border-white/20 hover:border-white/40"
+                          }`}
+                        >
+                          <div className="flex items-center space-x-2 mb-1">
+                            <Palette size={12} className="text-gray-400" />
+                            <span className="text-xs text-white">
+                              {theme.name}
+                            </span>
+                          </div>
+                          <div className="flex space-x-1">
+                            {theme.colors.slice(0, 4).map((color, index) => (
+                              <div
+                                key={index}
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: color }}
+                              />
+                            ))}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -919,9 +1036,6 @@ const getChartData = useCallback((chartType: ChartConfig["type"]) => {
           )}
         </div>
       </div>
-
-     
-
 
       {/* Chart Information Panel */}
       <div className="glass-card p-6">
@@ -994,22 +1108,20 @@ const getChartData = useCallback((chartType: ChartConfig["type"]) => {
               </tr>
             </thead>
             <tbody>
-              {getFilteredData
-                ?.slice(0, 5)
-                .map((row, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-white/5 hover:bg-white/5"
-                  >
-                    {selectedAttributes.map((attr) => (
-                      <td key={attr} className="py-2 px-4 text-gray-400">
-                        {typeof row[attr] === "number"
-                          ? row[attr].toLocaleString()
-                          : String(row[attr])}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+              {getFilteredData?.slice(0, 5).map((row, index) => (
+                <tr
+                  key={index}
+                  className="border-b border-white/5 hover:bg-white/5"
+                >
+                  {selectedAttributes.map((attr) => (
+                    <td key={attr} className="py-2 px-4 text-gray-400">
+                      {typeof row[attr] === "number"
+                        ? row[attr].toLocaleString()
+                        : String(row[attr])}
+                    </td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
 

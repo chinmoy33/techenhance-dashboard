@@ -6,11 +6,18 @@ import {
   Zap,
   Activity,
   TrendingUp,
+  BarChart2,
 } from "lucide-react";
 
 // ===== CONSTANTS =====
 // Available chart types with their metadata
 export const chartTypes = [
+  {
+    type: "histogram" as const,
+    label: "Histogram",
+    icon: BarChart2,
+    description: "Show data distribution",
+  },
   {
     type: "line" as const,
     label: "Line Chart",
@@ -30,12 +37,6 @@ export const chartTypes = [
     description: "Show proportions",
   },
   {
-    type: "doughnut" as const,
-    label: "Doughnut",
-    icon: PieChartIcon,
-    description: "Modern pie chart",
-  },
-  {
     type: "scatter" as const,
     label: "Scatter Plot",
     icon: Target,
@@ -52,12 +53,6 @@ export const chartTypes = [
     label: "Polar Area",
     icon: Activity,
     description: "Radial bar chart",
-  },
-  {
-    type: "bubble" as const,
-    label: "Bubble Chart",
-    icon: TrendingUp,
-    description: "3D scatter plot",
   },
 ];
 
