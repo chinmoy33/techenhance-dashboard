@@ -12,6 +12,7 @@ import {
   ToggleRight,
   Palette,
   RefreshCw,
+  AlertTriangle,
 } from "lucide-react";
 import { Dataset } from "../types";
 import toast from "react-hot-toast";
@@ -35,29 +36,41 @@ interface AttributeInfo {
   nullCount: number;
 }
 
+// Maximum number of attributes that can be selected at once
+const MAX_SELECTION_LIMIT = 3;
+
 const AttributeSelector: React.FC<AttributeSelectorProps> = ({
   dataset,
   selectedAttributes,
   onAttributeChange,
   onDataTypeChange,
 }) => {
+  // ===== STATE MANAGEMENT =====
   const [attributes, setAttributes] = useState<AttributeInfo[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [filterType, setFilterType] = useState<
     "all" | "selected" | "numeric" | "categorical"
   >("all");
 
+  // ===== INITIALIZATION EFFECT =====
+  // Analyze dataset attributes when data changes
   useEffect(() => {
     if (dataset.data && dataset.data.length > 0) {
       analyzeAttributes();
     }
   }, [dataset.data]);
 
+  // ===== ATTRIBUTE ANALYSIS FUNCTION =====
+  /**
+   * Analyzes dataset attributes to determine data types and statistics
+   * Automatically detects numeric, categorical, and date columns
+   */
   const analyzeAttributes = () => {
     const firstRow = dataset.data[0];
     const attributeNames = Object.keys(firstRow);
 
     const analyzedAttributes: AttributeInfo[] = attributeNames.map((name) => {
+      // Extract all non-null values for analysis
       const values = dataset.data
         .map((row) => row[name])
         .filter((val) => val !== null && val !== undefined && val !== "");
@@ -65,10 +78,10 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
       const uniqueCount = new Set(values).size;
       const nullCount = dataset.data.length - values.length;
 
-      // Determine data type
+      // Determine data type using heuristics
       let type: "number" | "string" | "date" = "string";
 
-      // Check if it's a number
+      // Check if it's a number (80% threshold for numeric classification)
       const numericValues = values.filter(
         (val) => !isNaN(Number(val)) && val !== ""
       );
@@ -76,7 +89,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
         type = "number";
       }
 
-      // Check if it's a date
+      // Check if it's a date (80% threshold for date classification)
       const dateValues = values.filter((val) => {
         const date = new Date(val);
         return (
@@ -101,14 +114,34 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
     setAttributes(analyzedAttributes);
   };
 
+  // ===== SELECTION MANAGEMENT FUNCTIONS =====
+
+  /**
+   * Toggles attribute selection with validation
+   * Enforces maximum selection limit and provides user feedback
+   */
   const toggleAttribute = (attributeName: string) => {
-    const newSelected = selectedAttributes.includes(attributeName)
+    const isCurrentlySelected = selectedAttributes.includes(attributeName);
+
+    // Check if trying to add more than maximum allowed
+    if (
+      !isCurrentlySelected &&
+      selectedAttributes.length >= MAX_SELECTION_LIMIT
+    ) {
+      toast.error(
+        `Maximum ${MAX_SELECTION_LIMIT} attributes can be selected at once`
+      );
+      return;
+    }
+
+    // Update selection
+    const newSelected = isCurrentlySelected
       ? selectedAttributes.filter((attr) => attr !== attributeName)
       : [...selectedAttributes, attributeName];
 
     onAttributeChange(newSelected);
 
-    // Update local state
+    // Update local state for immediate UI feedback
     setAttributes((prev) =>
       prev.map((attr) =>
         attr.name === attributeName
@@ -116,34 +149,50 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
           : attr
       )
     );
+
+    // Provide user feedback
+    const action = isCurrentlySelected ? "removed" : "added";
+    toast.success(
+      `${attributeName} ${action} ${
+        isCurrentlySelected ? "from" : "to"
+      } selection`
+    );
   };
 
+  /**
+   * Selects all numeric attributes (up to the limit)
+   */
   const selectAllNumeric = () => {
     const numericAttributes = attributes
       .filter((attr) => attr.type === "number")
-      .map((attr) => attr.name);
+      .map((attr) => attr.name)
+      .slice(0, MAX_SELECTION_LIMIT); // Respect selection limit
 
     onAttributeChange(numericAttributes);
     setAttributes((prev) =>
       prev.map((attr) => ({
         ...attr,
-        selected: attr.type === "number",
+        selected: numericAttributes.includes(attr.name),
       }))
     );
 
     toast.success(`Selected ${numericAttributes.length} numeric attributes`);
   };
 
+  /**
+   * Selects all categorical attributes with low cardinality (up to the limit)
+   */
   const selectAllCategorical = () => {
     const categoricalAttributes = attributes
       .filter((attr) => attr.type === "string" && attr.uniqueCount < 20)
-      .map((attr) => attr.name);
+      .map((attr) => attr.name)
+      .slice(0, MAX_SELECTION_LIMIT); // Respect selection limit
 
     onAttributeChange(categoricalAttributes);
     setAttributes((prev) =>
       prev.map((attr) => ({
         ...attr,
-        selected: attr.type === "string" && attr.uniqueCount < 20,
+        selected: categoricalAttributes.includes(attr.name),
       }))
     );
 
@@ -152,12 +201,18 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
     );
   };
 
+  /**
+   * Clears all selected attributes
+   */
   const clearSelection = () => {
     onAttributeChange([]);
     setAttributes((prev) => prev.map((attr) => ({ ...attr, selected: false })));
     toast.success("Cleared all selections");
   };
 
+  /**
+   * Changes the data type of an attribute
+   */
   const changeAttributeType = (
     attributeName: string,
     newType: "number" | "string" | "date"
@@ -175,6 +230,11 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
     toast.success(`Changed ${attributeName} type to ${newType}`);
   };
 
+  // ===== UTILITY FUNCTIONS =====
+
+  /**
+   * Gets the appropriate icon for a data type
+   */
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "number":
@@ -186,6 +246,9 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
     }
   };
 
+  /**
+   * Gets the appropriate color for a data type
+   */
   const getTypeColor = (type: string) => {
     switch (type) {
       case "number":
@@ -197,6 +260,11 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
     }
   };
 
+  // ===== FILTERING LOGIC =====
+
+  /**
+   * Filters attributes based on current filter type
+   */
   const filteredAttributes = attributes.filter((attr) => {
     switch (filterType) {
       case "selected":
@@ -210,21 +278,32 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
     }
   });
 
+  // ===== RENDER COMPONENT =====
   return (
     <div className="glass-card p-6 space-y-6">
-      {/* Header */}
+      {/* Header Section */}
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-xl font-semibold text-white mb-2 flex items-center space-x-2">
             <BarChart3 size={20} className="text-primary-400" />
             <span>Attribute Selector</span>
           </h3>
-          <p className="text-gray-400">
-            Choose which columns to visualize • {selectedAttributes.length} of{" "}
-            {attributes.length} selected
-          </p>
+          <div className="flex items-center space-x-4">
+            <p className="text-gray-400">
+              Choose which columns to visualize • {selectedAttributes.length}/
+              {MAX_SELECTION_LIMIT} selected
+            </p>
+            {/* Selection limit warning */}
+            {selectedAttributes.length >= MAX_SELECTION_LIMIT && (
+              <div className="flex items-center space-x-1 text-orange-400">
+                <AlertTriangle size={16} />
+                <span className="text-sm">Selection limit reached</span>
+              </div>
+            )}
+          </div>
         </div>
 
+        {/* Control Buttons */}
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
@@ -248,11 +327,12 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
         </div>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Action Buttons */}
       <div className="flex flex-wrap gap-3">
         <button
           onClick={selectAllNumeric}
-          className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 text-sm hover:bg-blue-500/20"
+          disabled={selectedAttributes.length >= MAX_SELECTION_LIMIT}
+          className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 text-sm hover:bg-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Hash size={16} className="text-blue-400" />
           <span>Select Numeric</span>
@@ -260,7 +340,8 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
 
         <button
           onClick={selectAllCategorical}
-          className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 text-sm hover:bg-purple-500/20"
+          disabled={selectedAttributes.length >= MAX_SELECTION_LIMIT}
+          className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 text-sm hover:bg-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Type size={16} className="text-purple-400" />
           <span>Select Categorical</span>
@@ -302,6 +383,9 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
         {filteredAttributes.map((attribute) => {
           const TypeIcon = getTypeIcon(attribute.type);
           const typeColor = getTypeColor(attribute.type);
+          const isDisabled =
+            !attribute.selected &&
+            selectedAttributes.length >= MAX_SELECTION_LIMIT;
 
           return (
             <div
@@ -309,9 +393,11 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
               className={`glass-card p-4 transition-all duration-200 cursor-pointer hover:scale-105 ${
                 attribute.selected
                   ? "bg-primary-500/20 border-primary-500/50"
+                  : isDisabled
+                  ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-white/10"
               }`}
-              onClick={() => toggleAttribute(attribute.name)}
+              onClick={() => !isDisabled && toggleAttribute(attribute.name)}
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-2">
@@ -327,11 +413,14 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    toggleAttribute(attribute.name);
+                    if (!isDisabled) toggleAttribute(attribute.name);
                   }}
+                  disabled={isDisabled}
                   className={`p-1 rounded transition-colors ${
                     attribute.selected
                       ? "text-primary-400 hover:text-primary-300"
+                      : isDisabled
+                      ? "text-gray-600 cursor-not-allowed"
                       : "text-gray-500 hover:text-gray-300"
                   }`}
                 >
@@ -343,6 +432,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
                 </button>
               </div>
 
+              {/* Attribute Statistics */}
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-gray-400">
                   <span>Type:</span>
@@ -365,6 +455,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
                   </div>
                 )}
 
+                {/* Advanced Information */}
                 {showAdvanced && (
                   <>
                     <div className="pt-2 border-t border-white/10">
@@ -416,6 +507,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
         })}
       </div>
 
+      {/* Empty State */}
       {filteredAttributes.length === 0 && (
         <div className="text-center py-8">
           <Palette size={48} className="mx-auto text-gray-500 mb-4" />
@@ -435,7 +527,8 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
       {selectedAttributes.length > 0 && (
         <div className="glass-card p-4 bg-primary-500/10 border-primary-500/30">
           <h4 className="font-medium text-white mb-2">
-            Selected Attributes ({selectedAttributes.length})
+            Selected Attributes ({selectedAttributes.length}/
+            {MAX_SELECTION_LIMIT})
           </h4>
           <div className="flex flex-wrap gap-2">
             {selectedAttributes.map((attr) => {

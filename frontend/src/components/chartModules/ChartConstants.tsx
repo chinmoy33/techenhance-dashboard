@@ -5,7 +5,7 @@ import {
   Target,
   Zap,
   Activity,
-  TrendingUp,
+  // TrendingUp,
   BarChart2,
 } from "lucide-react";
 
