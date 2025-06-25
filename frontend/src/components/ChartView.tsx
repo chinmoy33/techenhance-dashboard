@@ -190,16 +190,15 @@ const ChartView: React.FC<ChartViewProps> = ({
   /**
    * Generates data for scatter and bubble charts
    */
-  const generateScatterChartData = (
+  function generateScatterChartData(
     filteredData: any[],
     chartType: "scatter" //| "bubble"
-  ) => {
+  ) {
     if (selectedAttributes.length < 2) return null;
 
     const xAttr = selectedAttributes[0];
     const yAttr = selectedAttributes[1];
     // const sizeAttr = selectedAttributes[2]; // For bubble charts
-
     const scatterData = filteredData.map((item) => ({
       x: Number(item[xAttr]) || 0,
       y: Number(item[yAttr]) || 0,
@@ -221,7 +220,7 @@ const ChartView: React.FC<ChartViewProps> = ({
         },
       ],
     };
-  };
+  }
 
   /**
    * Generates data for radar charts
@@ -750,16 +749,6 @@ const ChartView: React.FC<ChartViewProps> = ({
               <Filter size={16} />
               <span>Attributes</span>
             </button>
-
-            {/* Add Reset Zoom Button */}
-            <button
-              onClick={resetZoom}
-              className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
-              title="Reset Zoom (Ctrl+Wheel to zoom)"
-            >
-              <RotateCw size={16} />
-              <span>Reset Zoom</span>
-            </button>
           </div>
         </div>
 
@@ -880,6 +869,15 @@ const ChartView: React.FC<ChartViewProps> = ({
           >
             <Filter size={16} />
             <span>Attributes</span>
+          </button>
+          {/* Add Reset Zoom Button */}
+          <button
+            onClick={resetZoom}
+            className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
+            title="Reset Zoom (Ctrl+Wheel to zoom)"
+          >
+            <RotateCw size={16} />
+            <span>Reset Zoom</span>
           </button>
 
           {/* Export Dropdown */}
