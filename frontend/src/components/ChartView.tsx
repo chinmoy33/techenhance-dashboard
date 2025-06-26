@@ -124,19 +124,77 @@ const ChartView: React.FC<ChartViewProps> = ({
         return numericValues.length > values.length * 0.5; // At least 50% numeric
       });
 
-      // Auto-select first 2-3 numeric columns or all if less than 3
+      // Auto-select first 2 numeric columns or all if less than 2
       const autoSelected = numericColumns.slice(
         0,
-        Math.min(3, numericColumns.length)
+        Math.min(2, numericColumns.length)
       );
       if (autoSelected.length === 0) {
-        // If no numeric columns, select first 2 columns
-        setSelectedAttributes(Object.keys(firstRow).slice(0, 2));
+        // If no numeric columns, select first columns
+        setSelectedAttributes(Object.keys(firstRow).slice(0, 1));
       } else {
         setSelectedAttributes(autoSelected);
       }
     }
   }, [dataset.data]);
+
+  // ===== ATTRIBUTE ANALYSIS FUNCTIONS =====
+
+  /**
+   * Analyzes selected attributes to determine their types
+   * @returns Object containing counts of numeric and categorical attributes
+   */
+  const analyzeSelectedAttributes = () => {
+    if (!dataset.data || selectedAttributes.length === 0) {
+      return { numeric: 0, categorical: 0 };
+    }
+
+    let numeric = 0;
+    let categorical = 0;
+
+    selectedAttributes.forEach((attr) => {
+      const values = dataset.data
+        .map((row) => row[attr])
+        .filter((val) => val !== null && val !== undefined && val !== "");
+      const numericValues = values.filter(
+        (val) => !isNaN(Number(val)) && val !== ""
+      );
+
+      if (numericValues.length > values.length * 0.5) {
+        numeric++;
+      } else {
+        categorical++;
+      }
+    });
+
+    return { numeric, categorical };
+  };
+
+  /**
+   * Determines which chart types are compatible with current selection
+   * @returns Array of compatible chart type objects
+   */
+  const getCompatibleChartTypes = () => {
+    const { numeric, categorical } = analyzeSelectedAttributes();
+    const total = selectedAttributes.length;
+
+    // Generate compatibility key based on selection
+    let compatibilityKey = "";
+    if (total === 1) {
+      compatibilityKey = numeric === 1 ? "1-numeric" : "1-categorical";
+    } else if (total === 2) {
+      if (numeric === 2) compatibilityKey = "2-numeric";
+      else if (numeric === 1 && categorical === 1)
+        compatibilityKey = "1-numeric-1-categorical";
+    } else if (total === 3) {
+      if (numeric === 3) compatibilityKey = "3-numeric";
+    }
+
+    // Filter chart types based on compatibility
+    return chartTypes.filter((chartType) =>
+      chartType.compatibility.includes(compatibilityKey)
+    );
+  };
 
   // ===== DATA PROCESSING FUNCTIONS =====
 
@@ -579,6 +637,18 @@ const ChartView: React.FC<ChartViewProps> = ({
    * Handles chart type selection
    */
   const handleChartTypeChange = (chartType: ChartConfig["type"]) => {
+    const compatibleTypes = getCompatibleChartTypes();
+    const isCompatible = compatibleTypes.some((ct) => ct.type === chartType);
+
+    if (!isCompatible) {
+      toast.error(
+        `${
+          chartTypes.find((ct) => ct.type === chartType)?.label
+        } is not compatible with current selection`
+      );
+      return;
+    }
+
     setSelectedChartType(chartType);
     if (onChartSelect) {
       onChartSelect(chartType);
@@ -717,6 +787,11 @@ const ChartView: React.FC<ChartViewProps> = ({
     [dataset.data, selectedChartType, selectedAttributes, chartConfig.colors]
   );
 
+  const compatibleChartTypes = useMemo(
+    () => getCompatibleChartTypes(),
+    [selectedAttributes, dataset.data]
+  );
+
   // ===== RENDER LOGIC =====
 
   // Render All Charts View (grid of all chart types)
@@ -732,7 +807,7 @@ const ChartView: React.FC<ChartViewProps> = ({
             </h1>
             <p className="text-gray-400">
               {dataset.dataPoints || dataset.data?.length || 0} data points •
-              Click any chart to view in detail
+              Showing {compatibleChartTypes.length} compatible charts
             </p>
           </div>
 
@@ -761,9 +836,9 @@ const ChartView: React.FC<ChartViewProps> = ({
           />
         )}
 
-        {/* All Charts Grid */}
+        {/* Compatible Charts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {chartTypes.map((chartType) => {
+          {compatibleChartTypes.map((chartType) => {
             const Icon = chartType.icon;
             const data = getChartData(chartType.type);
 
@@ -791,6 +866,26 @@ const ChartView: React.FC<ChartViewProps> = ({
             );
           })}
         </div>
+
+        {/* No Compatible Charts Message */}
+        {compatibleChartTypes.length === 0 && (
+          <div className="glass-card p-8 text-center">
+            <Filter size={48} className="mx-auto text-gray-500 mb-4" />
+            <h3 className="text-lg font-medium text-white mb-2">
+              No Compatible Charts
+            </h3>
+            <p className="text-gray-400 mb-4">
+              Please select appropriate attributes to view compatible
+              visualizations
+            </p>
+            <button
+              onClick={() => setShowAttributeSelector(true)}
+              className="glass-button px-6 py-3 rounded-lg"
+            >
+              Select Attributes
+            </button>
+          </div>
+        )}
 
         {/* Data Preview Section */}
         <div className="glass-card p-6">
@@ -1032,10 +1127,20 @@ const ChartView: React.FC<ChartViewProps> = ({
         />
       )}
 
-      {/* Chart Type Selector */}
+      {/* Chart Type Selector - Only show compatible types */}
       <div className="glass-card p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white">
+            Compatible Chart Types
+          </h3>
+          <p className="text-sm text-gray-400">
+            {compatibleChartTypes.length} of {chartTypes.length} charts
+            available
+          </p>
+        </div>
+
         <div className="flex items-center space-x-4 overflow-x-auto">
-          {chartTypes.map((chartType) => {
+          {compatibleChartTypes.map((chartType) => {
             const Icon = chartType.icon;
             return (
               <button
@@ -1054,6 +1159,17 @@ const ChartView: React.FC<ChartViewProps> = ({
             );
           })}
         </div>
+
+        {compatibleChartTypes.length === 0 && (
+          <div className="text-center py-4">
+            <p className="text-gray-400">
+              No compatible chart types for current selection
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              Please adjust your attribute selection to see available charts
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Main Chart Container */}
@@ -1063,7 +1179,9 @@ const ChartView: React.FC<ChartViewProps> = ({
             isFullscreen ? "h-[calc(100vh-300px)]" : "h-96"
           }`}
         >
-          {chartData && selectedAttributes.length > 0 ? (
+          {chartData &&
+          selectedAttributes.length > 0 &&
+          compatibleChartTypes.length > 0 ? (
             <div className="relative h-full">
               {renderChart(selectedChartType, chartData)}
               {/* Add Zoom Instructions */}
@@ -1078,11 +1196,14 @@ const ChartView: React.FC<ChartViewProps> = ({
               <div className="text-center">
                 <Filter size={48} className="mx-auto text-gray-500 mb-4" />
                 <p className="text-gray-400 mb-2">
-                  No attributes selected for visualization
+                  {selectedAttributes.length === 0
+                    ? "No attributes selected for visualization"
+                    : "No compatible charts for current selection"}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Please select attributes from the selector above to create
-                  charts
+                  {selectedAttributes.length === 0
+                    ? "Please select attributes from the selector above to create charts"
+                    : "Try selecting different attribute combinations"}
                 </p>
               </div>
             </div>
