@@ -465,10 +465,8 @@ const ChartView: React.FC<ChartViewProps> = ({
         case "radar":
           return generateRadarChartData(getFilteredData);
 
-          // Handle histogram charts (distribution data) - Custom implementation
-          if (chartType === "histogram") {
-            return generateHistogramChartData(getFilteredData);
-          }
+        case "histogram":
+          return generateHistogramChartData(getFilteredData);
 
         default:
           return generateLineBarChartData(getFilteredData);
