@@ -170,7 +170,9 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <div className="mb-4">
+        <Header />
+      </div>
       <div className="flex flex-1">
         <Sidebar currentView={currentView} onViewChange={handleViewChange} />
         <main className="flex-1 p-6 overflow-auto">

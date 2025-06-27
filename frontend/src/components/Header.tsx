@@ -37,7 +37,7 @@ const Header: React.FC = () => {
   const [user, setUser] = useState<any>(null);
 
   return (
-    <header className="glass-card border-b border-white/10 p-2">
+    <header className="glass-card border-b border-white/10 h-24 p-2 py-5 px-16">
       <div className="max-w-8xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="relative">
