@@ -53,25 +53,21 @@ router.put("/:id", (req, res) => {
 router.delete("/:id", deleteDataSet);
 
 async function insertDatasetChunks(results, baseName, chunkSize = 10000) {
-    const chunk = results.slice(0, chunkSize);
-    const { error } = await supabase
-      .from("datasets")
-      .insert([
-        {
-          name: `${baseName}`,
-          data: chunk,
-          type: "uploaded",
-          created_at: new Date().toISOString(),
-        },
-      ]);
+  const chunk = results.slice(0, chunkSize);
+  const { error } = await supabase.from("datasets").insert([
+    {
+      name: `${baseName}`,
+      data: chunk,
+      type: "uploaded",
+      created_at: new Date().toISOString(),
+    },
+  ]);
 
-    if (error) {
-      console.error(`Chunk insert failed :`, error.message || error);
-      throw error;
-    }
-
+  if (error) {
+    console.error(`Chunk insert failed :`, error.message || error);
+    throw error;
+  }
 }
-
 
 router.post("/upload/csv", upload.single("file"), async (req, res) => {
   if (!req.file) {
@@ -95,14 +91,15 @@ router.post("/upload/csv", upload.single("file"), async (req, res) => {
     const baseName = req.file.originalname.replace(".csv", "");
     await insertDatasetChunks(results, baseName, 10000); // Chunk size: 10k
 
-    res.json({ success: true, message: "Data inserted in chunks", total_rows: results.length });
+    res.json({
+      success: true,
+      message: "Data inserted in chunks",
+      total_rows: results.length,
+    });
   } catch (error) {
     console.error("Upload error:", error.message || error);
     res.status(500).json({ error: "Error processing CSV file" });
   }
 });
-
-
-
 
 module.exports = router;

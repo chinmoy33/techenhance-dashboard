@@ -1,4 +1,5 @@
 const supabase = require("../supabaseClient.ts");
+
 const getDataSet = async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -42,9 +43,10 @@ const getDataSetById = async (req, res) => {
     const { data, error } = await supabase
       .from("datasets")
       .select("*")
-      .eq("id", req.params.id)
-      .single(); // ensures one result
+      .eq("id", req.params.id) // WHERE id = req.params.id
+      .single(); // ensures one result, Data is directly the object, not wrapped in array
 
+    // PGRST116 is a specific PostgREST error code that means "No rows found"
     if (error) {
       if (error.code === "PGRST116") {
         // Not found
@@ -66,7 +68,7 @@ const deleteDataSet = async (req, res) => {
       .from("datasets")
       .delete()
       .eq("id", req.params.id)
-      .select() // Needed to return the deleted row(s)
+      .select() // Needed to return the deleted row(s), SELECT clause in SQL
       .single(); // Expecting only one
 
     if (error) {
