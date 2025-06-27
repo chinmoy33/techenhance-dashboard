@@ -7,6 +7,8 @@ import {
   Grid3X3,
   ChevronLeft,
   ChevronRight,
+  UserSearch,
+  ArrowRightCircle
 } from "lucide-react";
 import { ViewType } from "../types";
 
@@ -26,15 +28,24 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
   const collapsedWidth = 80;
 
   const menuItems = [
-    { id: "dashboard" as ViewType, label: "Dashboard", icon: LayoutDashboard },
-    { id: "charts" as ViewType, label: "Charts", icon: BarChart3 },
-    { id: "allCharts" as ViewType, label: "All Charts", icon: Grid3X3 },
     { id: "data" as ViewType, label: "Data Manager", icon: Database },
+    { id: "dashboard" as ViewType, label: "Dashboard", icon: LayoutDashboard },
+    {
+      id: "searchcustomerpage" as ViewType,
+      label: "Search Customer",
+      icon: UserSearch,
+    },
     {
       id: "recommendations" as ViewType,
       label: "Recommendations",
       icon: TrendingUp,
     },
+    
+    { id: "charts" as ViewType, label: "Charts", icon: BarChart3 },
+    { id: "allCharts" as ViewType, label: "All Charts", icon: Grid3X3 },
+    
+    
+    
   ];
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -127,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
                   <>
                     <span className="font-medium truncate">{item.label}</span>
                     {isActive && (
-                      <TrendingUp
+                      <ArrowRightCircle
                         size={16}
                         className="ml-auto text-primary-400 flex-shrink-0"
                       />

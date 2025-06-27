@@ -8,6 +8,8 @@
   },
   "dependencies": {
     "chartjs-plugin-zoom": "^2.2.0",
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "react-virtualized-auto-sizer": "^1.0.26",
+    "react-window": "^1.8.11"
   }
 }
