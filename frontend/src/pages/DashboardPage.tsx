@@ -8,10 +8,11 @@ import DataManager from "../components/DataManager";
 import { Dataset } from "../types";
 import { dataService } from "../services/dataService";
 import Recommendations from "../components/Recommendations";
+import Searchcustomerpage from "./Searchcustomerpage";
 
 const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState<
-    "dashboard" | "charts" | "allCharts" | "data" | "recommendations"
+    "dashboard" | "charts" | "allCharts" | "data" | "recommendations" | "searchcustomerpage"
   >("dashboard");
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
@@ -27,6 +28,7 @@ const Dashboard: React.FC = () => {
       setLoading(true);
       const data = await dataService.getDatasets();
       setDatasets(data);
+      console.log("Loaded datasets:", data);
 
       // Auto-select first dataset if none selected
       if (!selectedDataset && data.length > 0) {
@@ -56,7 +58,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleViewChange = (
-    view: "dashboard" | "charts" | "allCharts" | "data"
+    view: "dashboard" | "charts" | "allCharts" | "data" 
   ) => {
     setCurrentView(view);
 
@@ -128,6 +130,21 @@ const Dashboard: React.FC = () => {
 
       case "recommendations":
         return <Recommendations />;
+
+      case "searchcustomerpage":
+      //   const records = datasets.flatMap((dataset) =>
+      //   dataset.data.map((entry, index) => ({
+      //   id: index, // or generate a UUID if needed
+      //   name: dataset.name,
+      //   data: entry, // assumed to match TransactionData or ProfileData
+      //   type: dataset.name.toLowerCase().includes("transaction") ? "transaction" : "profile",
+      //   createdAt: dataset.createdAt,
+      //   updatedAt: dataset.updatedAt || dataset.createdAt,
+      //   }))
+      // );
+
+    return <Searchcustomerpage/>;
+
 
       default:
         return (

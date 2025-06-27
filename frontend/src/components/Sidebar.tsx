@@ -35,6 +35,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
       label: "Recommendations",
       icon: TrendingUp,
     },
+    {
+      id: "searchcustomerpage" as ViewType,
+      label: "Search Customer",
+      icon: TrendingUp,
+    },
   ];
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
