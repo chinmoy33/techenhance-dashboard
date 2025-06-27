@@ -542,45 +542,17 @@ const ChartView: React.FC<ChartViewProps> = ({
         : undefined,
     },
     // Configure scales based on chart type
-    scales: !["pie", "radar", "polarArea"].includes(chartType)
-      ? {
-          x: {
-            ticks: { color: "rgba(255, 255, 255, 0.7)" },
-            grid: { color: "rgba(255, 255, 255, 0.1)" },
-            title: {
-              display: chartType === "histogram",
-              text: chartType === "histogram" ? "Value Range" : "",
-              color: "rgba(255, 255, 255, 0.8)",
-            },
-            // Special configuration for histogram to remove gaps
-            ...(chartType === "histogram" && {
-              offset: false,
-              grid: {
-                offset: false,
-                color: "rgba(255, 255, 255, 0.1)",
-              },
-            }),
-          },
-          y: {
-            ticks: { color: "rgba(255, 255, 255, 0.7)" },
-            grid: { color: "rgba(255, 255, 255, 0.1)" },
-            title: {
-              display: chartType === "histogram",
-              text: chartType === "histogram" ? "Frequency" : "",
-              color: "rgba(255, 255, 255, 0.8)",
-            },
-            beginAtZero: chartType === "histogram",
-          },
-        }
-      : chartType === "radar"
-      ? {
-          r: {
-            ticks: { color: "rgba(255, 255, 255, 0.7)" },
-            grid: { color: "rgba(255, 255, 255, 0.2)" },
-            pointLabels: { color: "rgba(255, 255, 255, 0.8)" },
-          },
-        }
-      : {},
+    scales: {
+  x: {
+    display: false, // 👈 Hides x-axis grid, labels, and ticks
+  },
+  y: {
+    ticks: { color: "rgba(255, 255, 255, 0.7)" },
+    grid: { color: "rgba(255, 255, 255, 0.1)" },
+    beginAtZero: true,
+  },
+},
+
     animation: {
       duration: 1000,
       easing: "easeInOutQuart",
