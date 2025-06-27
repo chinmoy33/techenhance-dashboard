@@ -202,48 +202,44 @@ const ChartView: React.FC<ChartViewProps> = ({
    * Generates data for pie, doughnut, and polar area charts
    */
   const generateCategoricalChartData = (filteredData: any[]) => {
-    // Find first categorical attribute for labels and first numeric for values
-    const categoricalAttr = selectedAttributes.find((attr) => {
-      const values = dataset.data.map((row) => row[attr]);
-      const numericValues = values.filter(
-        (val) => !isNaN(Number(val)) && val !== ""
-      );
-      return numericValues.length < values.length * 0.5; // Less than 50% numeric = categorical
-    });
-
-    const numericAttr = selectedAttributes.find((attr) => {
-      const values = dataset.data.map((row) => row[attr]);
-      const numericValues = values.filter(
-        (val) => !isNaN(Number(val)) && val !== ""
-      );
-      return numericValues.length > values.length * 0.5; // More than 50% numeric
-    });
-
-    if (!categoricalAttr && !numericAttr) return null;
-
-    const labels = filteredData.map(
-      (item, index) =>
-        item[categoricalAttr || selectedAttributes[0]] || `Item ${index + 1}`
+  const categoricalAttr = selectedAttributes.find((attr) => {
+    const values = dataset.data.map((row) => row[attr]);
+    const numericValues = values.filter(
+      (val) => !isNaN(Number(val)) && val !== ""
     );
-    const values = filteredData.map(
-      (item) => Number(item[numericAttr || selectedAttributes[0]]) || 1
-    );
+    return numericValues.length < values.length * 0.5;
+  });
 
-    return {
-      labels,
-      datasets: [
-        {
-          label: dataset.name,
-          data: values,
-          backgroundColor: chartConfig.colors,
-          borderColor: chartConfig.colors?.map((color) =>
-            color.replace("0.8", "1")
-          ),
-          borderWidth: 2,
-        },
-      ],
-    };
+  if (!categoricalAttr) return null;
+
+  // Step 1: Frequency Map
+  const freqMap = new Map<string, number>();
+
+  filteredData.forEach((item) => {
+    const key = item[categoricalAttr] ?? "Unknown";
+    freqMap.set(key, (freqMap.get(key) || 0) + 1);
+  });
+
+  // Step 2: Extract labels and values
+  const labels = Array.from(freqMap.keys());
+  const values = Array.from(freqMap.values());
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: dataset.name,
+        data: values,
+        backgroundColor: chartConfig.colors?.slice(0, labels.length),
+        borderColor: chartConfig.colors
+          ?.slice(0, labels.length)
+          .map((color) => color.replace("0.8", "1")),
+        borderWidth: 2,
+      },
+    ],
   };
+};
+
 
   /**
    * Generates data for scatter and bubble charts
