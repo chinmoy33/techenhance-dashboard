@@ -51,8 +51,8 @@ const LandingPage: React.FC = () => {
 
   const loadDemoData = async () => {
     try {
-      const datasets = await dataService.getDatasets();
-      setDemoDatasets(datasets.slice(-3)); // Get last 3 demo datasets
+      const datasets = await dataService.getDatasetsLanding();
+      setDemoDatasets(datasets); // Get last 3 demo datasets
     } catch (error) {
       console.error("Failed to load demo data:", error);
     } finally {

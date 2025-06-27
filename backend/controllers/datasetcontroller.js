@@ -38,6 +38,44 @@ const getDataSet = async (req, res) => {
   }
 };
 
+const getDataSetLanding = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("datasetslanding")
+      .select(
+        `
+        id,
+        name,
+        type,
+        created_at,
+        data
+      `
+      )
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    // Include full data content
+    const formatted = data.map((dataset) => ({
+      id: dataset.id,
+      name: dataset.name,
+      type: dataset.type,
+      createdAt: dataset.created_at,
+      dataPoints: Array.isArray(dataset.data) ? dataset.data.length : 0,
+      data: dataset.data, // include full JSON array
+    }));
+
+    console.log("Formatted datasets:", formatted);
+
+    res.json(formatted);
+  } catch (error) {
+    console.error("Supabase query error:", error);
+    res.status(500).json({ error: "Failed to fetch datasets" });
+  }
+};
+
 const getDataSetById = async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -88,6 +126,7 @@ const deleteDataSet = async (req, res) => {
 
 module.exports = {
   getDataSet,
+  getDataSetLanding,
   getDataSetById,
   deleteDataSet,
 };

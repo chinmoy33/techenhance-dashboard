@@ -5,6 +5,7 @@ const fs = require("fs");
 const csv = require("csv-parser");
 const {
   getDataSet,
+  getDataSetLanding,
   getDataSetById,
   deleteDataSet,
 } = require("../controllers/datasetcontroller");
@@ -26,6 +27,8 @@ const upload = multer({
 
 // Get all datasets
 router.get("", getDataSet);
+
+router.get("/Landing", getDataSetLanding);
 
 // Get specific dataset
 router.get("/:id", getDataSetById);
