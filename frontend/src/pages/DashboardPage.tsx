@@ -9,6 +9,7 @@ import { Dataset } from "../types";
 import { dataService } from "../services/dataService";
 import Recommendations from "../components/Recommendations";
 import Searchcustomerpage from "./Searchcustomerpage";
+import { DatabaseRecord } from "../types/searchcustomerpage";
 
 const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState<
@@ -132,18 +133,18 @@ const Dashboard: React.FC = () => {
         return <Recommendations />;
 
       case "searchcustomerpage":
-      //   const records = datasets.flatMap((dataset) =>
-      //   dataset.data.map((entry, index) => ({
-      //   id: index, // or generate a UUID if needed
-      //   name: dataset.name,
-      //   data: entry, // assumed to match TransactionData or ProfileData
-      //   type: dataset.name.toLowerCase().includes("transaction") ? "transaction" : "profile",
-      //   createdAt: dataset.createdAt,
-      //   updatedAt: dataset.updatedAt || dataset.createdAt,
-      //   }))
-      // );
+  const records: DatabaseRecord[] = datasets.flatMap((dataset) =>
+    dataset.data.map((entry, index) => ({
+      id: Number(`${dataset.id}${index}`),
+      name: dataset.name,
+      data: entry,
+      type: dataset.name.toLowerCase().includes("transaction") ? "transaction" : "profile",
+      createdAt: dataset.createdAt,
+      updatedAt: dataset.updatedAt || dataset.createdAt,
+    }))
+  );
+  return <Searchcustomerpage records={records} />;
 
-    return <Searchcustomerpage/>;
 
 
       default:

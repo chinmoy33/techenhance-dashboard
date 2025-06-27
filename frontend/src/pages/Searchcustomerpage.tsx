@@ -1,11 +1,17 @@
-//import { SearchBar } from '../components/Searchcustomerpage/SearchBar';
-import {SearchBar} from "../components/Searchcustomerpage/SearchBar"
-import { SearchResults } from '../components/Searchcustomerpage/SearchResults';
-import { useSearch } from '../hooks/useSearch';
-import { Database } from 'lucide-react';
+// pages/Searchcustomerpage.tsx
+import { SearchBar } from "../components/Searchcustomerpage/SearchBar";
+import { SearchResults } from "../components/Searchcustomerpage/SearchResults";
+import { useSearch } from "../hooks/useSearch";
+import { Database } from "lucide-react";
+import { DatabaseRecord } from "../types/searchcustomerpage";
 
-function Searchcustomerpage() {
-  const { searchTerm, searchResults, isLoading, handleSearch, clearSearch } = useSearch();
+interface SearchcustomerpageProps {
+  records: DatabaseRecord[];
+}
+
+function Searchcustomerpage({ records }: SearchcustomerpageProps) {
+  const { searchTerm, searchResults, isLoading, handleSearch, clearSearch } =
+    useSearch(records); // ✅ use actual data
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800">
@@ -30,7 +36,6 @@ function Searchcustomerpage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search Section */}
         <div className="mb-8">
           <SearchBar
             value={searchTerm}
@@ -40,7 +45,6 @@ function Searchcustomerpage() {
           />
         </div>
 
-        {/* Results Section */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50 p-6 md:p-8">
           <SearchResults
             results={searchResults}
@@ -58,9 +62,9 @@ function Searchcustomerpage() {
           </p>
         </div>
       </div>
+
     </div>
   );
 }
 
 export default Searchcustomerpage;
-

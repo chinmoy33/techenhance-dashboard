@@ -39,3 +39,10 @@ export interface ProfileData {
   "Online Banking Enabled": string;
   "Mutual Funds or Investments": string;
 }
+
+export interface GroupedResult {
+  accountNumber: string;
+  name: string;
+  profile?: DatabaseRecord;
+  transactions: DatabaseRecord[];
+}

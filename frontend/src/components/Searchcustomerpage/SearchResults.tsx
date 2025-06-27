@@ -1,19 +1,21 @@
-import React from 'react';
-import { DatabaseRecord } from '../../types/searchcustomerpage';
+import { FixedSizeList as List } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer'; // optional for responsive sizing
+//import { GroupedResult } from '../../types/searchcustomerpage';
 import { ProfileCard } from './ProfileCard';
 import { TransactionCard } from './TransactionCard';
 import { User, FileText, SearchX } from 'lucide-react';
+import { GroupedResult, ProfileData , TransactionData } from '../../types/searchcustomerpage';
 
 interface SearchResultsProps {
-  results: DatabaseRecord[];
+  results: GroupedResult[];
   searchTerm: string;
   isLoading: boolean;
 }
 
-export const SearchResults: React.FC<SearchResultsProps> = ({ 
-  results, 
-  searchTerm, 
-  isLoading 
+export const SearchResults: React.FC<SearchResultsProps> = ({
+  results,
+  searchTerm,
+  isLoading,
 }) => {
   if (isLoading) {
     return (
@@ -29,7 +31,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
       <div className="text-center py-12">
         <SearchX className="h-16 w-16 text-gray-500 mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-gray-200 mb-2">Start Your Search</h3>
-        <p className="text-gray-400">Enter a person's name to find their profile and transaction records</p>
+        <p className="text-gray-400">
+          Enter a person's name to find their profile and transaction records
+        </p>
       </div>
     );
   }
@@ -40,15 +44,15 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         <SearchX className="h-16 w-16 text-gray-500 mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-gray-200 mb-2">No Results Found</h3>
         <p className="text-gray-400">
-          No records found for "<span className="font-medium text-gray-300">{searchTerm}</span>". 
+          No records found for "<span className="font-medium text-gray-300">{searchTerm}</span>".
           Try searching with a different name.
         </p>
       </div>
     );
   }
 
-  const profileRecords = results.filter(record => record.type === 'profile');
-  const transactionRecords = results.filter(record => record.type === 'transaction');
+  const profileCount = results.filter((group) => group.profile).length;
+  const transactionCount = results.reduce((acc, group) => acc + group.transactions.length, 0);
 
   return (
     <div className="space-y-8">
@@ -59,50 +63,60 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         <div className="flex items-center space-x-4 text-sm text-gray-300">
           <div className="flex items-center">
             <User className="h-4 w-4 mr-1" />
-            {profileRecords.length} Profile{profileRecords.length !== 1 ? 's' : ''}
+            {profileCount} Profile{profileCount !== 1 ? 's' : ''}
           </div>
           <div className="flex items-center">
             <FileText className="h-4 w-4 mr-1" />
-            {transactionRecords.length} Transaction{transactionRecords.length !== 1 ? 's' : ''}
+            {transactionCount} Transaction{transactionCount !== 1 ? 's' : ''}
           </div>
         </div>
       </div>
 
-      {profileRecords.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-200 flex items-center">
-            <User className="h-5 w-5 mr-2 text-blue-400" />
-            Profile Information
-          </h3>
-          <div className="space-y-4">
-            {profileRecords.map((record) => (
-              <ProfileCard
-                key={record.id}
-                data={record.data as any}
-                timestamp={record.updatedAt}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {transactionRecords.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-200 flex items-center">
-            <FileText className="h-5 w-5 mr-2 text-green-400" />
-            Transaction History
-          </h3>
-          <div className="space-y-4">
-            {transactionRecords.map((record) => (
-              <TransactionCard
-                key={record.id}
-                data={record.data as any}
-                timestamp={record.updatedAt}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Virtualized List */}
+      <div style={{ height: '80vh' }}>
+        <AutoSizer>
+          {({ height, width }) => (
+            <List
+              height={height}
+              itemCount={results.length}
+              itemSize={1900} // Adjust based on average item height
+              width={width}
+            >
+              {({ index , style }) => {
+                const group = results[index];
+                return (
+                  <div key={group.accountNumber} style={style} className="space-y-6 p-2">
+                    {group.profile && (
+                      <>
+                        <h3 className="text-lg font-semibold text-blue-300">Profile Details</h3>
+                        <ProfileCard
+                          key={`${group.accountNumber}-profile`}
+                          data={group.profile.data as ProfileData}
+                          timestamp={group.profile.updatedAt}
+                        />
+                      </>
+                    )}
+                    {group.transactions.length > 0 && (
+                    <>
+                      <h3 className="text-lg font-semibold text-green-300">Transaction Details</h3>
+                      <div className="space-y-2">
+                        {group.transactions.map((tx, idx) => (
+                          <TransactionCard
+                            key={`${group.accountNumber}-${idx}`}
+                            data={tx.data as TransactionData}
+                            timestamp={tx.updatedAt}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  </div>
+                );
+              }}
+            </List>
+          )}
+        </AutoSizer>
+      </div>
     </div>
   );
 };
