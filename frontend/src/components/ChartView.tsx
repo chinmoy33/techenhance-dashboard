@@ -84,6 +84,7 @@ const ChartView: React.FC<ChartViewProps> = ({
   const [showSettings, setShowSettings] = useState(false);
   const [showAttributeSelector, setShowAttributeSelector] = useState(true);
   const [showExport, setShowExport] = useState(false);
+  const [isSingleSelectedAttribute,setIsSingleSelectedAttribute] = useState<boolean>(false);
   const [chartConfig, setChartConfig] = useState<ChartConfig>({
     type: initialChartType,
     title: `${dataset.name} Visualization`,
@@ -476,7 +477,7 @@ const ChartView: React.FC<ChartViewProps> = ({
   /**
    * Generates Chart.js options based on chart type
    */
-  const getChartOptions = (chartType: ChartConfig["type"]) => ({
+  const getChartOptions = (chartType: ChartConfig["type"],isSingleSelectedAttribute : boolean,xLabel?:string,yLabel?:string[]) => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -541,17 +542,57 @@ const ChartView: React.FC<ChartViewProps> = ({
           }
         : undefined,
     },
-    // Configure scales based on chart type
-    scales: {
-  x: {
-    display: false, // 👈 Hides x-axis grid, labels, and ticks
-  },
-  y: {
-    ticks: { color: "rgba(255, 255, 255, 0.7)" },
-    grid: { color: "rgba(255, 255, 255, 0.1)" },
-    beginAtZero: true,
-  },
+    
+    
+    scales: !["pie", "radar", "polarArea"].includes(chartType)
+      ? {
+          x: {
+            display: !(
+              isSingleSelectedAttribute &&
+              (chartType === "line" || chartType === "bar")
+            ),
+            ticks: { color: "rgba(255, 255, 255, 0.7)" },
+            grid: { color: "rgba(255, 255, 255, 0.1)" },
+            title: {
+  display: !!xLabel || chartType === "histogram",
+  text:
+    chartType === "histogram"
+      ? "Value Range"
+      : xLabel || "",
+  color: "rgba(255, 255, 255, 0.8)",
 },
+            ...(chartType === "histogram" && {
+              offset: false,
+              grid: {
+                offset: false,
+                color: "rgba(255, 255, 255, 0.1)",
+              },
+            }),
+          },
+
+          y: {
+            ticks: { color: "rgba(255, 255, 255, 0.7)" },
+            grid: { color: "rgba(255, 255, 255, 0.1)" },
+            title: {
+  display: !!yLabel || chartType === "histogram",
+  text:
+    chartType === "histogram"
+      ? "Frequency"
+      : yLabel || "",
+  color: "rgba(255, 255, 255, 0.8)",
+},
+            beginAtZero: chartType === "histogram",
+          },
+        }
+      : chartType === "radar"
+      ? {
+          r: {
+            ticks: { color: "rgba(255, 255, 255, 0.7)" },
+            grid: { color: "rgba(255, 255, 255, 0.2)" },
+            pointLabels: { color: "rgba(255, 255, 255, 0.8)" },
+          },
+        }
+      : {},
 
     animation: {
       duration: 1000,
@@ -568,7 +609,7 @@ const ChartView: React.FC<ChartViewProps> = ({
     const commonProps = {
       ref: chartRef,
       data,
-      options: getChartOptions(chartType),
+      options: getChartOptions(chartType,selectedAttributes.length === 1,selectedAttributes[0],selectedAttributes.slice(1)),
       className: "chart-container",
     };
 
