@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Plus,
   X,
   Eye,
   EyeOff,
@@ -14,7 +13,7 @@ import {
   RefreshCw,
   AlertTriangle,
 } from "lucide-react";
-import { Dataset } from "../types";
+import { Dataset } from "../../types";
 import toast from "react-hot-toast";
 
 interface AttributeSelectorProps {
@@ -39,6 +38,19 @@ interface AttributeInfo {
 // Maximum number of attributes that can be selected at once
 const MAX_SELECTION_LIMIT = 3;
 
+// Attributes to exclude from display
+const EXCLUDED_ATTRIBUTES = [
+  "Person's Name",
+  "Phone Number",
+  "Date of Birth",
+  "Date",
+  "CHQ.NO",
+  "Transaction Details",
+  "Education",
+  "Email Address",
+];
+
+//================= Main Functional Component ===================
 const AttributeSelector: React.FC<AttributeSelectorProps> = ({
   dataset,
   selectedAttributes,
@@ -64,10 +76,13 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
   /**
    * Analyzes dataset attributes to determine data types and statistics
    * Automatically detects numeric, categorical, and date columns
+   * Excludes specified attributes from being displayed
    */
   const analyzeAttributes = () => {
     const firstRow = dataset.data[0];
-    const attributeNames = Object.keys(firstRow);
+    const attributeNames = Object.keys(firstRow).filter(
+      (name) => !EXCLUDED_ATTRIBUTES.includes(name)
+    );
 
     const analyzedAttributes: AttributeInfo[] = attributeNames.map((name) => {
       // Extract all non-null values for analysis

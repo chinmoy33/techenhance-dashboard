@@ -46,6 +46,7 @@ import AttributeSelector from "./chartModules/AttributeSelector";
 import { chartTypes, colorThemes } from "./chartModules/ChartConstants";
 import toast from "react-hot-toast";
 import zoomPlugin from "chartjs-plugin-zoom";
+import AllChartsView from "../components/chartModules/AllChartsViews";
 
 // Register Chart.js components for all chart types
 ChartJS.register(
@@ -84,7 +85,8 @@ const ChartView: React.FC<ChartViewProps> = ({
   const [showSettings, setShowSettings] = useState(false);
   const [showAttributeSelector, setShowAttributeSelector] = useState(true);
   const [showExport, setShowExport] = useState(false);
-  const [isSingleSelectedAttribute,setIsSingleSelectedAttribute] = useState<boolean>(false);
+  const [isSingleSelectedAttribute, setIsSingleSelectedAttribute] =
+    useState<boolean>(false);
   const [chartConfig, setChartConfig] = useState<ChartConfig>({
     type: initialChartType,
     title: `${dataset.name} Visualization`,
@@ -203,44 +205,43 @@ const ChartView: React.FC<ChartViewProps> = ({
    * Generates data for pie, doughnut, and polar area charts
    */
   const generateCategoricalChartData = (filteredData: any[]) => {
-  const categoricalAttr = selectedAttributes.find((attr) => {
-    const values = dataset.data.map((row) => row[attr]);
-    const numericValues = values.filter(
-      (val) => !isNaN(Number(val)) && val !== ""
-    );
-    return numericValues.length < values.length * 0.5;
-  });
+    const categoricalAttr = selectedAttributes.find((attr) => {
+      const values = dataset.data.map((row) => row[attr]);
+      const numericValues = values.filter(
+        (val) => !isNaN(Number(val)) && val !== ""
+      );
+      return numericValues.length < values.length * 0.5;
+    });
 
-  if (!categoricalAttr) return null;
+    if (!categoricalAttr) return null;
 
-  // Step 1: Frequency Map
-  const freqMap = new Map<string, number>();
+    // Step 1: Frequency Map
+    const freqMap = new Map<string, number>();
 
-  filteredData.forEach((item) => {
-    const key = item[categoricalAttr] ?? "Unknown";
-    freqMap.set(key, (freqMap.get(key) || 0) + 1);
-  });
+    filteredData.forEach((item) => {
+      const key = item[categoricalAttr] ?? "Unknown";
+      freqMap.set(key, (freqMap.get(key) || 0) + 1);
+    });
 
-  // Step 2: Extract labels and values
-  const labels = Array.from(freqMap.keys());
-  const values = Array.from(freqMap.values());
+    // Step 2: Extract labels and values
+    const labels = Array.from(freqMap.keys());
+    const values = Array.from(freqMap.values());
 
-  return {
-    labels,
-    datasets: [
-      {
-        label: dataset.name,
-        data: values,
-        backgroundColor: chartConfig.colors?.slice(0, labels.length),
-        borderColor: chartConfig.colors
-          ?.slice(0, labels.length)
-          .map((color) => color.replace("0.8", "1")),
-        borderWidth: 2,
-      },
-    ],
+    return {
+      labels,
+      datasets: [
+        {
+          label: dataset.name,
+          data: values,
+          backgroundColor: chartConfig.colors?.slice(0, labels.length),
+          borderColor: chartConfig.colors
+            ?.slice(0, labels.length)
+            .map((color) => color.replace("0.8", "1")),
+          borderWidth: 2,
+        },
+      ],
+    };
   };
-};
-
 
   /**
    * Generates data for scatter and bubble charts
@@ -477,7 +478,12 @@ const ChartView: React.FC<ChartViewProps> = ({
   /**
    * Generates Chart.js options based on chart type
    */
-  const getChartOptions = (chartType: ChartConfig["type"],isSingleSelectedAttribute : boolean,xLabel?:string,yLabel?:string[]) => ({
+  const getChartOptions = (
+    chartType: ChartConfig["type"],
+    isSingleSelectedAttribute: boolean,
+    xLabel?: string,
+    yLabel?: string[]
+  ) => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -542,8 +548,7 @@ const ChartView: React.FC<ChartViewProps> = ({
           }
         : undefined,
     },
-    
-    
+
     scales: !["pie", "radar", "polarArea"].includes(chartType)
       ? {
           x: {
@@ -554,13 +559,10 @@ const ChartView: React.FC<ChartViewProps> = ({
             ticks: { color: "rgba(255, 255, 255, 0.7)" },
             grid: { color: "rgba(255, 255, 255, 0.1)" },
             title: {
-  display: !!xLabel || chartType === "histogram",
-  text:
-    chartType === "histogram"
-      ? "Value Range"
-      : xLabel || "",
-  color: "rgba(255, 255, 255, 0.8)",
-},
+              display: !!xLabel || chartType === "histogram",
+              text: chartType === "histogram" ? "Value Range" : xLabel || "",
+              color: "rgba(255, 255, 255, 0.8)",
+            },
             ...(chartType === "histogram" && {
               offset: false,
               grid: {
@@ -574,13 +576,10 @@ const ChartView: React.FC<ChartViewProps> = ({
             ticks: { color: "rgba(255, 255, 255, 0.7)" },
             grid: { color: "rgba(255, 255, 255, 0.1)" },
             title: {
-  display: !!yLabel || chartType === "histogram",
-  text:
-    chartType === "histogram"
-      ? "Frequency"
-      : yLabel || "",
-  color: "rgba(255, 255, 255, 0.8)",
-},
+              display: !!yLabel || chartType === "histogram",
+              text: chartType === "histogram" ? "Frequency" : yLabel || "",
+              color: "rgba(255, 255, 255, 0.8)",
+            },
             beginAtZero: chartType === "histogram",
           },
         }
@@ -609,7 +608,12 @@ const ChartView: React.FC<ChartViewProps> = ({
     const commonProps = {
       ref: chartRef,
       data,
-      options: getChartOptions(chartType,selectedAttributes.length === 1,selectedAttributes[0],selectedAttributes.slice(1)),
+      options: getChartOptions(
+        chartType,
+        selectedAttributes.length === 1,
+        selectedAttributes[0],
+        selectedAttributes.slice(1)
+      ),
       className: "chart-container",
     };
 
@@ -802,145 +806,162 @@ const ChartView: React.FC<ChartViewProps> = ({
   // ===== RENDER LOGIC =====
 
   // Render All Charts View (grid of all chart types)
+
   if (showAllCharts) {
     return (
-      <div className="space-y-6 animate-fade-in">
-        {/* Header Section */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
-              <Grid3X3 size={24} className="text-primary-400" />
-              <span>All Charts - {dataset.name}</span>
-            </h1>
-            <p className="text-gray-400">
-              {dataset.dataPoints || dataset.data?.length || 0} data points •
-              Showing {compatibleChartTypes.length} compatible charts
-            </p>
-          </div>
-
-          {/* Control Buttons */}
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setShowAttributeSelector(!showAttributeSelector)}
-              className={`glass-button px-4 py-2 rounded-lg flex items-center space-x-2 ${
-                showAttributeSelector
-                  ? "bg-primary-500/20 border-primary-500/50"
-                  : ""
-              }`}
-            >
-              <Filter size={16} />
-              <span>Attributes</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Attribute Selector */}
-        {showAttributeSelector && (
-          <AttributeSelector
-            dataset={dataset}
-            selectedAttributes={selectedAttributes}
-            onAttributeChange={setSelectedAttributes}
-          />
-        )}
-
-        {/* Compatible Charts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {compatibleChartTypes.map((chartType) => {
-            const Icon = chartType.icon;
-            const data = getChartData(chartType.type);
-
-            return (
-              <div
-                key={chartType.type}
-                onClick={() => onChartSelect && onChartSelect(chartType.type)}
-                className="glass-card p-4 cursor-pointer hover:scale-105 transition-all duration-300 hover:bg-white/20"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <Icon size={16} className="text-primary-400" />
-                    <h3 className="font-medium text-white text-sm">
-                      {chartType.label}
-                    </h3>
-                  </div>
-                </div>
-
-                <div className="h-32 mb-3">
-                  {data && renderChart(chartType.type, data)}
-                </div>
-
-                <p className="text-xs text-gray-400">{chartType.description}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* No Compatible Charts Message */}
-        {compatibleChartTypes.length === 0 && (
-          <div className="glass-card p-8 text-center">
-            <Filter size={48} className="mx-auto text-gray-500 mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">
-              No Compatible Charts
-            </h3>
-            <p className="text-gray-400 mb-4">
-              Please select appropriate attributes to view compatible
-              visualizations
-            </p>
-            <button
-              onClick={() => setShowAttributeSelector(true)}
-              className="glass-button px-6 py-3 rounded-lg"
-            >
-              Select Attributes
-            </button>
-          </div>
-        )}
-
-        {/* Data Preview Section */}
-        <div className="glass-card p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">
-            Filtered Data Preview
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/10">
-                  {selectedAttributes.map((attr) => (
-                    <th
-                      key={attr}
-                      className="text-left py-2 px-4 text-gray-300 font-medium"
-                    >
-                      {attr.charAt(0).toUpperCase() + attr.slice(1)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {getFilteredData?.slice(0, 5).map((row, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-white/5 hover:bg-white/5"
-                  >
-                    {selectedAttributes.map((attr) => (
-                      <td key={attr} className="py-2 px-4 text-gray-400">
-                        {typeof row[attr] === "number"
-                          ? row[attr].toLocaleString()
-                          : String(row[attr])}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {getFilteredData && getFilteredData.length > 5 && (
-              <p className="text-center text-gray-500 mt-4">
-                Showing 5 of {getFilteredData.length} rows
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
+      <AllChartsView
+        dataset={dataset}
+        selectedAttributes={selectedAttributes}
+        setSelectedAttributes={setSelectedAttributes}
+        showAttributeSelector={showAttributeSelector}
+        setShowAttributeSelector={setShowAttributeSelector}
+        compatibleChartTypes={compatibleChartTypes}
+        getChartData={getChartData}
+        renderChart={renderChart}
+        onChartSelect={onChartSelect}
+      />
     );
   }
+
+  // if (showAllCharts) {
+  //   return (
+  //     <div className="space-y-6 animate-fade-in">
+  //       {/* Header Section */}
+  //       <div className="flex items-center justify-between">
+  //         <div>
+  //           <h1 className="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
+  //             <Grid3X3 size={24} className="text-primary-400" />
+  //             <span>All Charts - {dataset.name}</span>
+  //           </h1>
+  //           <p className="text-gray-400">
+  //             {dataset.dataPoints || dataset.data?.length || 0} data points •
+  //             Showing {compatibleChartTypes.length} compatible charts
+  //           </p>
+  //         </div>
+
+  //         {/* Control Buttons */}
+  //         <div className="flex space-x-2">
+  //           <button
+  //             onClick={() => setShowAttributeSelector(!showAttributeSelector)}
+  //             className={`glass-button px-4 py-2 rounded-lg flex items-center space-x-2 ${
+  //               showAttributeSelector
+  //                 ? "bg-primary-500/20 border-primary-500/50"
+  //                 : ""
+  //             }`}
+  //           >
+  //             <Filter size={16} />
+  //             <span>Attributes</span>
+  //           </button>
+  //         </div>
+  //       </div>
+
+  //       {/* Attribute Selector */}
+  //       {showAttributeSelector && (
+  //         <AttributeSelector
+  //           dataset={dataset}
+  //           selectedAttributes={selectedAttributes}
+  //           onAttributeChange={setSelectedAttributes}
+  //         />
+  //       )}
+
+  //       {/* Compatible Charts Grid */}
+  //       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+  //         {compatibleChartTypes.map((chartType) => {
+  //           const Icon = chartType.icon;
+  //           const data = getChartData(chartType.type);
+
+  //           return (
+  //             <div
+  //               key={chartType.type}
+  //               onClick={() => onChartSelect && onChartSelect(chartType.type)}
+  //               className="glass-card p-4 cursor-pointer hover:scale-105 transition-all duration-300 hover:bg-white/20"
+  //             >
+  //               <div className="flex items-center justify-between mb-3">
+  //                 <div className="flex items-center space-x-2">
+  //                   <Icon size={16} className="text-primary-400" />
+  //                   <h3 className="font-medium text-white text-sm">
+  //                     {chartType.label}
+  //                   </h3>
+  //                 </div>
+  //               </div>
+
+  //               <div className="h-32 mb-3">
+  //                 {data && renderChart(chartType.type, data)}
+  //               </div>
+
+  //               <p className="text-xs text-gray-400">{chartType.description}</p>
+  //             </div>
+  //           );
+  //         })}
+  //       </div>
+
+  //       {/* No Compatible Charts Message */}
+  //       {compatibleChartTypes.length === 0 && (
+  //         <div className="glass-card p-8 text-center">
+  //           <Filter size={48} className="mx-auto text-gray-500 mb-4" />
+  //           <h3 className="text-lg font-medium text-white mb-2">
+  //             No Compatible Charts
+  //           </h3>
+  //           <p className="text-gray-400 mb-4">
+  //             Please select appropriate attributes to view compatible
+  //             visualizations
+  //           </p>
+  //           <button
+  //             onClick={() => setShowAttributeSelector(true)}
+  //             className="glass-button px-6 py-3 rounded-lg"
+  //           >
+  //             Select Attributes
+  //           </button>
+  //         </div>
+  //       )}
+
+  //       {/* Data Preview Section */}
+  //       <div className="glass-card p-6">
+  //         <h3 className="text-lg font-semibold text-white mb-4">
+  //           Filtered Data Preview
+  //         </h3>
+  //         <div className="overflow-x-auto">
+  //           <table className="w-full text-sm">
+  //             <thead>
+  //               <tr className="border-b border-white/10">
+  //                 {selectedAttributes.map((attr) => (
+  //                   <th
+  //                     key={attr}
+  //                     className="text-left py-2 px-4 text-gray-300 font-medium"
+  //                   >
+  //                     {attr.charAt(0).toUpperCase() + attr.slice(1)}
+  //                   </th>
+  //                 ))}
+  //               </tr>
+  //             </thead>
+  //             <tbody>
+  //               {getFilteredData?.slice(0, 5).map((row, index) => (
+  //                 <tr
+  //                   key={index}
+  //                   className="border-b border-white/5 hover:bg-white/5"
+  //                 >
+  //                   {selectedAttributes.map((attr) => (
+  //                     <td key={attr} className="py-2 px-4 text-gray-400">
+  //                       {typeof row[attr] === "number"
+  //                         ? row[attr].toLocaleString()
+  //                         : String(row[attr])}
+  //                     </td>
+  //                   ))}
+  //                 </tr>
+  //               ))}
+  //             </tbody>
+  //           </table>
+
+  //           {getFilteredData && getFilteredData.length > 5 && (
+  //             <p className="text-center text-gray-500 mt-4">
+  //               Showing 5 of {getFilteredData.length} rows
+  //             </p>
+  //           )}
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   // Render Single Chart View
   return (
