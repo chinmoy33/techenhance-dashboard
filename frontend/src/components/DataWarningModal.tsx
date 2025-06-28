@@ -62,12 +62,7 @@ export const DataWarningModal: React.FC<DataWarningModalProps> = ({
         </p>
 
         <div className="flex justify-end space-x-4">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-md bg-zinc-800 text-gray-300 hover:bg-zinc-700 transition"
-          >
-            Cancel
-          </button>
+          
           <button
             onClick={onAcknowledge}
             className="px-4 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700 transition"
