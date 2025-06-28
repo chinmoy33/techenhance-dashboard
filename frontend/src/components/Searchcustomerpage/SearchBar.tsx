@@ -30,7 +30,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Search by person's name..."
+          placeholder="Search by person's name or via their account number..."
           className="block w-full pl-12 pr-12 py-4 text-lg border-2 border-gray-600 rounded-xl 
                    focus:ring-4 focus:ring-blue-500/30 focus:border-blue-400 transition-all duration-200
                    bg-gray-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl placeholder-gray-400 text-white"

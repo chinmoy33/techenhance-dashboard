@@ -22,12 +22,12 @@ function Searchcustomerpage({ records }: SearchcustomerpageProps) {
             <div className="p-3 bg-blue-500/20 rounded-xl border border-blue-400/30">
               <Database className="h-8 w-8 text-blue-400" />
             </div>
-            <div className="text-center">
+            <div className="text-start">
               <h1 className="text-3xl font-bold text-white">
                 Person Database Search
               </h1>
               <p className="text-gray-300 mt-1">
-                Search for profiles and transaction records by name
+                Search for profiles and transaction records by name or account number
               </p>
             </div>
           </div>
