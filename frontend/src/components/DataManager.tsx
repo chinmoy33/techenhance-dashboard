@@ -15,6 +15,7 @@ import { dataService } from "../services/dataService";
 import DataWarningModal from "./DataWarningModal";
 import { RootState } from "../store";
 import { setHasDeleted , setHasUploaded, setHasUpdated} from "../store/warningSlice";
+import { setHasUpdatedData } from "../store/refetchDataSlice";
 
 interface DataManagerProps {
   datasets: Dataset[];
@@ -47,6 +48,7 @@ const DataManager: React.FC<DataManagerProps> = ({
   const [datasetName, setDatasetName] = useState<string>("");
   const [isUpdating, setIsUpdating] = useState(false);
 
+
   useEffect(() => {
   if (!hasDeleted && !hasUploaded && !hasUpdated) {
     setShowWarning(true);
@@ -76,6 +78,7 @@ const DataManager: React.FC<DataManagerProps> = ({
       );
       toast.success("Dataset name updated successfully!");
       dispatch(setHasUpdated(true)); // Set updated state
+      dispatch(setHasUpdatedData(true)); // Set updated state
       onDatasetChange(); // Refresh dataset list
     }
     catch(error)
@@ -112,6 +115,7 @@ const DataManager: React.FC<DataManagerProps> = ({
       await dataService.uploadCSV(file);
       toast.success("Dataset uploaded successfully!");
       dispatch(setHasUploaded(true)); // Set uploaded state
+      dispatch(setHasUpdatedData(true)); // Set updated state
       onDatasetChange(); // Refresh dataset list
     } catch (error) {
       toast.error("Failed to upload dataset");
@@ -135,56 +139,120 @@ const DataManager: React.FC<DataManagerProps> = ({
   /**
    * Exports dataset in specified format
    */
-  const exportDataset = (dataset: Dataset, format: "csv" | "json") => {
-    try {
-      let content = "";
-      let mimeType = "";
-      let extension = "";
+  // const exportDataset = (dataset: Dataset, format: "csv" | "json") => {
+  //   try {
+  //     let content = "";
+  //     let mimeType = "";
+  //     let extension = "";
 
-      if (format === "csv") {
-        // Generate CSV content
-        const headers = Object.keys(dataset.data[0] || {});
-        const csvContent = [
-          headers.join(","), // Header row
-          ...dataset.data.map((row) =>
-            headers
-              .map((header) =>
-                // Escape commas in string values
-                typeof row[header] === "string" && row[header].includes(",")
-                  ? `"${row[header]}"`
-                  : row[header]
-              )
-              .join(",")
-          ),
-        ].join("\n");
+  //     if (format === "csv") {
+  //       // Generate CSV content
+  //       const headers = Object.keys(dataset.data[0] || {});
+  //       const csvContent = [
+  //         headers.join(","), // Header row
+  //         ...dataset.data.map((row) =>
+  //           headers
+  //             .map((header) =>
+  //               // Escape commas in string values
+  //               typeof row[header] === "string" && row[header].includes(",")
+  //                 ? `"${row[header]}"`
+  //                 : row[header]
+  //             )
+  //             .join(",")
+  //         ),
+  //       ].join("\n");
 
-        content = csvContent;
-        mimeType = "text/csv";
-        extension = "csv";
-      } else {
-        // Generate JSON content
-        content = JSON.stringify(dataset.data, null, 2);
-        mimeType = "application/json";
-        extension = "json";
-      }
+  //       content = csvContent;
+  //       mimeType = "text/csv";
+  //       extension = "csv";
+  //     } else {
+  //       // Generate JSON content
+  //       content = JSON.stringify(dataset.data, null, 2);
+  //       mimeType = "application/json";
+  //       extension = "json";
+  //     }
 
-      // Create and trigger download
-      const blob = new Blob([content], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${dataset.name}.${extension}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+  //     // Create and trigger download
+  //     const blob = new Blob([content], { type: mimeType });
+  //     const url = URL.createObjectURL(blob);
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.download = `${dataset.name}.${extension}`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //     URL.revokeObjectURL(url);
 
-      toast.success(`Dataset exported as ${format.toUpperCase()}`);
-    } catch (error) {
-      toast.error("Failed to export dataset");
-      console.error("Export error:", error);
+  //     toast.success(`Dataset exported as ${format.toUpperCase()}`);
+  //   } catch (error) {
+  //     toast.error("Failed to export dataset");
+  //     console.error("Export error:", error);
+  //   }
+  // };
+  const exportDataset = async (dataset: Dataset, format: "csv" | "json") => {
+  try {
+    // Step 1: Fetch full dataset if data is missing
+    let fullDataset = dataset;
+
+    if (!Array.isArray(dataset.data) || dataset.data.length === 0) {
+      const toastId = toast.loading("Fetching full dataset before export...");
+      fullDataset = await dataService.getDataset(dataset.id);
+      toast.dismiss(toastId);
     }
-  };
+
+    const data = fullDataset.data;
+
+    if (!Array.isArray(data) || data.length === 0) {
+      toast.error("Dataset is empty or failed to load.");
+      return;
+    }
+
+    // Step 2: Format content
+    let content = "";
+    let mimeType = "";
+    let extension = "";
+
+    if (format === "csv") {
+      const headers = Object.keys(data[0] || {});
+      const csvContent = [
+        headers.join(","), // Header row
+        ...data.map((row) =>
+          headers
+            .map((header) =>
+              typeof row[header] === "string" && row[header].includes(",")
+                ? `"${row[header]}"`
+                : row[header]
+            )
+            .join(",")
+        ),
+      ].join("\n");
+
+      content = csvContent;
+      mimeType = "text/csv";
+      extension = "csv";
+    } else {
+      content = JSON.stringify(data, null, 2);
+      mimeType = "application/json";
+      extension = "json";
+    }
+
+    // Step 3: Trigger file download
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${dataset.name}.${extension}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast.success(`Dataset exported as ${format.toUpperCase()}`);
+  } catch (error) {
+    toast.error("Failed to export dataset");
+    console.error("Export error:", error);
+  }
+};
 
   // ===== RENDER COMPONENTS =====
   /**

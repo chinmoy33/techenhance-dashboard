@@ -5,6 +5,7 @@ import {dataService} from "../services/dataService"; // Adjust the import path a
 import { useDispatch} from "react-redux";
 //import { RootState } from "../store"; // Adjust the import path as necessary
 import {setHasDeleted} from "../store/warningSlice"; // Adjust the import path as necessary
+import {setHasUpdatedData} from "../store/refetchDataSlice"; // Adjust the import path as necessary
 
 interface DataWarningModalProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export const DataWarningModal: React.FC<DataWarningModalProps> = ({
     try {
       await dataService.deleteDataset(deleteDataset?.id);
       dispatch(setHasDeleted(true));
+      dispatch(setHasUpdatedData(true)); // Set updated state
       toast.success("Dataset deleted successfully");
       onDatasetChange(); // Refresh dataset list
     } catch (error) {

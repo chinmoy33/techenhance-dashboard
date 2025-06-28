@@ -24,6 +24,41 @@ const Dashboard: React.FC = () => {
     loadDatasets();
   }, []);
 
+  useEffect(() => {
+  if (currentView === "searchcustomerpage") {
+    loadFullDatasetsIfNeeded();
+  }
+}, [currentView]);
+
+const loadFullDatasetsIfNeeded = async () => {
+  const incomplete = datasets.filter((d) => !Array.isArray(d.data));
+  if (incomplete.length === 0) return;
+
+  const fullDatasets = await Promise.all(
+    incomplete.map((d) => dataService.getDataset(d.id))
+  );
+
+  // Replace existing dataset with full versions
+  setDatasets((prev) => {
+    const map = new Map(prev.map((d) => [d.id, d]));
+
+    for (const full of fullDatasets) {
+      const old = map.get(full.id);
+      map.set(full.id, {
+        ...old,
+        ...full,
+        dataPoints: Array.isArray(full.data) ? full.data.length : old?.dataPoints || 0,
+      });
+    }
+
+    const updated = Array.from(map.values());
+    console.log("datasets after loading full data:", updated); // ✅ correct
+    return updated;
+  });
+};
+
+
+
   const loadDatasets = async () => {
     try {
       setLoading(true);
@@ -68,7 +103,7 @@ const Dashboard: React.FC = () => {
       handleDatasetSelect(datasets[0].id);
     }
   };
-
+  console.log("datasets in Dashboard:", datasets);
   const renderContent = () => {
     switch (currentView) {
       case "dashboard":
@@ -133,6 +168,17 @@ const Dashboard: React.FC = () => {
         return <Recommendations />;
 
       case "searchcustomerpage":
+  const allHaveData = datasets.every(ds => Array.isArray(ds.data));
+
+  if (!allHaveData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mb-4"></div>
+        <p className="text-gray-300">Loading Full Dataset for Search...</p>
+      </div>
+    );
+  }
+
   const records: DatabaseRecord[] = datasets.flatMap((dataset) =>
     dataset.data.map((entry, index) => ({
       id: Number(`${dataset.id}${index}`),
@@ -144,6 +190,7 @@ const Dashboard: React.FC = () => {
     }))
   );
   return <Searchcustomerpage records={records} />;
+
 
 
 

@@ -16,7 +16,7 @@ export const dataService = {
   // Fetch all datasets
   async getDatasets(): Promise<Dataset[]> {
     console.log('Fetching all datasets from API');
-    const response = await api.get('/datasets');
+    const response = await api.get('/datasets?lite=true');
     return response.data;
   },
 
