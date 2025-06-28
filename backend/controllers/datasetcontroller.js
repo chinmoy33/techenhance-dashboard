@@ -124,9 +124,36 @@ const deleteDataSet = async (req, res) => {
   }
 };
 
+const updateDataSetName = async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  try {
+    const { data, error } = await supabase
+      .from("datasets")
+      .update({ name })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        return res.status(404).json({ error: "Dataset not found" });
+      }
+      throw error;
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error("Supabase error:", error);
+    res.status(500).json({ error: "Failed to update dataset name" });
+  }
+};
+
 module.exports = {
   getDataSet,
   getDataSetLanding,
   getDataSetById,
   deleteDataSet,
+  updateDataSetName,
 };

@@ -8,6 +8,7 @@ const {
   getDataSetLanding,
   getDataSetById,
   deleteDataSet,
+  updateDataSetName,
 } = require("../controllers/datasetcontroller");
 
 const supabase = require("../supabaseClient.ts");
@@ -32,6 +33,8 @@ router.get("/Landing", getDataSetLanding);
 
 // Get specific dataset
 router.get("/:id", getDataSetById);
+
+router.put("/name/:id",updateDataSetName);
 
 // Update dataset
 router.put("/:id", (req, res) => {

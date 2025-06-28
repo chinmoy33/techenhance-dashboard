@@ -7,8 +7,10 @@
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.8.2",
     "chartjs-plugin-zoom": "^2.2.0",
     "concurrently": "^9.1.2",
+    "react-redux": "^9.2.0",
     "react-virtualized-auto-sizer": "^1.0.26",
     "react-window": "^1.8.11"
   }

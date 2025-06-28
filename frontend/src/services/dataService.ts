@@ -45,6 +45,11 @@ export const dataService = {
     return response.data;
   },
 
+  async updateDatasetName(id: number, name: string): Promise<Dataset> {
+    const response = await api.put(`/datasets/name/${id}`, { name });
+    return response.data;
+  },
+
   // Delete a dataset by ID
   async deleteDataset(id: number): Promise<void> {
     await api.delete(`/datasets/${id}`);

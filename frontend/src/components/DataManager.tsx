@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef ,useEffect} from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Trash2,
   Download,
@@ -11,10 +12,18 @@ import {
 import toast from "react-hot-toast";
 import { Dataset } from "../types";
 import { dataService } from "../services/dataService";
+import DataWarningModal from "./DataWarningModal";
+import { RootState } from "../store";
+import { setHasDeleted , setHasUploaded, setHasUpdated} from "../store/warningSlice";
 
 interface DataManagerProps {
   datasets: Dataset[];
   onDatasetChange: () => void;
+}
+
+interface dataObject {
+  id : number | null;
+  name : string;
 }
 
 const DataManager: React.FC<DataManagerProps> = ({
@@ -25,32 +34,61 @@ const DataManager: React.FC<DataManagerProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
+  const [showDelete, setShowDelete] = useState(false);
+  const [exportDropdownId, setExportDropdownId] = useState<number | null>(null);
+  const [deleteDataset, setDeleteDataset] = useState<dataObject | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dispatch = useDispatch();
+  const hasDeleted = useSelector((state : RootState) => state.warning.hasDeleted);
+  const hasUploaded = useSelector((state : RootState) => state.warning.hasUploaded);
+  const hasUpdated = useSelector((state : RootState) => state.warning.hasUpdated);
+  const [datasetName, setDatasetName] = useState<string>("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  // ===== SAMPLE DATA CONFIGURATION =====
-  const sampleDataTypes = [
-    {
-      type: "linear",
-      name: "Linear Trend Data",
-      description: "Dataset with linear progression",
-      icon: "📈",
-    },
-    {
-      type: "normal",
-      name: "Normal Distribution",
-      description: "Bell curve distributed data",
-      icon: "🔔",
-    },
-    {
-      type: "exponential",
-      name: "Exponential Growth",
-      description: "Exponentially growing data",
-      icon: "🚀",
-    },
-  ];
+  useEffect(() => {
+  if (!hasDeleted && !hasUploaded && !hasUpdated) {
+    setShowWarning(true);
+  }
+  else
+  {
+    setShowWarning(false);
+    dispatch(setHasDeleted(false)); // Reset after showing warning
+    dispatch(setHasUploaded(false)); // Reset after showing warning
+    dispatch(setHasUpdated(false)); // Reset after showing warning
+  }
+  }, []);
+
+  useEffect(() => {
+  if (selectedDataset) {
+    setDatasetName(selectedDataset.name);
+  }
+  } , [selectedDataset]);
 
   // ===== EVENT HANDLERS =====
+
+  const handleChangeName = async (datasetname:string) => {
+    setIsUpdating(true);
+    try{
+      await dataService.updateDatasetName(
+        selectedDataset?.id,datasetname
+      );
+      toast.success("Dataset name updated successfully!");
+      dispatch(setHasUpdated(true)); // Set updated state
+      onDatasetChange(); // Refresh dataset list
+    }
+    catch(error)
+    {
+      toast.error("Failed to update dataset");
+      console.error("Update error:", error);
+    }
+    finally{
+      setIsUpdating(false);
+      setShowSettings(false);
+      setSelectedDataset(null);
+    }
+  }
 
   /**
    * Handles file upload from input element
@@ -73,6 +111,7 @@ const DataManager: React.FC<DataManagerProps> = ({
       // Upload file to backend
       await dataService.uploadCSV(file);
       toast.success("Dataset uploaded successfully!");
+      dispatch(setHasUploaded(true)); // Set uploaded state
       onDatasetChange(); // Refresh dataset list
     } catch (error) {
       toast.error("Failed to upload dataset");
@@ -86,33 +125,11 @@ const DataManager: React.FC<DataManagerProps> = ({
   /**
    * Handles dataset deletion with confirmation
    */
-  const handleDeleteDataset = async (id: string, name: string) => {
+  const handleDeleteDataset = async (id: number, name: string) => {
     // Show confirmation dialog
-    if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
-
-    try {
-      await dataService.deleteDataset(id);
-      toast.success("Dataset deleted successfully");
-      onDatasetChange(); // Refresh dataset list
-    } catch (error) {
-      toast.error("Failed to delete dataset");
-      console.error("Delete error:", error);
-    }
-  };
-
-  /**
-   * Generates sample data of specified type
-   */
-  const generateSampleData = async (type: string, name: string) => {
-    try {
-      await dataService.generateData(type, { name, count: 50 });
-      toast.success(`${name} generated successfully!`);
-      onDatasetChange(); // Refresh dataset list
-      setShowGenerator(false); // Close modal
-    } catch (error) {
-      toast.error("Failed to generate data");
-      console.error("Generation error:", error);
-    }
+    setShowDelete(true);
+    setDeleteDataset({ id, name });
+    console.log("Delete dataset with id:", id);
   };
 
   /**
@@ -170,112 +187,72 @@ const DataManager: React.FC<DataManagerProps> = ({
   };
 
   // ===== RENDER COMPONENTS =====
-
-  /**
-   * Renders the sample data generator modal
-   */
-  const renderGeneratorModal = () =>
-    showGenerator && (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="glass-card p-6 max-w-md w-full mx-4 animate-scale-in">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold text-white">
-              Generate Sample Data
-            </h3>
-            <button
-              onClick={() => setShowGenerator(false)}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-            >
-              <X size={20} className="text-gray-400" />
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            {sampleDataTypes.map((sample) => (
-              <button
-                key={sample.type}
-                onClick={() => generateSampleData(sample.type, sample.name)}
-                className="w-full glass-button p-4 rounded-lg text-left hover:bg-white/20 transition-all"
-              >
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">{sample.icon}</span>
-                  <div>
-                    <h4 className="font-medium text-white">{sample.name}</h4>
-                    <p className="text-sm text-gray-400">
-                      {sample.description}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-
   /**
    * Renders the dataset settings modal
    */
+
   const renderSettingsModal = () =>
-    showSettings &&
-    selectedDataset && (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="glass-card p-6 max-w-lg w-full mx-4 animate-scale-in">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold text-white">
-              Dataset Settings
-            </h3>
-            <button
-              onClick={() => setShowSettings(false)}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-            >
-              <X size={20} className="text-gray-400" />
-            </button>
+  showSettings && selectedDataset && (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="glass-card p-6 max-w-lg w-full mx-4 animate-scale-in">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold text-white">Dataset Settings</h3>
+          <button
+            onClick={() => {
+              setShowSettings(false);
+              setSelectedDataset(null);
+            }}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          >
+            <X size={20} className="text-gray-400" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Dataset Name</label>
+            <input
+              type="text"
+              value={datasetName}
+              onChange={(e) => setDatasetName(e.target.value)}
+              className="w-full px-3 py-2 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white"
+              placeholder="Enter dataset name"
+              disabled={isUpdating}
+            />
           </div>
 
-          <div className="space-y-4">
-            {/* Dataset Name Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Dataset Name
-              </label>
-              <input
-                type="text"
-                value={selectedDataset.name}
-                className="w-full px-3 py-2 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white"
-                placeholder="Enter dataset name"
-              />
-            </div>
+          {/* <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Dataset Type</label>
+            <select className="w-full px-3 py-2 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white">
+              <option value="time_series">Time Series</option>
+              <option value="categorical">Categorical</option>
+              <option value="distribution">Distribution</option>
+              <option value="generic">Generic</option>
+            </select>
+          </div> */}
 
-            {/* Dataset Type Selector */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Dataset Type
-              </label>
-              <select className="w-full px-3 py-2 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white">
-                <option value="time_series">Time Series</option>
-                <option value="categorical">Categorical</option>
-                <option value="distribution">Distribution</option>
-                <option value="generic">Generic</option>
-              </select>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex space-x-3">
-              <button className="flex-1 glass-button px-4 py-2 rounded-lg bg-primary-500/20 border-primary-500/50">
-                Save Changes
-              </button>
-              <button
-                onClick={() => setShowSettings(false)}
-                className="flex-1 glass-button px-4 py-2 rounded-lg"
-              >
-                Cancel
-              </button>
-            </div>
+          <div className="flex space-x-3">
+            <button 
+              onClick={()=>{
+                handleChangeName(datasetName);
+              }}
+              className="flex-1 glass-button px-4 py-2 rounded-lg bg-primary-500/20 border-primary-500/50">
+              <span>{isUpdating ? "Updating..." : "Save Changes"}</span>
+            </button>
+            <button
+              onClick={() => {
+                setShowSettings(false);
+                setSelectedDataset(null);
+              }}
+              className="flex-1 glass-button px-4 py-2 rounded-lg"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       </div>
-    );
+    </div>
+  );
 
   /**
    * Renders individual dataset item
@@ -321,16 +298,24 @@ const DataManager: React.FC<DataManagerProps> = ({
 
         {/* Action Buttons */}
         <div className="flex items-center space-x-2">
-          {/* Export Dropdown */}
+          {/* Export Dropdown Button */}
           <div className="relative">
             <button
-              onClick={() => setSelectedDataset(dataset)}
+              onClick={() => {
+                if (exportDropdownId === dataset.id) {
+                  setExportDropdownId(null); // close if already open
+                } else {
+                  setExportDropdownId(dataset.id); // open for current
+                  setShowSettings(false); // close settings if open
+                  setSelectedDataset(dataset);
+                }
+              }}
               className="p-2 hover:bg-white/10 rounded-lg transition-colors"
             >
               <Download size={16} className="text-gray-400 hover:text-white" />
             </button>
 
-            {selectedDataset?.id === dataset.id && (
+            {exportDropdownId === dataset.id && (
               <div className="absolute right-0 top-full mt-2 w-32 glass-card p-2 rounded-lg z-10">
                 <button
                   onClick={() => exportDataset(dataset, "csv")}
@@ -351,13 +336,20 @@ const DataManager: React.FC<DataManagerProps> = ({
           {/* Settings Button */}
           <button
             onClick={() => {
-              setSelectedDataset(dataset);
-              setShowSettings(true);
+              if (showSettings && selectedDataset?.id === dataset.id) {
+                setShowSettings(false);
+                setSelectedDataset(null);
+              } else {
+                setExportDropdownId(null); // close dropdown if open
+                setSelectedDataset(dataset);
+                setShowSettings(true);
+              }
             }}
             className="p-2 hover:bg-white/10 rounded-lg transition-colors"
           >
             <Settings size={16} className="text-gray-400 hover:text-white" />
           </button>
+
 
           {/* Delete Button */}
           <button
@@ -407,72 +399,93 @@ const DataManager: React.FC<DataManagerProps> = ({
   );
 
   // ===== MAIN RENDER =====
-  return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header Section */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white mb-2">Data Manager</h1>
-          <p className="text-gray-400">
-            Upload, manage, and organize your datasets
-          </p>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex space-x-3">
-          <button
-            onClick={() => setShowGenerator(true)}
-            className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 hover:scale-105 transition-transform"
-          >
-            <Zap size={16} />
-            <span>Generate Data</span>
-          </button>
-
-          <label className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 cursor-pointer hover:scale-105 transition-transform">
-            <FileText size={16} />
-            <span>{isUploading ? "Uploading..." : "Upload CSV"}</span>
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleFileUpload}
-              className="hidden"
-              disabled={isUploading}
-            />
-          </label>
-        </div>
+  return showWarning ? (
+  <div className="p-6 bg-zinc-900 min-h-screen">
+    <DataWarningModal
+      isOpen={true}
+      onClose={() => setShowWarning(false)}
+      onAcknowledge={() => setShowWarning(false)}
+      deleteDataset={null}
+      showDelete={false}
+      onDatasetChange={onDatasetChange}
+    />
+  </div>
+) : ( !showDelete ?(
+  <div className="space-y-6 animate-fade-in">
+    {/* Header Section */}
+    <div className="flex items-center justify-between">
+      <div>
+        <h1 className="text-2xl font-bold text-white mb-2">Data Manager</h1>
+        <p className="text-gray-400">
+          Upload, manage, and organize your datasets
+        </p>
       </div>
 
-      {/* Datasets List */}
-      <div className="glass-card p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-white">Your Datasets</h2>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-400">
-              {datasets.length} datasets
-            </span>
-            <button
-              onClick={onDatasetChange}
-              className="glass-button px-3 py-1 rounded-lg text-sm flex items-center space-x-1"
-            >
-              <RotateCcw size={14} />
-              <span>Refresh</span>
-            </button>
-          </div>
-        </div>
+      {/* Action Buttons */}
+      <div className="flex space-x-3">
+        {/* <button
+          onClick={() => setShowGenerator(true)}
+          className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 hover:scale-105 transition-transform"
+        >
+          <Zap size={16} />
+          <span>Generate Data</span>
+        </button> */}
 
-        {/* Dataset Items or Empty State */}
-        <div className="space-y-4">
-          {datasets.length > 0
-            ? datasets.map(renderDatasetItem)
-            : renderEmptyState()}
-        </div>
+        <label className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 cursor-pointer hover:scale-105 transition-transform">
+          <FileText size={16} />
+          <span>{isUploading ? "Uploading..." : "Upload CSV"}</span>
+          <input
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            className="hidden"
+            disabled={isUploading}
+          />
+        </label>
       </div>
-
-      {/* Modals */}
-      {renderGeneratorModal()}
-      {renderSettingsModal()}
     </div>
-  );
+
+    {/* Datasets List */}
+    <div className="glass-card p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold text-white">Your Datasets</h2>
+        <div className="flex items-center space-x-4">
+          <span className="text-sm text-gray-400">
+            {datasets.length} datasets
+          </span>
+          <button
+            onClick={onDatasetChange}
+            className="glass-button px-3 py-1 rounded-lg text-sm flex items-center space-x-1"
+          >
+            <RotateCcw size={14} />
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Dataset Items or Empty State */}
+      <div className="space-y-4">
+        {datasets.length > 0
+          ? datasets.map(renderDatasetItem)
+          : renderEmptyState()}
+      </div>
+    </div>
+
+    {/* Modals */}
+    {renderSettingsModal()}
+  </div>) : (
+    <DataWarningModal 
+      isOpen={true}
+      onClose={() => setShowDelete(false)}
+      onAcknowledge={() => setShowDelete(false)}
+      deleteDataset={deleteDataset} 
+      showDelete={showDelete} 
+      onDatasetChange={onDatasetChange}
+      />
+      
+  )
+);
+
 };
 
 export default DataManager;

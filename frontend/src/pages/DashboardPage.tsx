@@ -126,7 +126,7 @@ const Dashboard: React.FC = () => {
 
       case "data":
         return (
-          <DataManager datasets={datasets} onDatasetChange={loadDatasets} />
+          <DataManager datasets={datasets} onDatasetChange={loadDatasets}/>
         );
 
       case "recommendations":
