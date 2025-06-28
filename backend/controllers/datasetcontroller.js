@@ -183,28 +183,47 @@ const getDataSetLanding = async (req, res) => {
 };
 
 const getDataSetById = async (req, res) => {
+  const datasetId = req.params.id;
+
   try {
+    // 1. Check Redis cache first
+    const cached = await redis.get(`dataset:${datasetId}`);
+    if (cached) {
+      console.log(`[CACHE HIT] dataset:${datasetId}`);
+
+      const parsed =
+        typeof cached === "string" ? JSON.parse(cached) : cached;
+
+      return res.json(parsed);
+    }
+
+    // 2. Fetch from Supabase if not cached
     const { data, error } = await supabase
       .from("datasets")
       .select("*")
-      .eq("id", req.params.id) // WHERE id = req.params.id
-      .single(); // ensures one result, Data is directly the object, not wrapped in array
+      .eq("id", datasetId)
+      .single();
 
-    // PGRST116 is a specific PostgREST error code that means "No rows found"
     if (error) {
       if (error.code === "PGRST116") {
-        // Not found
         return res.status(404).json({ error: "Dataset not found" });
       }
       throw error;
     }
 
+    // 3. Cache the result in Redis (10 min TTL)
+    await redis.set(`dataset:${datasetId}`, JSON.stringify(data), { ex: 600 });
+
+    console.log(`[CACHE MISS] dataset:${datasetId} - Fetched and cached`);
     res.json(data);
+
   } catch (error) {
-    console.error("Supabase error:", error);
+    console.error("Supabase or Redis error:", error);
     res.status(500).json({ error: "Failed to fetch dataset" });
   }
 };
+
+
 
 const deleteDataSet = async (req, res) => {
   try {
