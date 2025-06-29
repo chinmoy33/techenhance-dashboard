@@ -184,11 +184,12 @@ const getDataSetLanding = async (req, res) => {
 
 const getDataSetById = async (req, res) => {
   const datasetId = req.params.id;
-  const {redis} = req.query; // Use query param to control Redis caching
+  const {redis:useRedis} = req.query; // Use query param to control Redis caching
   try {
     //1. Check Redis cache first
-    if(redis === true)
+    if(useRedis === "true")
     {
+        console.log("entering cache check")
         const cached = await redis.get(`dataset:${datasetId}`);
         if (cached) {
           console.log(`[CACHE HIT] dataset:${datasetId}`);
@@ -216,7 +217,7 @@ const getDataSetById = async (req, res) => {
     }
 
     // 3. Cache the result in Redis (10 min TTL)
-    if(redis === true)
+    if(useRedis === "true")
     await redis.set(`dataset:${datasetId}`, JSON.stringify(data), { ex: 600 });
 
     console.log(`[CACHE MISS] dataset:${datasetId} - Fetched and cached`);
