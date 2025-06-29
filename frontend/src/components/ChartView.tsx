@@ -118,6 +118,9 @@ const ChartView: React.FC<ChartViewProps> = ({
 
       // Find numeric columns by checking if values can be converted to numbers
       const numericColumns = Object.keys(firstRow).filter((key) => {
+        if (key === "CHQ.NO") return false; // Skip this column
+
+
         const values = dataset.data
           .map((row) => row[key])
           .filter((val) => val !== null && val !== undefined && val !== "");

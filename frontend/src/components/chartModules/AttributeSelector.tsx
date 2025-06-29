@@ -70,7 +70,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
     if (dataset.data && dataset.data.length > 0) {
       analyzeAttributes();
     }
-  }, [dataset.data]);
+  }, [dataset.data,selectedAttributes]);
 
   // ===== ATTRIBUTE ANALYSIS FUNCTION =====
   /**
