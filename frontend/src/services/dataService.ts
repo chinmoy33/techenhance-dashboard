@@ -27,8 +27,8 @@ export const dataService = {
   },
 
   // Fetch a single dataset by ID
-  async getDataset(id: number): Promise<Dataset> {
-    const response = await api.get(`/datasets/${id}`);
+  async getDataset(id: number,redis=true): Promise<Dataset> {
+    const response = await api.get(`/datasets/${id}?redis=${redis}`);
     return response.data;
   },
   
@@ -79,13 +79,6 @@ export const dataService = {
   },
 
   async getRecommendations(): Promise<LoanApplicant[]> {
-    // axios.get('http://localhost:5000/api/some-data') // change to your backend route
-      //   .then(response => {
-      //     console.log("Fetched data:", response.data);
-      //   })
-      //   .catch(error => {
-      //     console.error("Error fetching data:", error);
-      //   });
       const response = await api.get('/recommendations');
       return response.data;
   }

@@ -1,5 +1,6 @@
 import React from 'react';
-import { LoanApplicant } from '../../types/loan';
+import { RecommendationData } from '../../types/loan';
+import { scoreApplicant } from '../../utils/ScoreApplicants';
 import { 
   User, 
   Phone, 
@@ -13,20 +14,33 @@ import {
   Briefcase,
   AlertTriangle,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Cake,
 } from 'lucide-react';
 
-interface LoanApplicantCardProps {
-  applicant: LoanApplicant;
+interface RecommendedApplicantProps {
+  applicant: RecommendationData;
 }
 
-export const LoanApplicantCard: React.FC<LoanApplicantCardProps> = ({ applicant }) => {
+export const LoanApplicantCard: React.FC<RecommendedApplicantProps> = ({ applicant }) => {
+  const score = scoreApplicant(applicant);
+  
+
+  const getRiskLevel = (score: number): "low" | "medium" | "high" => {
+  if (score >= 35) return "low";
+  if (score >= 20) return "medium";
+  return "high";
+};
+
+  const riskLevel = getRiskLevel(score);
   const getLoanTypeIcon = (type: string) => {
     switch (type) {
-      case 'car': return <Car className="w-4 h-4" />;
-      case 'house': return <Home className="w-4 h-4" />;
-      case 'personal': return <CreditCard className="w-4 h-4" />;
-      case 'business': return <Briefcase className="w-4 h-4" />;
+      case 'Car Loan': return <Car className="w-4 h-4" />;
+      case 'House Loan': return <Home className="w-4 h-4" />;
+      case 'Education Loan': return <CreditCard className="w-4 h-4" />;
+      case 'Business Loan': return <Briefcase className="w-4 h-4" />;
+      case 'Personal Loan': return <User className="w-4 h-4" />;
+      case 'No Loan': return <CheckCircle className="w-4 h-4 text-emerald-500" />
       default: return <CreditCard className="w-4 h-4" />;
     }
   };
@@ -51,56 +65,81 @@ export const LoanApplicantCard: React.FC<LoanApplicantCardProps> = ({ applicant 
 
   const getLoanTypeColor = (type: string) => {
     switch (type) {
-      case 'car': return 'bg-blue-900/30 text-blue-300 border-blue-700';
-      case 'house': return 'bg-purple-900/30 text-purple-300 border-purple-700';
-      case 'personal': return 'bg-indigo-900/30 text-indigo-300 border-indigo-700';
-      case 'business': return 'bg-emerald-900/30 text-emerald-300 border-emerald-700';
+      case 'Car Loan': return 'bg-blue-900/30 text-blue-300 border-blue-700';
+      case 'House Loan': return 'bg-purple-900/30 text-purple-300 border-purple-700';
+      case 'Education Loan': return 'bg-indigo-900/30 text-indigo-300 border-indigo-700';
+      case 'Business Loan': return 'bg-emerald-900/30 text-emerald-300 border-emerald-700';
+      case 'Personal Loan': return 'bg-orange-900/30 text-orange-300 border-orange-700';
+      case 'No Loan':  return 'bg-yellow-900/30 text-yellow-300 border-yellow-700';
       default: return 'bg-gray-900/30 text-gray-300 border-gray-700';
     }
   };
-  //console.log("Applicant data:", applicant.monthlyExpenses, applicant.salary);
-  const debtToIncomeRatio = ((applicant.monthlyexpenses / (applicant.salary / 12)) * 100).toFixed(1);
+  
   return (
     <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-slate-600 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10">
       <div className="flex items-start gap-4 mb-4">
-        <img
+        {/* <img
           src={applicant.avatar}
           alt={applicant.name}
           className="w-16 h-16 rounded-full object-cover border-2 border-slate-600"
-        />
+        /> */}
         <div className="flex-1">
-          <h3 className="text-xl font-semibold text-white mb-1">{applicant.name}</h3>
-          <div className="flex items-center gap-2 text-slate-400 text-sm mb-2">
-            <User className="w-4 h-4" />
-            <span>{applicant.age} years old</span>
+          <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-white mb-1">{applicant.personsName}</h3>
+              <span className="text-xs text-gray-400">Account No: {applicant.accountNumber}</span>
+          </div>
+          
+
+          <div className="flex items-center justify-between text-slate-400 text-sm mb-4 mt-2">
+            <div className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                <span>{applicant.age} years old</span>
+            </div>
+            <div className="flex items-center gap-2">
+               <Cake className="w-4 h-4" />
+                <span>
+                  D.O.B:{' '}
+                  {new Date(applicant.dateOfBirth).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </span>
+            </div>
+            
+
           </div>
           <div className="flex gap-2">
-            <span className={`px-2 py-1 rounded-md text-xs font-medium border flex items-center gap-1 ${getRiskColor(applicant.risklevel)}`}>
-              {getRiskIcon(applicant.risklevel)}
-              {applicant.risklevel.toUpperCase()} RISK
+            <span className={`px-2 py-1 rounded-md text-xs font-medium border flex items-center gap-1 ${getRiskColor(riskLevel)}`}>
+             {getRiskIcon(riskLevel)}
+             {riskLevel.toUpperCase()} RISK
             </span>
-            <span className={`px-2 py-1 rounded-md text-xs font-medium border flex items-center gap-1 ${getLoanTypeColor(applicant.loantype)}`}>
-              {getLoanTypeIcon(applicant.loantype)}
-              {applicant.loantype.toUpperCase()}
+            <span className={`px-2 py-1 rounded-md text-xs font-medium border flex items-center gap-1 ${getLoanTypeColor(applicant.loans)}`}>
+              {getLoanTypeIcon(applicant.loans)}
+              {applicant.loans.toUpperCase()}
             </span>
+            {/* <span className={`px-2 py-1 rounded-md text-xs font-medium border flex items-center gap-1 ${getLoanTypeColor(applicant.accountType)}`}>
+              {getLoanTypeIcon(applicant.loans)}
+              {applicant.accountType.toUpperCase()}
+            </span> */}
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-slate-900/50 rounded-lg p-3">
-          <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+          <div className="flex items-center gap-1 text-slate-400 text-sm mb-1">
             <DollarSign className="w-4 h-4" />
-            <span>Annual Salary</span>
+            <span>Income</span>
           </div>
-          <p className="text-white font-semibold">${applicant.salary.toLocaleString()}</p>
+          <p className="text-white font-semibold">${applicant.income.toLocaleString()}</p>
         </div>
         <div className="bg-slate-900/50 rounded-lg p-3">
           <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
             <TrendingUp className="w-4 h-4" />
-            <span>Credit Score</span>
+            <span>Account Type</span>
           </div>
-          <p className="text-white font-semibold">{applicant.creditscore}</p>
+          <p className="text-white font-semibold">{applicant.accountType}</p>
         </div>
       </div>
 
@@ -108,45 +147,67 @@ export const LoanApplicantCard: React.FC<LoanApplicantCardProps> = ({ applicant 
         <div className="bg-slate-900/50 rounded-lg p-3">
           <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
             <Calendar className="w-4 h-4" />
-            <span>Experience</span>
+            <span>Employee type</span>
           </div>
-          <p className="text-white font-semibold">{applicant.employmentyears} years</p>
+          <p className="text-white font-semibold">{applicant.employmentType.toUpperCase()}</p>
         </div>
         <div className="bg-slate-900/50 rounded-lg p-3">
           <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
             <DollarSign className="w-4 h-4" />
-            <span>Debt-to-Income</span>
+            <span>Bank Branch</span>
           </div>
-          <p className="text-white font-semibold">{debtToIncomeRatio}%</p>
+          <p className="text-white font-semibold">{applicant.bankBranchName}</p>
         </div>
       </div>
 
       <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
-        <p className="text-slate-400 text-sm mb-1">Requested Amount</p>
-        <p className="text-2xl font-bold text-white">${applicant.requestedamount.toLocaleString()}</p>
+        <p className="text-slate-400 text-sm mb-1">Proposed Amount</p>
+        <p className="text-2xl font-bold text-white">${applicant.income.toLocaleString()}</p>
         
       </div>
 
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-3 p-4 bg-gray-700/50 rounded-lg border border-gray-600/50">
+        <div className="text-center">
+          <p className="text-xs text-gray-400">Education</p>
+          <p className="text-sm font-medium text-gray-200">{applicant.education}</p>
+        </div>
+        <div className="text-center">
+          <p className="text-xs text-gray-400">Marital Status</p>
+          <p className="text-sm font-medium text-gray-200">{applicant.maritalStatus}</p>
+        </div>
+        <div className="text-center">
+          <p className="text-xs text-gray-400">Online Banking</p>
+          <p className={`text-sm font-medium ${applicant.onlineBankingEnabled === "Yes" ? "text-green-400" : "text-red-400"}`}>
+            {applicant.onlineBankingEnabled}
+          </p>
+        </div>
+        <div className="text-center">
+          <p className="text-xs text-gray-400">Investments</p>
+          <p className="text-sm font-medium text-gray-200">{applicant.mutualFundsOrInvestments}</p>
+        </div>
+      </div>
+
+
       <div className="flex items-center gap-4 pt-4 border-t border-slate-700">
         <a
-          href={`mailto:${applicant.email}`}
+          href={`mailto:${applicant.emailAddress}`}
           className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors text-sm"
         >
-          <Mail className="w-4 h-4" />
-          <span>Email</span>
+          <Mail className="w-4 h-4 mb-4" />
+          <span>Email- {applicant.emailAddress}</span>
         </a>
         <a
-          href={`tel:${applicant.phone}`}
+          href={`tel:${applicant.phoneNumber}`}
           className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors text-sm"
         >
-          <Phone className="w-4 h-4" />
-          <span>Call</span>
+          <Phone className="w-4 h-4 mb-4" />
+          <span>Call- {applicant.phoneNumber}</span>
         </a>
-        <div className="ml-auto">
+        {/* <div className="ml-auto">
           <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             Review Application
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

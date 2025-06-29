@@ -56,6 +56,8 @@ export const FilterControls: React.FC<FilterControlsProps> = ({ filters, onFilte
             <option value="house">House Loan</option>
             <option value="personal">Personal Loan</option>
             <option value="business">Business Loan</option>
+            <option value="education">Education Loan</option>
+            <option value="no loan">No Loan</option>
           </select>
         </div>
 
@@ -84,11 +86,12 @@ export const FilterControls: React.FC<FilterControlsProps> = ({ filters, onFilte
             }}
             className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="0-999999">All Salaries</option>
-            <option value="0-50000">Under $50k</option>
-            <option value="50000-75000">$50k - $75k</option>
-            <option value="75000-100000">$75k - $100k</option>
-            <option value="100000-999999">Above $100k</option>
+            <option value="0-9999999">All Salaries</option>
+            <option value="0-250000">Under $250k</option>
+            <option value="250000-500000">$250k - $500k</option>
+            <option value="500000-750000">$500k - $750k</option>
+            <option value="750000-1000000">$750k - $1000k</option>
+            <option value="1000000-9999999">Above $1000k</option>
           </select>
         </div>
       </div>

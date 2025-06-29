@@ -147,7 +147,7 @@
 //   }
 // ];
 
-import { LoanApplicant } from '../types/loan';
+import { LoanApplicant} from '../types/loan';
 
 export const loanApplicants: LoanApplicant[] = [
   {
@@ -170,3 +170,4 @@ export const loanApplicants: LoanApplicant[] = [
   },
 
 ];
+

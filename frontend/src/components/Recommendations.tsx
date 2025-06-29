@@ -1,15 +1,18 @@
 import { useState, useMemo, useEffect } from "react";
 import { loanApplicants } from "../data/loanApplicants";
-import { FilterOptions, LoanApplicant } from "../types/loan";
+import { FilterOptions, LoanApplicant ,RecommendationData} from "../types/loan";
 import { LoanApplicantCard } from "./recommendations/LoanApplicantCard.tsx";
 import { FilterControls } from "./recommendations/FilterControls.tsx";
 import { StatsOverview } from "./recommendations/StatsOverview.tsx";
 import { Target, Sparkles } from "lucide-react";
 import { dataService } from "../services/dataService";
+import { useTransformData } from "../hooks/useTransformData.ts";
+import {useSortApplicants} from "../hooks/useSortApplicants.ts";
+import { scoreApplicant } from "../utils/ScoreApplicants.ts";
 
 function Recommendations() {
   const [loanApplicant, setLoanApplicant] =
-    useState<LoanApplicant[]>(loanApplicants);
+    useState<RecommendationData[]>([]);
   const [filters, setFilters] = useState<FilterOptions>({
     search: "",
     loantype: "all",
@@ -21,9 +24,11 @@ function Recommendations() {
   useEffect(() => {
     const fetchData = async () => {
       const data = await dataService.getRecommendations();
+      const transformedData = useTransformData(data);
+      console.log("Fetched Recommendations:", data);
       if (data) {
         console.log("inside fetchData");
-        setLoanApplicant(data);
+        setLoanApplicant(transformedData);
       }
     };
 
@@ -40,36 +45,45 @@ function Recommendations() {
   const filteredApplicants = useMemo(() => {
     return loanApplicant.filter((applicant) => {
       const matchesSearch =
-        applicant.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        applicant.email.toLowerCase().includes(filters.search.toLowerCase());
+        applicant.personsName.toLowerCase().includes(filters.search.toLowerCase()) ||
+        applicant.emailAddress.toLowerCase().includes(filters.search.toLowerCase());
 
       const matchesLoanType =
-        filters.loantype === "all" || applicant.loantype === filters.loantype;
+  filters.loantype === "all" ||
+  applicant.loans.toLowerCase().includes(filters.loantype.toLowerCase());
 
       const matchesSalary =
-        applicant.salary >= filters.minSalary &&
-        applicant.salary <= filters.maxSalary;
+        applicant.income >= filters.minSalary &&
+        applicant.income <= filters.maxSalary;
+
+        const applicantRiskLevel = scoreApplicant(applicant);
 
       const matchesRiskLevel =
         filters.risklevel === "all" ||
-        applicant.risklevel === filters.risklevel;
+        (filters.risklevel === "low" && applicantRiskLevel >= 35) ||
+        (filters.risklevel === "medium" && applicantRiskLevel >= 20 && applicantRiskLevel < 35) ||
+        (filters.risklevel === "high" && applicantRiskLevel < 20);
 
       return (
         matchesSearch && matchesLoanType && matchesSalary && matchesRiskLevel
       );
+      // return (
+      //   matchesSearch && matchesLoanType && matchesSalary
+      // );
     });
   }, [filters, loanApplicant]);
 
-  const sortedApplicants = useMemo(() => {
-    return [...filteredApplicants].sort((a, b) => {
-      // Sort by risk level (low risk first), then by credit score (highest first)
-      const riskOrder = { low: 0, medium: 1, high: 2 };
-      if (a.risklevel !== b.risklevel) {
-        return riskOrder[a.risklevel] - riskOrder[b.risklevel];
-      }
-      return b.creditscore - a.creditscore;
-    });
-  }, [filteredApplicants]);
+  // const sortedApplicants = useMemo(() => {
+  //   return [...filteredApplicants].sort((a, b) => {
+  //     // Sort by risk level (low risk first), then by credit score (highest first)
+  //     const riskOrder = { low: 0, medium: 1, high: 2 };
+  //     if (a.risklevel !== b.risklevel) {
+  //       return riskOrder[a.risklevel] - riskOrder[b.risklevel];
+  //     }
+  //     return b.creditscore - a.creditscore;
+  //   });
+  // }, [filteredApplicants]);
+  const sortedApplicants = useSortApplicants(filteredApplicants);
 
   return (
     <div className="min-h-screen bg-slate-900">

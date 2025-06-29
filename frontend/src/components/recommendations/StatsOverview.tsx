@@ -1,25 +1,28 @@
 import React from 'react';
-import { LoanApplicant } from '../../types/loan';
+import { RecommendationData } from '../../types/loan';
 import { Users, TrendingUp, DollarSign, AlertTriangle } from 'lucide-react';
+import { scoreApplicant } from '../../utils/ScoreApplicants';
 import { useEffect } from 'react';
 interface StatsOverviewProps {
-  applicants: LoanApplicant[];
-  filteredApplicants: LoanApplicant[];
+  applicants: RecommendationData[];
+  filteredApplicants: RecommendationData[];
 }
 
 export const StatsOverview: React.FC<StatsOverviewProps> = ({ applicants, filteredApplicants }) => {
   
   //const [creditScore, setCreditScore] = React.useState<number>(0);
   const totalApplicants = filteredApplicants.length;
-  const lowRiskCount = filteredApplicants.filter(a => a.risklevel === 'low').length;
-  const avgCreditScore = Math.round(
-    filteredApplicants.reduce((sum, a) => sum + a.creditscore, 0) / totalApplicants || 0
+  //const lowRiskCount = filteredApplicants.filter(a => a.risklevel === 'low').length;
+  const lowRiskCount = filteredApplicants.filter((applicant) => scoreApplicant(applicant) >= 35).length;
+
+  const avgIncome = Math.round(
+    filteredApplicants.reduce((sum, a) => sum + a.income, 0) / totalApplicants || 0
   );
   // useEffect(() => {
   //   setCreditScore(avgCreditScore);
   // },[]);
   //setCreditScore(avgCreditScore);
-  const totalRequestedAmount = filteredApplicants.reduce((sum, a) => sum + a.requestedamount, 0);
+  const totalRequestedAmount = filteredApplicants.reduce((sum, a) => sum + a.income, 0);
   //console.log("average credit score:", creditScore);
   const stats = [
     {
@@ -37,14 +40,14 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ applicants, filter
       bgColor: 'bg-green-900/20'
     },
     {
-      title: 'Avg Credit Score',
-      value: avgCreditScore.toString(),
+      title: 'Avg Income',
+      value: avgIncome.toString(),
       icon: <AlertTriangle className="w-6 h-6" />,
       color: 'text-yellow-400',
       bgColor: 'bg-yellow-900/20'
     },
     {
-      title: 'Total Requested',
+      title: 'Proposed Loan Amount',
       value: `$${(totalRequestedAmount / 1000000).toFixed(1)}M`,
       icon: <DollarSign className="w-6 h-6" />,
       color: 'text-purple-400',

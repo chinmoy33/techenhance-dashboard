@@ -184,18 +184,22 @@ const getDataSetLanding = async (req, res) => {
 
 const getDataSetById = async (req, res) => {
   const datasetId = req.params.id;
-
+  const {redis} = req.query; // Use query param to control Redis caching
   try {
-    // 1. Check Redis cache first
-    const cached = await redis.get(`dataset:${datasetId}`);
-    if (cached) {
-      console.log(`[CACHE HIT] dataset:${datasetId}`);
+    //1. Check Redis cache first
+    if(redis === true)
+    {
+        const cached = await redis.get(`dataset:${datasetId}`);
+        if (cached) {
+          console.log(`[CACHE HIT] dataset:${datasetId}`);
 
-      const parsed =
-        typeof cached === "string" ? JSON.parse(cached) : cached;
+          const parsed =
+            typeof cached === "string" ? JSON.parse(cached) : cached;
 
-      return res.json(parsed);
+          return res.json(parsed);
+        }
     }
+    
 
     // 2. Fetch from Supabase if not cached
     const { data, error } = await supabase
@@ -212,6 +216,7 @@ const getDataSetById = async (req, res) => {
     }
 
     // 3. Cache the result in Redis (10 min TTL)
+    if(redis === true)
     await redis.set(`dataset:${datasetId}`, JSON.stringify(data), { ex: 600 });
 
     console.log(`[CACHE MISS] dataset:${datasetId} - Fetched and cached`);

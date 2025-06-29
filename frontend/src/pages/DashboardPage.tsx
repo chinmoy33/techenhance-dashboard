@@ -80,7 +80,7 @@ const loadFullDatasetsIfNeeded = async () => {
 
   const handleDatasetSelect = async (datasetId: number) => {
     try {
-      const dataset = await dataService.getDataset(datasetId);
+      const dataset = await dataService.getDataset(datasetId,false);
       setSelectedDataset(dataset);
       setCurrentView("charts");
     } catch (error) {
