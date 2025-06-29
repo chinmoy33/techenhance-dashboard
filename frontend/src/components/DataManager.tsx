@@ -384,18 +384,19 @@ const DataManager: React.FC<DataManagerProps> = ({
             </button>
 
             {exportDropdownId === dataset.id && (
-              <div className="absolute right-0 top-full mt-2 w-32 glass-card p-2 rounded-lg z-10">
+              <div className="absolute right-0 top-full mt-2 w-60 glass-card p-2 rounded-lg z-10 flex">
                 <button
                   onClick={() => exportDataset(dataset, "csv")}
                   className="w-full text-left px-2 py-1 hover:bg-white/10 rounded text-sm text-gray-300"
                 >
-                  Export CSV
+                  1. Export CSV
                 </button>
                 <button
-                  onClick={() => exportDataset(dataset, "json")}
+                  
+                  onClick={() => {exportDataset(dataset, "json")}}
                   className="w-full text-left px-2 py-1 hover:bg-white/10 rounded text-sm text-gray-300"
                 >
-                  Export JSON
+                  2. Export JSON
                 </button>
               </div>
             )}
