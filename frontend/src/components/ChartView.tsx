@@ -144,12 +144,6 @@ const ChartView: React.FC<ChartViewProps> = ({
     }
   }, [dataset.data]);
 
-  // ===== ATTRIBUTE ANALYSIS FUNCTIONS =====
-
-  /**
-   * Analyzes selected attributes to determine their types
-   * @returns Object containing counts of numeric and categorical attributes
-   */
   const analyzeSelectedAttributes = () => {
     if (!dataset.data || selectedAttributes.length === 0) {
       return { numeric: 0, categorical: 0 };
@@ -207,6 +201,27 @@ const ChartView: React.FC<ChartViewProps> = ({
       chartType.compatibility.includes(compatibilityKey)
     );
   };
+
+
+  const compatibleChartTypes = useMemo(
+    () => getCompatibleChartTypes(),
+    [selectedAttributes, dataset.data]
+  );
+
+
+  React.useEffect(() => {
+  if (compatibleChartTypes.length > 0) {
+    setSelectedChartType(compatibleChartTypes[0].type);
+  }
+}, [compatibleChartTypes]);
+
+  // ===== ATTRIBUTE ANALYSIS FUNCTIONS =====
+
+  /**
+   * Analyzes selected attributes to determine their types
+   * @returns Object containing counts of numeric and categorical attributes
+   */
+  
 
   // ===== DATA PROCESSING FUNCTIONS =====
 
@@ -807,11 +822,7 @@ const ChartView: React.FC<ChartViewProps> = ({
     [dataset.data, selectedChartType, selectedAttributes, chartConfig.colors]
   );
 
-  const compatibleChartTypes = useMemo(
-    () => getCompatibleChartTypes(),
-    [selectedAttributes, dataset.data]
-  );
-
+  
   // ===== RENDER LOGIC =====
 
   // Render All Charts View (grid of all chart types)
