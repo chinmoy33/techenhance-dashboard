@@ -48,6 +48,8 @@ const EXCLUDED_ATTRIBUTES = [
   "Transaction Details",
   "Education",
   "Email Address",
+  "Transaction Number or ID",
+  "Account Number"
 ];
 
 //================= Main Functional Component ===================
