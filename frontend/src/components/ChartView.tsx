@@ -118,8 +118,12 @@ const ChartView: React.FC<ChartViewProps> = ({
 
       // Find numeric columns by checking if values can be converted to numbers
       const numericColumns = Object.keys(firstRow).filter((key) => {
-        if (key === "CHQ.NO" || key=== 'Account Number' || key === 'Transaction Number or ID') return false; // Skip this column
-
+        if (
+          key === "CHQ.NO" ||
+          key === "Account Number" ||
+          key === "Transaction Number or ID"
+        )
+          return false; // Skip this column
 
         const values = dataset.data
           .map((row) => row[key])
@@ -178,11 +182,11 @@ const ChartView: React.FC<ChartViewProps> = ({
     const { numeric, categorical } = analyzeSelectedAttributes();
     const total = selectedAttributes.length;
 
-    if (categorical === total && total > 0 && total <2) {
-    return chartTypes.filter((chartType) =>
-      ["pie", "polarArea"].includes(chartType.type)
-    );
-  }
+    if (categorical === total && total > 0 && total < 2) {
+      return chartTypes.filter((chartType) =>
+        ["pie", "polarArea"].includes(chartType.type)
+      );
+    }
 
     // Generate compatibility key based on selection
     let compatibilityKey = "";
@@ -202,18 +206,16 @@ const ChartView: React.FC<ChartViewProps> = ({
     );
   };
 
-
   const compatibleChartTypes = useMemo(
     () => getCompatibleChartTypes(),
     [selectedAttributes, dataset.data]
   );
 
-
   React.useEffect(() => {
-  if (compatibleChartTypes.length > 0) {
-    setSelectedChartType(compatibleChartTypes[0].type);
-  }
-}, [compatibleChartTypes]);
+    if (compatibleChartTypes.length > 0) {
+      setSelectedChartType(compatibleChartTypes[0].type);
+    }
+  }, [compatibleChartTypes]);
 
   // ===== ATTRIBUTE ANALYSIS FUNCTIONS =====
 
@@ -221,7 +223,6 @@ const ChartView: React.FC<ChartViewProps> = ({
    * Analyzes selected attributes to determine their types
    * @returns Object containing counts of numeric and categorical attributes
    */
-  
 
   // ===== DATA PROCESSING FUNCTIONS =====
 
@@ -822,7 +823,6 @@ const ChartView: React.FC<ChartViewProps> = ({
     [dataset.data, selectedChartType, selectedAttributes, chartConfig.colors]
   );
 
-  
   // ===== RENDER LOGIC =====
 
   // Render All Charts View (grid of all chart types)
@@ -1084,7 +1084,7 @@ const ChartView: React.FC<ChartViewProps> = ({
       <div className="glass-card p-6">
         <div
           className={`w-full ${
-            isFullscreen ? "h-[calc(100vh-300px)]" : "h-96"
+            isFullscreen ? "h-[calc(100vh-200px)]" : "h-[525px]"
           }`}
         >
           {chartData &&
