@@ -22,17 +22,35 @@ const AccountSettings: React.FC = () => {
   // ===== STATE MANAGEMENT =====
   // const { user, logout } = useAuth();
 
+  const [loading, setLoading] = useState(false);
+
   const [user, setUser] = useState<any>(null);
+  const [profileForm, setProfileForm] = useState({
+    username: "",
+    email: "",
+  });
   useEffect(() => {
     const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        setUser({
-          username: user.user_metadata.full_name || user.email,
-          avatarUrl: user.user_metadata.avatar_url,
-        });
+      setLoading(true);
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user) {
+          setUser({
+            username: user.user_metadata.full_name || user.email,
+            avatarUrl: user.user_metadata.avatar_url,
+          });
+          // Update profileForm when user is fetched
+          setProfileForm({
+            username: user.user_metadata.full_name || user.email || "",
+            email: user.email || "",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching user: ", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -42,13 +60,12 @@ const AccountSettings: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"profile" | "security" | "danger">(
     "profile"
   );
-  const [loading, setLoading] = useState(false);
 
   // Profile form state
-  const [profileForm, setProfileForm] = useState({
-    username: user?.username || "",
-    email: user?.email || "",
-  });
+  // const [profileForm, setProfileForm] = useState({
+  //   username: "",
+  //   email: "",
+  // });
 
   // Password change form state
   const [passwordForm, setPasswordForm] = useState({
