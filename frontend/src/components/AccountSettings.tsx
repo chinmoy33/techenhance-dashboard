@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   User,
   Mail,
@@ -8,18 +8,37 @@ import {
   EyeOff,
   Shield,
   AlertTriangle,
-  CheckCircle,
-  X,
+  // CheckCircle,
+  // X,
   Key,
   Send,
 } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
-import { authService } from "../services/dataService";
+// import { useAuth } from "../contexts/AuthContext";
+// import { authService } from "../services/dataService";
 import toast from "react-hot-toast";
+import { supabase } from "../supabaseClient";
 
 const AccountSettings: React.FC = () => {
   // ===== STATE MANAGEMENT =====
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth();
+
+  const [user, setUser] = useState<any>(null);
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser({
+          username: user.user_metadata.full_name || user.email,
+          avatarUrl: user.user_metadata.avatar_url,
+        });
+      }
+    };
+
+    getUser();
+  }, []);
+
   const [activeTab, setActiveTab] = useState<"profile" | "security" | "danger">(
     "profile"
   );
