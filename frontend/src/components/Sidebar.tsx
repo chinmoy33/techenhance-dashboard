@@ -8,7 +8,8 @@ import {
   ChevronLeft,
   ChevronRight,
   UserSearch,
-  ArrowRightCircle
+  ArrowRightCircle,
+  Settings,
 } from "lucide-react";
 import { ViewType } from "../types";
 
@@ -40,12 +41,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
       label: "Recommendations",
       icon: TrendingUp,
     },
-    
+
     { id: "charts" as ViewType, label: "Charts", icon: BarChart3 },
     { id: "allCharts" as ViewType, label: "All Charts", icon: Grid3X3 },
-    
-    
-    
+    { id: "account" as ViewType, label: "Account Settings", icon: Settings },
   ];
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {

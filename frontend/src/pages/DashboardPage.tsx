@@ -5,6 +5,7 @@ import Sidebar from "../components/Sidebar";
 import DashboardView from "../components/Dashboard";
 import ChartView from "../components/ChartView";
 import DataManager from "../components/DataManager";
+import AccountSettings from "../components/AccountSettings";
 import { Dataset } from "../types";
 import { dataService } from "../services/dataService";
 import Recommendations from "../components/Recommendations";
@@ -13,7 +14,13 @@ import { DatabaseRecord } from "../types/searchcustomerpage";
 
 const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState<
-    "dashboard" | "charts" | "allCharts" | "data" | "recommendations" | "searchcustomerpage"
+    | "dashboard"
+    | "charts"
+    | "allCharts"
+    | "data"
+    | "recommendations"
+    | "searchcustomerpage"
+    | "account"
   >("dashboard");
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
@@ -25,39 +32,39 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-  if (currentView === "searchcustomerpage") {
-    loadFullDatasetsIfNeeded();
-  }
-}, [currentView]);
-
-const loadFullDatasetsIfNeeded = async () => {
-  const incomplete = datasets.filter((d) => !Array.isArray(d.data));
-  if (incomplete.length === 0) return;
-
-  const fullDatasets = await Promise.all(
-    incomplete.map((d) => dataService.getDataset(d.id))
-  );
-
-  // Replace existing dataset with full versions
-  setDatasets((prev) => {
-    const map = new Map(prev.map((d) => [d.id, d]));
-
-    for (const full of fullDatasets) {
-      const old = map.get(full.id);
-      map.set(full.id, {
-        ...old,
-        ...full,
-        dataPoints: Array.isArray(full.data) ? full.data.length : old?.dataPoints || 0,
-      });
+    if (currentView === "searchcustomerpage") {
+      loadFullDatasetsIfNeeded();
     }
+  }, [currentView]);
 
-    const updated = Array.from(map.values());
-    console.log("datasets after loading full data:", updated); // ✅ correct
-    return updated;
-  });
-};
+  const loadFullDatasetsIfNeeded = async () => {
+    const incomplete = datasets.filter((d) => !Array.isArray(d.data));
+    if (incomplete.length === 0) return;
 
+    const fullDatasets = await Promise.all(
+      incomplete.map((d) => dataService.getDataset(d.id))
+    );
 
+    // Replace existing dataset with full versions
+    setDatasets((prev) => {
+      const map = new Map(prev.map((d) => [d.id, d]));
+
+      for (const full of fullDatasets) {
+        const old = map.get(full.id);
+        map.set(full.id, {
+          ...old,
+          ...full,
+          dataPoints: Array.isArray(full.data)
+            ? full.data.length
+            : old?.dataPoints || 0,
+        });
+      }
+
+      const updated = Array.from(map.values());
+      console.log("datasets after loading full data:", updated); // ✅ correct
+      return updated;
+    });
+  };
 
   const loadDatasets = async () => {
     try {
@@ -94,7 +101,7 @@ const loadFullDatasetsIfNeeded = async () => {
   };
 
   const handleViewChange = (
-    view: "dashboard" | "charts" | "allCharts" | "data" 
+    view: "dashboard" | "charts" | "allCharts" | "data" | "account"
   ) => {
     setCurrentView(view);
 
@@ -161,38 +168,42 @@ const loadFullDatasetsIfNeeded = async () => {
 
       case "data":
         return (
-          <DataManager datasets={datasets} onDatasetChange={loadDatasets}/>
+          <DataManager datasets={datasets} onDatasetChange={loadDatasets} />
         );
+
+      case "account":
+        return <AccountSettings />;
 
       case "recommendations":
         return <Recommendations />;
 
       case "searchcustomerpage":
-  const allHaveData = datasets.every(ds => Array.isArray(ds.data));
+        const allHaveData = datasets.every((ds) => Array.isArray(ds.data));
 
-  if (!allHaveData) {
-    return (
-      <div className="flex flex-col items-center justify-center py-52">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mb-4"></div>
-        <p className="text-gray-300">Loading Full Dataset for Search...</p>
-      </div>
-    );
-  }
+        if (!allHaveData) {
+          return (
+            <div className="flex flex-col items-center justify-center py-52">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mb-4"></div>
+              <p className="text-gray-300">
+                Loading Full Dataset for Search...
+              </p>
+            </div>
+          );
+        }
 
-  const records: DatabaseRecord[] = datasets.flatMap((dataset) =>
-    dataset.data.map((entry, index) => ({
-      id: Number(`${dataset.id}${index}`),
-      name: dataset.name,
-      data: entry,
-      type: dataset.name.toLowerCase().includes("transaction") ? "transaction" : "profile",
-      createdAt: dataset.createdAt,
-      updatedAt: dataset.updatedAt || dataset.createdAt,
-    }))
-  );
-  return <Searchcustomerpage records={records} />;
-
-
-
+        const records: DatabaseRecord[] = datasets.flatMap((dataset) =>
+          dataset.data.map((entry, index) => ({
+            id: Number(`${dataset.id}${index}`),
+            name: dataset.name,
+            data: entry,
+            type: dataset.name.toLowerCase().includes("transaction")
+              ? "transaction"
+              : "profile",
+            createdAt: dataset.createdAt,
+            updatedAt: dataset.updatedAt || dataset.createdAt,
+          }))
+        );
+        return <Searchcustomerpage records={records} />;
 
       default:
         return (

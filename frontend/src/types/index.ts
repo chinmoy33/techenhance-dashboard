@@ -1,10 +1,16 @@
 // Represents a dataset object with metadata and data array
 export interface Dataset {
   // id: string;
-    id: number;
+  id: number;
   name: string;
   data: any[];
-  type: 'time_series' | 'categorical' | 'distribution' | 'generic' | 'uploaded' | 'generated';
+  type:
+    | "time_series"
+    | "categorical"
+    | "distribution"
+    | "generic"
+    | "uploaded"
+    | "generated";
   createdAt: string;
   updatedAt?: string;
   dataPoints?: number;
@@ -12,7 +18,14 @@ export interface Dataset {
 
 // Configuration for a chart visualization
 export interface ChartConfig {
-  type: 'line' | 'bar' | 'pie' | 'scatter'|'radar' | 'polarArea' | 'histogram';
+  type:
+    | "line"
+    | "bar"
+    | "pie"
+    | "scatter"
+    | "radar"
+    | "polarArea"
+    | "histogram";
   title: string;
   xAxis?: string;
   yAxis?: string;
@@ -20,4 +33,9 @@ export interface ChartConfig {
 }
 
 // Supported view types in the app
-export type ViewType = 'dashboard' | 'charts' |'allCharts'| 'data';
+export type ViewType =
+  | "dashboard"
+  | "charts"
+  | "allCharts"
+  | "data"
+  | "account";
