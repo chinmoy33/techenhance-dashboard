@@ -80,20 +80,20 @@ const AccountSettings: React.FC = () => {
   /**
    * Handles profile information updates (username, email)
    */
-  const handleProfileUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  // const handleProfileUpdate = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setLoading(true);
 
-    try {
-      await authService.updateProfile(profileForm);
-      toast.success("Profile updated successfully!");
-    } catch (error: any) {
-      const message = error.response?.data?.error || "Failed to update profile";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   try {
+  //     await authService.updateProfile(profileForm);
+  //     toast.success("Profile updated successfully!");
+  //   } catch (error: any) {
+  //     const message = error.response?.data?.error || "Failed to update profile";
+  //     toast.error(message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   /**
    * Handles input changes for profile form
@@ -110,44 +110,44 @@ const AccountSettings: React.FC = () => {
   /**
    * Handles password change for email/password accounts
    */
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handlePasswordChange = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    // Validate password confirmation
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error("New passwords do not match");
-      return;
-    }
+  //   // Validate password confirmation
+  //   if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+  //     toast.error("New passwords do not match");
+  //     return;
+  //   }
 
-    // Validate password strength
-    if (passwordForm.newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
-      return;
-    }
+  //   // Validate password strength
+  //   if (passwordForm.newPassword.length < 6) {
+  //     toast.error("New password must be at least 6 characters");
+  //     return;
+  //   }
 
-    setLoading(true);
+  //   setLoading(true);
 
-    try {
-      await authService.changePassword(
-        passwordForm.currentPassword,
-        passwordForm.newPassword
-      );
-      toast.success("Password changed successfully!");
+  //   try {
+  //     await authService.changePassword(
+  //       passwordForm.currentPassword,
+  //       passwordForm.newPassword
+  //     );
+  //     toast.success("Password changed successfully!");
 
-      // Clear form
-      setPasswordForm({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-    } catch (error: any) {
-      const message =
-        error.response?.data?.error || "Failed to change password";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     // Clear form
+  //     setPasswordForm({
+  //       currentPassword: "",
+  //       newPassword: "",
+  //       confirmPassword: "",
+  //     });
+  //   } catch (error: any) {
+  //     const message =
+  //       error.response?.data?.error || "Failed to change password";
+  //     toast.error(message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   /**
    * Handles input changes for password form
@@ -167,93 +167,93 @@ const AccountSettings: React.FC = () => {
    * Initiates account deletion process
    * Different flows for Google vs email/password accounts
    */
-  const initiateAccountDeletion = async () => {
-    if (!user) return;
+  // const initiateAccountDeletion = async () => {
+  //   if (!user) return;
 
-    setLoading(true);
+  //   setLoading(true);
 
-    try {
-      // For Google users, send OTP
-      if (user.isGoogleUser) {
-        const response = await authService.sendDeletionOTP();
-        toast.success("OTP sent to your email address");
-        setDeletionStep("verify");
+  //   try {
+  //     // For Google users, send OTP
+  //     if (user.isGoogleUser) {
+  //       const response = await authService.sendDeletionOTP();
+  //       toast.success("OTP sent to your email address");
+  //       setDeletionStep("verify");
 
-        // For demo purposes, show OTP in development
-        if (response.otp) {
-          toast.success(`Demo OTP: ${response.otp}`, { duration: 10000 });
-        }
-      } else {
-        // For email/password users, go directly to password verification
-        setDeletionStep("verify");
-      }
-    } catch (error: any) {
-      const message =
-        error.response?.data?.error || "Failed to initiate account deletion";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //       // For demo purposes, show OTP in development
+  //       if (response.otp) {
+  //         toast.success(`Demo OTP: ${response.otp}`, { duration: 10000 });
+  //       }
+  //     } else {
+  //       // For email/password users, go directly to password verification
+  //       setDeletionStep("verify");
+  //     }
+  //   } catch (error: any) {
+  //     const message =
+  //       error.response?.data?.error || "Failed to initiate account deletion";
+  //     toast.error(message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   /**
    * Verifies OTP for Google account deletion
    */
-  const verifyDeletionOTP = async () => {
-    if (!deletionForm.otp || deletionForm.otp.length !== 6) {
-      toast.error("Please enter a valid 6-digit OTP");
-      return;
-    }
+  // const verifyDeletionOTP = async () => {
+  //   if (!deletionForm.otp || deletionForm.otp.length !== 6) {
+  //     toast.error("Please enter a valid 6-digit OTP");
+  //     return;
+  //   }
 
-    setLoading(true);
+  //   setLoading(true);
 
-    try {
-      await authService.verifyDeletionOTP(deletionForm.otp);
-      toast.success("OTP verified successfully");
-      setDeletionForm((prev) => ({ ...prev, otpVerified: true }));
-      setDeletionStep("confirm");
-    } catch (error: any) {
-      const message = error.response?.data?.error || "Invalid OTP";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   try {
+  //     await authService.verifyDeletionOTP(deletionForm.otp);
+  //     toast.success("OTP verified successfully");
+  //     setDeletionForm((prev) => ({ ...prev, otpVerified: true }));
+  //     setDeletionStep("confirm");
+  //   } catch (error: any) {
+  //     const message = error.response?.data?.error || "Invalid OTP";
+  //     toast.error(message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   /**
    * Confirms and executes account deletion
    */
-  const confirmAccountDeletion = async () => {
-    if (!user) return;
+  // const confirmAccountDeletion = async () => {
+  //   if (!user) return;
 
-    // Validate based on account type
-    if (user.isGoogleUser && !deletionForm.otpVerified) {
-      toast.error("OTP verification required");
-      return;
-    }
+  //   // Validate based on account type
+  //   if (user.isGoogleUser && !deletionForm.otpVerified) {
+  //     toast.error("OTP verification required");
+  //     return;
+  //   }
 
-    if (!user.isGoogleUser && !deletionForm.password) {
-      toast.error("Password required for account deletion");
-      return;
-    }
+  //   if (!user.isGoogleUser && !deletionForm.password) {
+  //     toast.error("Password required for account deletion");
+  //     return;
+  //   }
 
-    setLoading(true);
+  //   setLoading(true);
 
-    try {
-      await authService.deleteAccount({
-        password: deletionForm.password,
-        otpVerified: deletionForm.otpVerified,
-      });
+  //   try {
+  //     await authService.deleteAccount({
+  //       password: deletionForm.password,
+  //       otpVerified: deletionForm.otpVerified,
+  //     });
 
-      toast.success("Account deleted successfully");
-      logout(); // This will redirect to landing page
-    } catch (error: any) {
-      const message = error.response?.data?.error || "Failed to delete account";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     toast.success("Account deleted successfully");
+  //     logout(); // This will redirect to landing page
+  //   } catch (error: any) {
+  //     const message = error.response?.data?.error || "Failed to delete account";
+  //     toast.error(message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   /**
    * Cancels account deletion process
@@ -300,7 +300,8 @@ const AccountSettings: React.FC = () => {
         </p>
       </div>
 
-      <form onSubmit={handleProfileUpdate} className="space-y-4">
+      {/* <form onSubmit={handleProfileUpdate} className="space-y-4"> */}
+      <form className="space-y-4">
         {/* Username Field */}
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -620,7 +621,7 @@ const AccountSettings: React.FC = () => {
       <div>
         <h3 className="text-lg font-semibold text-red-400 mb-2 flex items-center space-x-2">
           <AlertTriangle size={20} />
-          <span>Danger Zone</span>
+          <span>Account Management</span>
         </h3>
         <p className="text-gray-400 mb-6">
           Irreversible and destructive actions. Please proceed with caution.
@@ -658,8 +659,12 @@ const AccountSettings: React.FC = () => {
                   </ul>
                 </div>
 
-                <button
+                {/* <button
                   onClick={initiateAccountDeletion}
+                  disabled={loading}
+                  className="glass-button px-6 py-3 rounded-lg bg-red-500/20 border-red-500/50 hover:bg-red-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                > */}
+                <button
                   disabled={loading}
                   className="glass-button px-6 py-3 rounded-lg bg-red-500/20 border-red-500/50 hover:bg-red-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
