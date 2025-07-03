@@ -537,7 +537,22 @@ const ChartView: React.FC<ChartViewProps> = ({
         borderWidth: 1,
         // Custom tooltip for histogram
         callbacks:
-          chartType === "histogram"
+          chartType === "pie" || chartType === "polarArea"
+            ? {
+                label: function (context: any) {
+                  const dataset = context.dataset;
+                  const value = dataset.data[context.dataIndex];
+                  const total = dataset.data.reduce(
+                    (sum: number, val: number) => sum + val,
+                    0
+                  );
+                  const percent = total
+                    ? ((value / total) * 100).toFixed(1)
+                    : 0;
+                  return `${context.label}: ${value} (${percent}%)`;
+                },
+              }
+            : chartType === "histogram"
             ? {
                 title: function (context: any) {
                   return `Range: ${context[0].label}`;

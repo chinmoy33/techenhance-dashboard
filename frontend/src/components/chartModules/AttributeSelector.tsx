@@ -49,7 +49,7 @@ const EXCLUDED_ATTRIBUTES = [
   "Education",
   "Email Address",
   "Transaction Number or ID",
-  "Account Number"
+  "Account Number",
 ];
 
 //================= Main Functional Component ===================
@@ -72,7 +72,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
     if (dataset.data && dataset.data.length > 0) {
       analyzeAttributes();
     }
-  }, [dataset.data,selectedAttributes]);
+  }, [dataset.data, selectedAttributes]);
 
   // ===== ATTRIBUTE ANALYSIS FUNCTION =====
   /**
@@ -322,7 +322,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
 
         {/* Control Buttons */}
         <div className="flex items-center space-x-2">
-          <button
+          {/* <button
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="glass-button px-3 py-2 rounded-lg flex items-center space-x-2 text-sm"
           >
@@ -332,7 +332,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
               <ToggleLeft size={16} />
             )}
             <span>Advanced</span>
-          </button>
+          </button> */}
 
           <button
             onClick={analyzeAttributes}
@@ -381,6 +381,9 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
           >
             <option value="all" className="bg-slate-800">
               All Attributes
+            </option>
+            <option value="all" className="bg-slate-800">
+              Compatible Attributes
             </option>
             <option value="selected" className="bg-slate-800">
               Selected Only
@@ -473,9 +476,9 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
                 )}
 
                 {/* Advanced Information */}
-                {showAdvanced && (
-                  <>
-                    <div className="pt-2 border-t border-white/10">
+                {/* {showAdvanced && ( */}
+                <>
+                  {/* <div className="pt-2 border-t border-white/10">
                       <p className="text-gray-500 text-xs mb-1">
                         Sample values:
                       </p>
@@ -492,10 +495,10 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
                             </span>
                           ))}
                       </div>
-                    </div>
+                    </div> */}
 
-                    {/* Type Selector */}
-                    <div className="pt-2">
+                  {/* Type Selector */}
+                  {/* <div className="pt-2">
                       <p className="text-gray-500 text-xs mb-1">Data type:</p>
                       <div className="flex space-x-1">
                         {["number", "string", "date"].map((type) => (
@@ -515,9 +518,9 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
                           </button>
                         ))}
                       </div>
-                    </div>
-                  </>
-                )}
+                    </div> */}
+                </>
+                {/* )} */}
               </div>
             </div>
           );
