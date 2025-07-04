@@ -38,16 +38,22 @@ const DataManager: React.FC<DataManagerProps> = ({
 }) => {
   // ===== STATE MANAGEMENT =====
   const [isUploading, setIsUploading] = useState(false);
-  const [showGenerator, setShowGenerator] = useState(false);
+  // const [showGenerator, setShowGenerator] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
-  const [showDelete, setShowDelete] = useState(false);
-  const [exportDropdownId, setExportDropdownId] = useState<number | null>(null);
+
+  // Separate states for delete flow
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteDataset, setDeleteDataset] = useState<dataObject | null>(null);
-  // const [deleteConfirmationName, setDeleteConfirmationName] = useState("");
+  const [deleteConfirmationName, setDeleteConfirmationName] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const [exportDropdownId, setExportDropdownId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
+
   const hasDeleted = useSelector(
     (state: RootState) => state.warning.hasDeleted
   );
@@ -59,16 +65,15 @@ const DataManager: React.FC<DataManagerProps> = ({
   );
   const [datasetName, setDatasetName] = useState<string>("");
   const [isUpdating, setIsUpdating] = useState(false);
-  const [deleteConfirmationName, setDeleteConfirmationName] = useState("");
 
   useEffect(() => {
     if (!hasDeleted && !hasUploaded && !hasUpdated) {
       setShowWarning(true);
     } else {
       setShowWarning(false);
-      dispatch(setHasDeleted(false)); // Reset after showing warning
-      dispatch(setHasUploaded(false)); // Reset after showing warning
-      dispatch(setHasUpdated(false)); // Reset after showing warning
+      dispatch(setHasDeleted(false));
+      dispatch(setHasUploaded(false));
+      dispatch(setHasUpdated(false));
     }
   }, []);
 
@@ -85,9 +90,9 @@ const DataManager: React.FC<DataManagerProps> = ({
     try {
       await dataService.updateDatasetName(selectedDataset?.id, datasetname);
       toast.success("Dataset name updated successfully!");
-      dispatch(setHasUpdated(true)); // Set updated state
-      dispatch(setHasUpdatedData(true)); // Set updated state
-      onDatasetChange(); // Refresh dataset list
+      dispatch(setHasUpdated(true));
+      dispatch(setHasUpdatedData(true));
+      onDatasetChange();
     } catch (error) {
       toast.error("Failed to update dataset");
       console.error("Update error:", error);
@@ -108,7 +113,6 @@ const DataManager: React.FC<DataManagerProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (file.type !== "text/csv") {
       toast.error("Please select a CSV file");
       return;
@@ -116,40 +120,46 @@ const DataManager: React.FC<DataManagerProps> = ({
 
     setIsUploading(true);
     try {
-      // Upload file to backend
       await dataService.uploadCSV(file);
       toast.success("Dataset uploaded successfully!");
-      dispatch(setHasUploaded(true)); // Set uploaded state
-      dispatch(setHasUpdatedData(true)); // Set updated state
-      onDatasetChange(); // Refresh dataset list
+      dispatch(setHasUploaded(true));
+      dispatch(setHasUpdatedData(true));
+      onDatasetChange();
     } catch (error) {
       toast.error("Failed to upload dataset");
       console.error("Upload error:", error);
     } finally {
       setIsUploading(false);
-      event.target.value = ""; // Clear input
+      event.target.value = "";
     }
   };
 
+  // ===== DELETE FLOW HANDLERS =====
+
   /**
    * Handles dataset deletion with confirmation
+   * Step 1: Show initial delete warning
    */
-  // const handleDeleteDataset = async (id: number, name: string) => {
-  //   // Show confirmation dialog
-  //   setShowDelete(true);
-  //   setDeleteDataset({ id, name });
-  //   console.log("Delete dataset with id:", id);
-  // };
-
   const handleDeleteDataset = (id: number, name: string) => {
-    setShowDelete(true);
     setDeleteDataset({ id, name });
-    setDeleteConfirmationName(""); // Reset confirmation input
+    setShowDeleteWarning(true);
   };
+
+  /**
+   * User confirms they want to delete, show name confirmation
+   * Step 2: User confirms they want to delete, show name confirmation
+   */
+  const handleConfirmDelete = () => {
+    setShowDeleteWarning(false);
+    setShowDeleteConfirmation(true);
+    setDeleteConfirmationName("");
+  };
+
   /**
    * Confirms and executes dataset deletion
+   * Step 3: User types name and confirms final deletion
    */
-  const confirmDeleteDataset = async () => {
+  const handleFinalDelete = async () => {
     if (!deleteDataset) return;
 
     if (deleteConfirmationName !== deleteDataset.name) {
@@ -159,85 +169,38 @@ const DataManager: React.FC<DataManagerProps> = ({
       return;
     }
 
+    setIsDeleting(true);
     try {
       await dataService.deleteDataset(deleteDataset.id);
       toast.success("Dataset deleted successfully");
       dispatch(setHasDeleted(true));
       dispatch(setHasUpdatedData(true));
       onDatasetChange();
-      setShowDelete(false);
-      setDeleteDataset(null);
-      setDeleteConfirmationName("");
+      handleCancelDelete();
     } catch (error) {
       toast.error("Failed to delete dataset");
       console.error("Delete error:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   /**
    * Cancels dataset deletion
+   * Cancel delete flow at any point
    */
-  const cancelDeleteDataset = () => {
-    setShowDelete(false);
+  const handleCancelDelete = () => {
+    setShowDeleteWarning(false);
+    setShowDeleteConfirmation(false);
     setDeleteDataset(null);
     setDeleteConfirmationName("");
   };
+
   /**
    * Exports dataset in specified format
    */
-  // const exportDataset = (dataset: Dataset, format: "csv" | "json") => {
-  //   try {
-  //     let content = "";
-  //     let mimeType = "";
-  //     let extension = "";
-
-  //     if (format === "csv") {
-  //       // Generate CSV content
-  //       const headers = Object.keys(dataset.data[0] || {});
-  //       const csvContent = [
-  //         headers.join(","), // Header row
-  //         ...dataset.data.map((row) =>
-  //           headers
-  //             .map((header) =>
-  //               // Escape commas in string values
-  //               typeof row[header] === "string" && row[header].includes(",")
-  //                 ? `"${row[header]}"`
-  //                 : row[header]
-  //             )
-  //             .join(",")
-  //         ),
-  //       ].join("\n");
-
-  //       content = csvContent;
-  //       mimeType = "text/csv";
-  //       extension = "csv";
-  //     } else {
-  //       // Generate JSON content
-  //       content = JSON.stringify(dataset.data, null, 2);
-  //       mimeType = "application/json";
-  //       extension = "json";
-  //     }
-
-  //     // Create and trigger download
-  //     const blob = new Blob([content], { type: mimeType });
-  //     const url = URL.createObjectURL(blob);
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.download = `${dataset.name}.${extension}`;
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     document.body.removeChild(link);
-  //     URL.revokeObjectURL(url);
-
-  //     toast.success(`Dataset exported as ${format.toUpperCase()}`);
-  //   } catch (error) {
-  //     toast.error("Failed to export dataset");
-  //     console.error("Export error:", error);
-  //   }
-  // };
   const exportDataset = async (dataset: Dataset, format: "csv" | "json") => {
     try {
-      // Step 1: Fetch full dataset if data is missing
       let fullDataset = dataset;
 
       if (!Array.isArray(dataset.data) || dataset.data.length === 0) {
@@ -253,7 +216,6 @@ const DataManager: React.FC<DataManagerProps> = ({
         return;
       }
 
-      // Step 2: Format content
       let content = "";
       let mimeType = "";
       let extension = "";
@@ -261,7 +223,7 @@ const DataManager: React.FC<DataManagerProps> = ({
       if (format === "csv") {
         const headers = Object.keys(data[0] || {});
         const csvContent = [
-          headers.join(","), // Header row
+          headers.join(","),
           ...data.map((row) =>
             headers
               .map((header) =>
@@ -282,7 +244,6 @@ const DataManager: React.FC<DataManagerProps> = ({
         extension = "json";
       }
 
-      // Step 3: Trigger file download
       const blob = new Blob([content], { type: mimeType });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -301,10 +262,131 @@ const DataManager: React.FC<DataManagerProps> = ({
   };
 
   // ===== RENDER COMPONENTS =====
+
+  /**
+   * Renders delete warning modal (Step 1)
+   */
+  const renderDeleteWarningModal = () =>
+    showDeleteWarning &&
+    deleteDataset && (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="glass-card p-6 max-w-md w-full mx-4 animate-scale-in">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-red-500/20 rounded-lg">
+                <AlertTriangle size={24} className="text-red-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white">
+                Delete Dataset
+              </h3>
+            </div>
+            <button
+              onClick={handleCancelDelete}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <X size={20} className="text-gray-400" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <p className="text-gray-300">
+              Are you sure you want to delete the dataset{" "}
+              <strong>"{deleteDataset.name}"</strong>?
+            </p>
+            <p className="text-sm text-red-400">
+              This action cannot be undone. All data will be permanently
+              removed.
+            </p>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={handleConfirmDelete}
+                className="flex-1 bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-2 rounded-lg hover:bg-red-500/30 transition-colors"
+              >
+                Yes, Delete
+              </button>
+              <button
+                onClick={handleCancelDelete}
+                className="flex-1 glass-button px-4 py-2 rounded-lg"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
+  /**
+   * Renders delete confirmation modal (Step 2)
+   */
+  const renderDeleteConfirmationModal = () =>
+    showDeleteConfirmation &&
+    deleteDataset && (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="glass-card p-6 max-w-md w-full mx-4 animate-scale-in">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-red-500/20 rounded-lg">
+                <AlertTriangle size={24} className="text-red-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white">
+                Confirm Deletion
+              </h3>
+            </div>
+            <button
+              onClick={handleCancelDelete}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              disabled={isDeleting}
+            >
+              <X size={20} className="text-gray-400" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <p className="text-gray-300">
+              To confirm deletion, please type the dataset name:
+            </p>
+            <p className="text-sm font-mono bg-gray-800/50 p-2 rounded border text-white">
+              {deleteDataset.name}
+            </p>
+
+            <input
+              type="text"
+              value={deleteConfirmationName}
+              onChange={(e) => setDeleteConfirmationName(e.target.value)}
+              placeholder="Type dataset name here"
+              className="w-full px-3 py-2 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-red-400 text-white"
+              disabled={isDeleting}
+              autoFocus
+            />
+
+            <div className="flex space-x-3">
+              <button
+                onClick={handleFinalDelete}
+                disabled={
+                  deleteConfirmationName !== deleteDataset.name || isDeleting
+                }
+                className="flex-1 bg-red-500/20 border border-red-500/50 text-red-300 px-4 py-2 rounded-lg hover:bg-red-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? "Deleting..." : "Delete Forever"}
+              </button>
+              <button
+                onClick={handleCancelDelete}
+                className="flex-1 glass-button px-4 py-2 rounded-lg"
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
   /**
    * Renders the dataset settings modal
    */
-
   const renderSettingsModal = () =>
     showSettings &&
     selectedDataset && (
@@ -340,21 +422,9 @@ const DataManager: React.FC<DataManagerProps> = ({
               />
             </div>
 
-            {/* <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Dataset Type</label>
-            <select className="w-full px-3 py-2 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white">
-              <option value="time_series">Time Series</option>
-              <option value="categorical">Categorical</option>
-              <option value="distribution">Distribution</option>
-              <option value="generic">Generic</option>
-            </select>
-          </div> */}
-
             <div className="flex space-x-3">
               <button
-                onClick={() => {
-                  handleChangeName(datasetName);
-                }}
+                onClick={() => handleChangeName(datasetName)}
                 className="flex-1 glass-button px-4 py-2 rounded-lg bg-primary-500/20 border-primary-500/50"
               >
                 <span>{isUpdating ? "Updating..." : "Save Changes"}</span>
@@ -383,7 +453,6 @@ const DataManager: React.FC<DataManagerProps> = ({
       className="glass-card p-4 hover:bg-white/10 transition-all duration-200"
     >
       <div className="flex items-center justify-between">
-        {/* Dataset Info */}
         <div className="flex items-center space-x-4">
           <div className="p-2 bg-primary-500/20 rounded-lg">
             <FileText size={20} className="text-primary-400" />
@@ -396,7 +465,6 @@ const DataManager: React.FC<DataManagerProps> = ({
                 {dataset.dataPoints || dataset.data?.length || 0} points
               </span>
               <span>•</span>
-              {/* Dataset Type Badge */}
               <span
                 className={`px-2 py-1 rounded-full text-xs ${
                   dataset.type === "time_series"
@@ -416,17 +484,15 @@ const DataManager: React.FC<DataManagerProps> = ({
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex items-center space-x-2">
-          {/* Export Dropdown Button */}
           <div className="relative">
             <button
               onClick={() => {
                 if (exportDropdownId === dataset.id) {
-                  setExportDropdownId(null); // close if already open
+                  setExportDropdownId(null);
                 } else {
-                  setExportDropdownId(dataset.id); // open for current
-                  setShowSettings(false); // close settings if open
+                  setExportDropdownId(dataset.id);
+                  setShowSettings(false);
                   setSelectedDataset(dataset);
                 }
               }}
@@ -444,9 +510,7 @@ const DataManager: React.FC<DataManagerProps> = ({
                   1. Export CSV
                 </button>
                 <button
-                  onClick={() => {
-                    exportDataset(dataset, "json");
-                  }}
+                  onClick={() => exportDataset(dataset, "json")}
                   className="w-full text-left px-2 py-1 hover:bg-white/10 rounded text-sm text-gray-300"
                 >
                   2. Export JSON
@@ -455,14 +519,13 @@ const DataManager: React.FC<DataManagerProps> = ({
             )}
           </div>
 
-          {/* Settings Button */}
           <button
             onClick={() => {
               if (showSettings && selectedDataset?.id === dataset.id) {
                 setShowSettings(false);
                 setSelectedDataset(null);
               } else {
-                setExportDropdownId(null); // close dropdown if open
+                setExportDropdownId(null);
                 setSelectedDataset(dataset);
                 setShowSettings(true);
               }
@@ -472,7 +535,6 @@ const DataManager: React.FC<DataManagerProps> = ({
             <Settings size={16} className="text-gray-400 hover:text-white" />
           </button>
 
-          {/* Delete Button */}
           <button
             onClick={() => handleDeleteDataset(dataset.id, dataset.name)}
             className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
@@ -531,11 +593,11 @@ const DataManager: React.FC<DataManagerProps> = ({
         onDatasetChange={onDatasetChange}
         deleteConfirmationName={deleteConfirmationName}
         setDeleteConfirmationName={setDeleteConfirmationName}
-        confirmDeleteDataset={confirmDeleteDataset}
-        cancelDeleteDataset={cancelDeleteDataset}
+        confirmDeleteDataset={() => {}}
+        cancelDeleteDataset={() => {}}
       />
     </div>
-  ) : !showDelete ? (
+  ) : (
     <div className="space-y-6 animate-fade-in">
       {/* Header Section */}
       <div className="flex items-center justify-between">
@@ -546,16 +608,7 @@ const DataManager: React.FC<DataManagerProps> = ({
           </p>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex space-x-3">
-          {/* <button
-          onClick={() => setShowGenerator(true)}
-          className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 hover:scale-105 transition-transform"
-        >
-          <Zap size={16} />
-          <span>Generate Data</span>
-        </button> */}
-
           <label className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 cursor-pointer hover:scale-105 transition-transform">
             <FileText size={16} />
             <span>{isUploading ? "Uploading..." : "Upload CSV"}</span>
@@ -588,7 +641,6 @@ const DataManager: React.FC<DataManagerProps> = ({
           </div>
         </div>
 
-        {/* Dataset Items or Empty State */}
         <div className="space-y-4">
           {datasets.length > 0
             ? datasets.map(renderDatasetItem)
@@ -598,22 +650,9 @@ const DataManager: React.FC<DataManagerProps> = ({
 
       {/* Modals */}
       {renderSettingsModal()}
+      {renderDeleteWarningModal()}
+      {renderDeleteConfirmationModal()}
     </div>
-  ) : (
-    <DataWarningModal
-      isOpen={true}
-      // onClose={() => setShowDelete(false)}
-      // onAcknowledge={() => setShowDelete(false)}
-      onClose={cancelDeleteDataset}
-      onAcknowledge={confirmDeleteDataset}
-      deleteDataset={deleteDataset}
-      showDelete={showDelete}
-      onDatasetChange={onDatasetChange}
-      deleteConfirmationName={deleteConfirmationName}
-      setDeleteConfirmationName={setDeleteConfirmationName}
-      confirmDeleteDataset={confirmDeleteDataset}
-      cancelDeleteDataset={cancelDeleteDataset}
-    />
   );
 };
 
