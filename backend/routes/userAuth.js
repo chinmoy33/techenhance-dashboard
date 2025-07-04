@@ -1,8 +1,8 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const supabase = require('../supabaseClient.ts');
-const { emailService } = require('../services/emailService.js');
-const { otpService } = require('../services/otpService.js');
+const emailService = require('../services/emailService.js');
+const otpService = require('../services/otpService.js');
 
 const router = express.Router();
 
@@ -101,13 +101,15 @@ router.post('/verify-otp', [
 
         const { type, otp } = req.body;
         const user = req.user;
-
+        console.log('Verifying OTP:', { userId: user.id, type, otp });
         // Verify OTP
         const isValid = otpService.verifyOTP(user.id, type, otp);
 
         if (!isValid) {
+            console.log('OTP verification failed:', { userId: user.id, type });
             return res.status(400).json({ error: 'Invalid or expired OTP' });
         }
+        console.log('OTP verification succeeded:', { userId: user.id, type });
 
         res.json({
             success: true,

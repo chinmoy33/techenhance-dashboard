@@ -52,7 +52,7 @@ const AccountSettings: React.FC = () => {
       loading: false,
     },
     account_deletion: {
-      step: "initial" as "initial" | "otp_sent" | "verified" | "confirm",
+      step: "initial" as "initial" | "otp_sent" | "verified",
       otp: "",
       loading: false,
     },
@@ -142,7 +142,7 @@ const AccountSettings: React.FC = () => {
         ...prev,
         [type]: {
           ...prev[type],
-          step: type === "account_deletion" ? "confirm" : "verified",
+          step: "verified",
           loading: false,
         },
       }));
@@ -170,6 +170,7 @@ const AccountSettings: React.FC = () => {
       },
     }));
     authService.clearOTP(type);
+    authService.resetCachedToken(); // Reset token
   };
 
   // ===== PROFILE MANAGEMENT =====
@@ -395,7 +396,7 @@ const AccountSettings: React.FC = () => {
           </div>
         )}
 
-        {(state.step === "verified" || state.step === "confirm") && (
+        {state.step === "verified" && (
           <div className="flex items-center space-x-2 text-green-400">
             <CheckCircle size={16} />
             <span className="text-sm">OTP Verified Successfully</span>
@@ -724,7 +725,7 @@ const AccountSettings: React.FC = () => {
               )}
 
             {/* Final Confirmation */}
-            {otpStates.account_deletion.step === "confirm" && (
+            {otpStates.account_deletion.step === "verified" && (
               <div className="space-y-4">
                 <div className="glass-card p-4 bg-red-500/20 border-red-500/50">
                   <div className="flex items-center space-x-2 mb-2">

@@ -7,13 +7,16 @@ const api = axios.create({
   timeout: 10000,
 });
 
+let cachedToken: string | null = null;
+
 // Add auth token to requests
 api.interceptors.request.use(async (config) => {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (session?.access_token) {
-    config.headers.Authorization = `Bearer ${session.access_token}`;
+  cachedToken = session?.access_token || null;
+  if (cachedToken) {
+    config.headers.Authorization = `Bearer ${cachedToken}`;
   }
   return config;
 });
@@ -145,7 +148,7 @@ export const authService = {
 
       // Sign out from Supabase client
       await supabase.auth.signOut();
-
+      cachedToken = null; // Clear token after deletion
       return response.data;
     } catch (error: any) {
       console.error("Delete account error:", error);
@@ -153,6 +156,10 @@ export const authService = {
         error.response?.data?.error || "Failed to delete account"
       );
     }
+  },
+
+  resetCachedToken() {
+    cachedToken = null;
   },
 
   /**
