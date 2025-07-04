@@ -7,6 +7,8 @@ const rateLimit = require("express-rate-limit");
 const pool = require("./db");
 const multer = require("multer");
 
+// Import routes
+const userAuthRoutes = require("./routes/userAuth");
 // Load environment variables
 require("dotenv").config();
 
@@ -29,7 +31,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/datasets", datasetroute);
 app.use("/api/recommendations", require("./routes/recommendationroute"));
-
+// User authentication routes
+app.use('/api/user-auth', userAuthRoutes)
 // Test the connection
 // pool.query("SELECT NOW()", (err, res) => {
 //   if (err) {
