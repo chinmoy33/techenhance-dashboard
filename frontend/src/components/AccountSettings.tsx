@@ -20,6 +20,9 @@ import { supabase } from "../supabaseClient";
 import { authService } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 
+// Comment out the profile username, email and password change logic for future implementation because during login or signup the password setting is not mandatory.
+// profile username, email and password change code yet to configure and require debugging.
+
 const AccountSettings: React.FC = () => {
   // ===== STATE MANAGEMENT =====
   const navigate = useNavigate();
@@ -33,24 +36,24 @@ const AccountSettings: React.FC = () => {
   });
 
   // Password change state
-  const [passwordForm, setPasswordForm] = useState({
-    newPassword: "",
-    confirmPassword: "",
-  });
+  // const [passwordForm, setPasswordForm] = useState({
+  //   newPassword: "",
+  //   confirmPassword: "",
+  // });
 
   // OTP verification states
   const [otpStates, setOtpStates] = useState({
-    email_change: {
-      step: "initial" as "initial" | "otp_sent" | "verified",
-      otp: "",
-      newEmail: "",
-      loading: false,
-    },
-    password_change: {
-      step: "initial" as "initial" | "otp_sent" | "verified",
-      otp: "",
-      loading: false,
-    },
+    // email_change: {
+    //   step: "initial" as "initial" | "otp_sent" | "verified",
+    //   otp: "",
+    //   newEmail: "",
+    //   loading: false,
+    // },
+    // password_change: {
+    //   step: "initial" as "initial" | "otp_sent" | "verified",
+    //   otp: "",
+    //   loading: false,
+    // },
     account_deletion: {
       step: "initial" as "initial" | "otp_sent" | "verified",
       otp: "",
@@ -61,10 +64,10 @@ const AccountSettings: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"profile" | "security" | "danger">(
     "profile"
   );
-  const [showPasswords, setShowPasswords] = useState({
-    new: false,
-    confirm: false,
-  });
+  // const [showPasswords, setShowPasswords] = useState({
+  //   new: false,
+  //   confirm: false,
+  // });
 
   // ===== INITIALIZATION =====
   useEffect(() => {
@@ -185,27 +188,27 @@ const AccountSettings: React.FC = () => {
         toast.success("Username updated successfully!");
       }
 
-      // For email update, we need OTP verification
-      if (profileForm.email !== user.email) {
-        if (otpStates.email_change.step !== "verified") {
-          // Store the new email and initiate OTP process
-          setOtpStates((prev) => ({
-            ...prev,
-            email_change: { ...prev.email_change, newEmail: profileForm.email },
-          }));
-          toast.info(
-            "Email change requires verification. Please verify your OTP."
-          );
-          return;
-        }
+      // // For email update, we need OTP verification
+      // if (profileForm.email !== user.email) {
+      //   if (otpStates.email_change.step !== "verified") {
+      //     // Store the new email and initiate OTP process
+      //     setOtpStates((prev) => ({
+      //       ...prev,
+      //       email_change: { ...prev.email_change, newEmail: profileForm.email },
+      //     }));
+      //     toast.info(
+      //       "Email change requires verification. Please verify your OTP."
+      //     );
+      //     return;
+      //   }
 
-        // If OTP is verified, proceed with email update
-        await authService.updateEmail(profileForm.email);
-        toast.success(
-          "Email update initiated! Please check your email for confirmation."
-        );
-        resetOTPState("email_change");
-      }
+      //   // If OTP is verified, proceed with email update
+      //   await authService.updateEmail(profileForm.email);
+      //   toast.success(
+      //     "Email update initiated! Please check your email for confirmation."
+      //   );
+      //   resetOTPState("email_change");
+      // }
 
       // Reload user data
       await loadUserData();
@@ -217,42 +220,42 @@ const AccountSettings: React.FC = () => {
   };
 
   // ===== PASSWORD MANAGEMENT =====
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handlePasswordChange = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    // Validate password confirmation
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error("New passwords do not match");
-      return;
-    }
+  //   // Validate password confirmation
+  //   if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+  //     toast.error("New passwords do not match");
+  //     return;
+  //   }
 
-    // Validate password strength
-    if (passwordForm.newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
-      return;
-    }
+  //   // Validate password strength
+  //   if (passwordForm.newPassword.length < 6) {
+  //     toast.error("New password must be at least 6 characters");
+  //     return;
+  //   }
 
-    // Check if OTP is verified
-    if (otpStates.password_change.step !== "verified") {
-      toast.error("Password change requires OTP verification");
-      return;
-    }
+  //   // Check if OTP is verified
+  //   if (otpStates.password_change.step !== "verified") {
+  //     toast.error("Password change requires OTP verification");
+  //     return;
+  //   }
 
-    setLoading(true);
+  //   setLoading(true);
 
-    try {
-      await authService.updatePassword(passwordForm.newPassword);
-      toast.success("Password changed successfully!");
+  //   try {
+  //     await authService.updatePassword(passwordForm.newPassword);
+  //     toast.success("Password changed successfully!");
 
-      // Clear form and reset OTP state
-      setPasswordForm({ newPassword: "", confirmPassword: "" });
-      resetOTPState("password_change");
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     // Clear form and reset OTP state
+  //     setPasswordForm({ newPassword: "", confirmPassword: "" });
+  //     resetOTPState("password_change");
+  //   } catch (error: any) {
+  //     toast.error(error.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // ===== ACCOUNT DELETION =====
   const handleAccountDeletion = async () => {
@@ -280,12 +283,12 @@ const AccountSettings: React.FC = () => {
     setProfileForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePasswordInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = e.target;
-    setPasswordForm((prev) => ({ ...prev, [name]: value }));
-  };
+  // const handlePasswordInputChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>
+  // ) => {
+  //   const { name, value } = e.target;
+  //   setPasswordForm((prev) => ({ ...prev, [name]: value }));
+  // };
 
   const handleOTPInputChange = (
     type: "email_change" | "password_change" | "account_deletion",
@@ -297,14 +300,14 @@ const AccountSettings: React.FC = () => {
     }));
   };
 
-  const togglePasswordVisibility = (field: "new" | "confirm") => {
-    setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
-  };
+  // const togglePasswordVisibility = (field: "new" | "confirm") => {
+  //   setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
+  // };
 
   // ===== TAB DEFINITIONS =====
   const tabs = [
     { id: "profile" as const, label: "Profile", icon: User },
-    { id: "security" as const, label: "Security", icon: Shield },
+    // { id: "security" as const, label: "Security", icon: Shield },
     { id: "danger" as const, label: "Account Management", icon: AlertTriangle },
   ];
 
@@ -415,14 +418,12 @@ const AccountSettings: React.FC = () => {
         <h3 className="text-lg font-semibold text-white mb-2">
           Profile Information
         </h3>
-        <p className="text-gray-400 mb-6">
-          Update your account profile information
-        </p>
+        <p className="text-gray-400 mb-6">Your account profile information</p>
       </div>
 
-      <form onSubmit={handleProfileUpdate} className="space-y-4">
-        {/* Username Field */}
-        <div>
+      {/* <form onSubmit={handleProfileUpdate} className="space-y-4"> */}
+      {/* Username Field */}
+      {/* <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Username
           </label>
@@ -441,10 +442,10 @@ const AccountSettings: React.FC = () => {
               required
             />
           </div>
-        </div>
+        </div> */}
 
-        {/* Email Field */}
-        <div>
+      {/* Email Field */}
+      {/* <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Email Address
           </label>
@@ -462,10 +463,10 @@ const AccountSettings: React.FC = () => {
               placeholder="Enter your email"
               required
             />
-          </div>
+          </div> */}
 
-          {/* Email Change OTP Verification */}
-          {profileForm.email !== user?.email && (
+      {/* Email Change OTP Verification */}
+      {/* {profileForm.email !== user?.email && (
             <div className="mt-3">
               {renderOTPVerification(
                 "email_change",
@@ -473,21 +474,21 @@ const AccountSettings: React.FC = () => {
                 "To change your email address, please verify your identity with an OTP sent to your current email."
               )}
             </div>
-          )}
-        </div>
+          )} */}
+      {/* </div> */}
 
-        {/* Account Type Info */}
-        <div className="glass-card p-4 bg-blue-500/10 border-blue-500/30">
+      {/* Account Type Info */}
+      {/* <div className="glass-card p-4 bg-blue-500/10 border-blue-500/30">
           <div className="flex items-center space-x-2">
             <Mail size={16} className="text-blue-400" />
             <span className="text-blue-300">
               {user?.provider === "google" ? "Google Account" : "Email Account"}
             </span>
           </div>
-        </div>
+        </div> */}
 
-        {/* Submit Button */}
-        <button
+      {/* Submit Button */}
+      {/* <button
           type="submit"
           disabled={loading}
           className="w-full glass-button py-3 rounded-lg bg-primary-500/20 border-primary-500/50 hover:bg-primary-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
@@ -500,177 +501,222 @@ const AccountSettings: React.FC = () => {
           ) : (
             "Update Profile"
           )}
-        </button>
-      </form>
-    </div>
-  );
+        </button> */}
+      {/* </form> */}
 
-  /**
-   * Renders the security settings tab
-   */
-  const renderSecurityTab = () => (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-white mb-2">
-          Security Settings
-        </h3>
-        <p className="text-gray-400 mb-6">
-          Manage your account security and password
-        </p>
-      </div>
-
-      {/* Password Change Section */}
+      {/* Profile Information Display */}
       <div className="space-y-4">
-        <h4 className="text-md font-medium text-white mb-4 flex items-center space-x-2">
-          <Key size={16} className="text-primary-400" />
-          <span>Change Password</span>
-        </h4>
-
-        {/* OTP Verification for Password Change */}
-        {renderOTPVerification(
-          "password_change",
-          "Password Change Verification",
-          "To change your password, please verify your identity with an OTP sent to your email."
-        )}
-
-        {/* Password Change Form - Only show if OTP is verified */}
-        {otpStates.password_change.step === "verified" && (
-          <form onSubmit={handlePasswordChange} className="space-y-4 mt-4">
-            {/* New Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                New Password
-              </label>
-              <div className="relative">
-                <Lock
-                  size={20}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                />
-                <input
-                  type={showPasswords.new ? "text" : "password"}
-                  name="newPassword"
-                  value={passwordForm.newPassword}
-                  onChange={handlePasswordInputChange}
-                  className="w-full pl-10 pr-12 py-3 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white placeholder-gray-400"
-                  placeholder="Enter new password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => togglePasswordVisibility("new")}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                >
-                  {showPasswords.new ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
+        {/* Username Display */}
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Username
+          </label>
+          <div className="relative">
+            <User
+              size={20}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
+            <div className="w-full pl-10 pr-4 py-3 glass-card border border-white/20 rounded-lg text-white">
+              {profileForm.username || "Not set"}
             </div>
+          </div>
+        </div>
 
-            {/* Confirm New Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Confirm New Password
-              </label>
-              <div className="relative">
-                <Lock
-                  size={20}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                />
-                <input
-                  type={showPasswords.confirm ? "text" : "password"}
-                  name="confirmPassword"
-                  value={passwordForm.confirmPassword}
-                  onChange={handlePasswordInputChange}
-                  className="w-full pl-10 pr-12 py-3 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white placeholder-gray-400"
-                  placeholder="Confirm new password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => togglePasswordVisibility("confirm")}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                >
-                  {showPasswords.confirm ? (
-                    <EyeOff size={20} />
-                  ) : (
-                    <Eye size={20} />
-                  )}
-                </button>
-              </div>
+        {/* Email Display */}
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Email Address
+          </label>
+          <div className="relative">
+            <Mail
+              size={20}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
+            <div className="w-full pl-10 pr-4 py-3 glass-card border border-white/20 rounded-lg text-white">
+              {profileForm.email || "Not set"}
             </div>
+          </div>
+        </div>
 
-            {/* Password Requirements */}
-            <div className="glass-card p-4 bg-yellow-500/10 border-yellow-500/30">
-              <h5 className="text-sm font-medium text-yellow-300 mb-2">
-                Password Requirements:
-              </h5>
-              <ul className="text-sm text-yellow-200 space-y-1">
-                <li>• At least 6 characters long</li>
-                <li>• Should be unique and secure</li>
-                <li>• Different from your current password</li>
-              </ul>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full glass-button py-3 rounded-lg bg-primary-500/20 border-primary-500/50 hover:bg-primary-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  <span>Changing Password...</span>
-                </div>
-              ) : (
-                "Change Password"
-              )}
-            </button>
-          </form>
-        )}
-      </div>
-
-      {/* Account Information */}
-      <div className="glass-card p-4">
-        <h4 className="text-md font-medium text-white mb-3">
-          Account Information
-        </h4>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-gray-400">Account Type:</span>
-            <span className="text-white">
+        {/* Account Type Info */}
+        <div className="glass-card p-4 bg-blue-500/10 border-blue-500/30">
+          <div className="flex items-center space-x-2">
+            <Mail size={16} className="text-blue-400" />
+            <span className="text-blue-300">
               {user?.provider === "google" ? "Google Account" : "Email Account"}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-400">Email Confirmed:</span>
-            <span
-              className={
-                user?.isEmailConfirmed ? "text-green-400" : "text-orange-400"
-              }
-            >
-              {user?.isEmailConfirmed ? "Yes" : "Pending"}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-400">Member Since:</span>
-            <span className="text-white">
-              {user?.createdAt
-                ? new Date(user.createdAt).toLocaleDateString()
-                : "Unknown"}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-400">Last Sign In:</span>
-            <span className="text-white">
-              {user?.lastSignIn
-                ? new Date(user.lastSignIn).toLocaleDateString()
-                : "Unknown"}
             </span>
           </div>
         </div>
       </div>
     </div>
   );
+
+  /**
+   * Renders the security settings tab
+   */
+  // const renderSecurityTab = () => (
+  //   <div className="space-y-6">
+  //     <div>
+  //       <h3 className="text-lg font-semibold text-white mb-2">
+  //         Security Settings
+  //       </h3>
+  //       <p className="text-gray-400 mb-6">
+  //         Manage your account security and password
+  //       </p>
+  //     </div>
+
+  //     {/* Password Change Section */}
+  //     <div className="space-y-4">
+  //       <h4 className="text-md font-medium text-white mb-4 flex items-center space-x-2">
+  //         <Key size={16} className="text-primary-400" />
+  //         <span>Change Password</span>
+  //       </h4>
+
+  //       {/* OTP Verification for Password Change */}
+  //       {renderOTPVerification(
+  //         "password_change",
+  //         "Password Change Verification",
+  //         "To change your password, please verify your identity with an OTP sent to your email."
+  //       )}
+
+  //       {/* Password Change Form - Only show if OTP is verified */}
+  //       {otpStates.password_change.step === "verified" && (
+  //         <form onSubmit={handlePasswordChange} className="space-y-4 mt-4">
+  //           {/* New Password */}
+  //           <div>
+  //             <label className="block text-sm font-medium text-gray-300 mb-2">
+  //               New Password
+  //             </label>
+  //             <div className="relative">
+  //               <Lock
+  //                 size={20}
+  //                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+  //               />
+  //               <input
+  //                 type={showPasswords.new ? "text" : "password"}
+  //                 name="newPassword"
+  //                 value={passwordForm.newPassword}
+  //                 onChange={handlePasswordInputChange}
+  //                 className="w-full pl-10 pr-12 py-3 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white placeholder-gray-400"
+  //                 placeholder="Enter new password"
+  //                 required
+  //               />
+  //               <button
+  //                 type="button"
+  //                 onClick={() => togglePasswordVisibility("new")}
+  //                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+  //               >
+  //                 {showPasswords.new ? <EyeOff size={20} /> : <Eye size={20} />}
+  //               </button>
+  //             </div>
+  //           </div>
+
+  //           {/* Confirm New Password */}
+  //           <div>
+  //             <label className="block text-sm font-medium text-gray-300 mb-2">
+  //               Confirm New Password
+  //             </label>
+  //             <div className="relative">
+  //               <Lock
+  //                 size={20}
+  //                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+  //               />
+  //               <input
+  //                 type={showPasswords.confirm ? "text" : "password"}
+  //                 name="confirmPassword"
+  //                 value={passwordForm.confirmPassword}
+  //                 onChange={handlePasswordInputChange}
+  //                 className="w-full pl-10 pr-12 py-3 glass-card border border-white/20 rounded-lg focus:outline-none focus:border-primary-400 text-white placeholder-gray-400"
+  //                 placeholder="Confirm new password"
+  //                 required
+  //               />
+  //               <button
+  //                 type="button"
+  //                 onClick={() => togglePasswordVisibility("confirm")}
+  //                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+  //               >
+  //                 {showPasswords.confirm ? (
+  //                   <EyeOff size={20} />
+  //                 ) : (
+  //                   <Eye size={20} />
+  //                 )}
+  //               </button>
+  //             </div>
+  //           </div>
+
+  //           {/* Password Requirements */}
+  //           <div className="glass-card p-4 bg-yellow-500/10 border-yellow-500/30">
+  //             <h5 className="text-sm font-medium text-yellow-300 mb-2">
+  //               Password Requirements:
+  //             </h5>
+  //             <ul className="text-sm text-yellow-200 space-y-1">
+  //               <li>• At least 6 characters long</li>
+  //               <li>• Should be unique and secure</li>
+  //               <li>• Different from your current password</li>
+  //             </ul>
+  //           </div>
+
+  //           {/* Submit Button */}
+  //           <button
+  //             type="submit"
+  //             disabled={loading}
+  //             className="w-full glass-button py-3 rounded-lg bg-primary-500/20 border-primary-500/50 hover:bg-primary-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+  //           >
+  //             {loading ? (
+  //               <div className="flex items-center justify-center space-x-2">
+  //                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+  //                 <span>Changing Password...</span>
+  //               </div>
+  //             ) : (
+  //               "Change Password"
+  //             )}
+  //           </button>
+  //         </form>
+  //       )}
+  //     </div>
+
+  //     {/* Account Information */}
+  //     <div className="glass-card p-4">
+  //       <h4 className="text-md font-medium text-white mb-3">
+  //         Account Information
+  //       </h4>
+  //       <div className="space-y-2 text-sm">
+  //         <div className="flex justify-between">
+  //           <span className="text-gray-400">Account Type:</span>
+  //           <span className="text-white">
+  //             {user?.provider === "google" ? "Google Account" : "Email Account"}
+  //           </span>
+  //         </div>
+  //         <div className="flex justify-between">
+  //           <span className="text-gray-400">Email Confirmed:</span>
+  //           <span
+  //             className={
+  //               user?.isEmailConfirmed ? "text-green-400" : "text-orange-400"
+  //             }
+  //           >
+  //             {user?.isEmailConfirmed ? "Yes" : "Pending"}
+  //           </span>
+  //         </div>
+  //         <div className="flex justify-between">
+  //           <span className="text-gray-400">Member Since:</span>
+  //           <span className="text-white">
+  //             {user?.createdAt
+  //               ? new Date(user.createdAt).toLocaleDateString()
+  //               : "Unknown"}
+  //           </span>
+  //         </div>
+  //         <div className="flex justify-between">
+  //           <span className="text-gray-400">Last Sign In:</span>
+  //           <span className="text-white">
+  //             {user?.lastSignIn
+  //               ? new Date(user.lastSignIn).toLocaleDateString()
+  //               : "Unknown"}
+  //           </span>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
 
   /**
    * Renders the account management tab
@@ -819,7 +865,7 @@ const AccountSettings: React.FC = () => {
       {/* Tab Content */}
       <div className="glass-card p-6">
         {activeTab === "profile" && renderProfileTab()}
-        {activeTab === "security" && renderSecurityTab()}
+        {/* {activeTab === "security" && renderSecurityTab()} */}
         {activeTab === "danger" && renderDangerTab()}
       </div>
     </div>
