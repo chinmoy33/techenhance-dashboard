@@ -61,9 +61,9 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
 }) => {
   // ===== STATE MANAGEMENT =====
   const [attributes, setAttributes] = useState<AttributeInfo[]>([]);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  // const [showAdvanced, setShowAdvanced] = useState(false);
   const [filterType, setFilterType] = useState<
-    "all" | "selected" | "numeric" | "categorical"
+    "all" | "compatible" | "selected" | "numeric" | "categorical"
   >("all");
 
   // ===== INITIALIZATION EFFECT =====
@@ -78,13 +78,12 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
   /**
    * Analyzes dataset attributes to determine data types and statistics
    * Automatically detects numeric, categorical, and date columns
-   * Excludes specified attributes from being displayed
+   * Note: This function now includes ALL attributes for analysis,
+   * but filtering is handled separately in the render logic
    */
   const analyzeAttributes = () => {
     const firstRow = dataset.data[0];
-    const attributeNames = Object.keys(firstRow).filter(
-      (name) => !EXCLUDED_ATTRIBUTES.includes(name)
-    );
+    const attributeNames = Object.keys(firstRow); // Include ALL attributes
 
     const analyzedAttributes: AttributeInfo[] = attributeNames.map((name) => {
       // Extract all non-null values for analysis
@@ -129,6 +128,15 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
     });
 
     setAttributes(analyzedAttributes);
+  };
+
+  // ===== UTILITY FUNCTION FOR COMPATIBILITY CHECK =====
+  /**
+   * Checks if an attribute is compatible (not in excluded list)
+   * This is the core logic for the "Compatible Attributes" filter
+   */
+  const isCompatibleAttribute = (attributeName: string): boolean => {
+    return !EXCLUDED_ATTRIBUTES.includes(attributeName);
   };
 
   // ===== SELECTION MANAGEMENT FUNCTIONS =====
@@ -178,10 +186,17 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
 
   /**
    * Selects all numeric attributes (up to the limit)
+   * Updated to respect the current filter type
    */
   const selectAllNumeric = () => {
     const numericAttributes = attributes
-      .filter((attr) => attr.type === "number")
+      .filter((attr) => {
+        // Apply current filter logic
+        if (filterType === "compatible") {
+          return attr.type === "number" && isCompatibleAttribute(attr.name);
+        }
+        return attr.type === "number";
+      })
       .map((attr) => attr.name)
       .slice(0, MAX_SELECTION_LIMIT); // Respect selection limit
 
@@ -198,10 +213,21 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
 
   /**
    * Selects all categorical attributes with low cardinality (up to the limit)
+   * Updated to respect the current filter type
    */
   const selectAllCategorical = () => {
     const categoricalAttributes = attributes
-      .filter((attr) => attr.type === "string" && attr.uniqueCount < 20)
+      .filter((attr) => {
+        // Apply current filter logic
+        if (filterType === "compatible") {
+          return (
+            attr.type === "string" &&
+            attr.uniqueCount < 20 &&
+            isCompatibleAttribute(attr.name)
+          );
+        }
+        return attr.type === "string" && attr.uniqueCount < 20;
+      })
       .map((attr) => attr.name)
       .slice(0, MAX_SELECTION_LIMIT); // Respect selection limit
 
@@ -281,9 +307,12 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
 
   /**
    * Filters attributes based on current filter type
+   * Updated to include the "compatible" filter logic
    */
   const filteredAttributes = attributes.filter((attr) => {
     switch (filterType) {
+      case "compatible":
+        return isCompatibleAttribute(attr.name);
       case "selected":
         return attr.selected;
       case "numeric":
@@ -382,7 +411,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
             <option value="all" className="bg-slate-800">
               All Attributes
             </option>
-            <option value="all" className="bg-slate-800">
+            <option value="compatible" className="bg-slate-800">
               Compatible Attributes
             </option>
             <option value="selected" className="bg-slate-800">
@@ -474,53 +503,6 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
                     </span>
                   </div>
                 )}
-
-                {/* Advanced Information */}
-                {/* {showAdvanced && ( */}
-                <>
-                  {/* <div className="pt-2 border-t border-white/10">
-                      <p className="text-gray-500 text-xs mb-1">
-                        Sample values:
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {attribute.sampleValues
-                          .slice(0, 3)
-                          .map((value, index) => (
-                            <span
-                              key={index}
-                              className="px-2 py-1 bg-white/10 rounded text-xs text-gray-300 truncate max-w-20"
-                              title={String(value)}
-                            >
-                              {String(value)}
-                            </span>
-                          ))}
-                      </div>
-                    </div> */}
-
-                  {/* Type Selector */}
-                  {/* <div className="pt-2">
-                      <p className="text-gray-500 text-xs mb-1">Data type:</p>
-                      <div className="flex space-x-1">
-                        {["number", "string", "date"].map((type) => (
-                          <button
-                            key={type}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              changeAttributeType(attribute.name, type as any);
-                            }}
-                            className={`px-2 py-1 rounded text-xs transition-colors ${
-                              attribute.type === type
-                                ? "bg-primary-500/30 text-primary-300"
-                                : "bg-white/10 text-gray-400 hover:bg-white/20"
-                            }`}
-                          >
-                            {type}
-                          </button>
-                        ))}
-                      </div>
-                    </div> */}
-                </>
-                {/* )} */}
               </div>
             </div>
           );
