@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Dataset } from "../types";
 import { LoanApplicant } from "../types/loan";
+import { supabase } from "../supabaseClient";
 
 // Base URL for API endpoints
 const API_BASE_URL = "/api";
@@ -23,10 +24,18 @@ api.interceptors.request.use((config) => {
 
 // ===== DATA SERVICE =====
 export const dataService = {
-  // Fetch all datasets
-  async getDatasets(): Promise<Dataset[]> {
+    // Fetch all datasets
+    async getDatasets(): Promise<Dataset[]> {
+      const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+  // const response = await axios.get(`/api/datasets/user/${user.id}`);
+  
     console.log("Fetching all datasets from API");
-    const response = await api.get("/datasets?lite=true");
+    // const response = await api.get("/datasets?lite=true");
+    const response = await api.get(`/datasets?lite=true&user_id=${user?.id}`);
     return response.data;
   },
 
@@ -66,15 +75,37 @@ export const dataService = {
     await api.delete(`/datasets/${id}`);
   },
 
-  // Upload a CSV file and create a dataset from it
+  // // Upload a CSV file and create a dataset from it
+  // async uploadCSV(file: File): Promise<Dataset> {
+  //   const formData = new FormData();
+  //   formData.append("file", file);
+  //   const response = await api.post("/datasets/upload/csv", formData, {
+  //     headers: { "Content-Type": "multipart/form-data" },
+  //   });
+  //   return response.data;
+  // },
+
   async uploadCSV(file: File): Promise<Dataset> {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      throw new Error("User not authenticated");
+    }
+
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("user_id", user.id); // ✅ Add the user_id here
+
     const response = await api.post("/datasets/upload/csv", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
+
     return response.data;
   },
+
 
   // Generate a dataset of a specific type with options (e.g., count, name)
   async generateData(

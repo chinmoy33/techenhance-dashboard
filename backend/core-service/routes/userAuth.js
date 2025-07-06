@@ -227,6 +227,7 @@ router.post('/update-password', [
 router.delete('/delete-account', authenticateSupabaseUser, async (req, res) => {
     try {
         const user = req.user;
+        const user_id = req.query.user_id;
 
         // Check if OTP is verified
         if (!otpService.isOTPVerified(user.id, 'account_deletion')) {
@@ -238,12 +239,31 @@ router.delete('/delete-account', authenticateSupabaseUser, async (req, res) => {
         const userEmail = user.email;
 
         // Delete user using Supabase Admin API
-        const { error } = await supabase.auth.admin.deleteUser(user.id);
+        // const { error } = await supabase.auth.admin.deleteUser(user.id);
 
-        if (error) {
-            console.error('Supabase user deletion error:', error);
-            return res.status(400).json({ error: error.message });
+        // if (error) {
+        //     console.error('Supabase user deletion error:', error);
+        //     return res.status(400).json({ error: error.message });
+        // }
+        // 1. Delete user's datasets
+        const { error: deleteDatasetsError } = await supabase
+        .from("datasets")
+        .delete()
+        .eq("user_id", user.id);
+
+        if (deleteDatasetsError) {
+        console.error("Error deleting user datasets:", deleteDatasetsError);
+        return res.status(500).json({ error: "Failed to delete user datasets" });
         }
+
+        // 2. Delete user using Supabase Admin API
+        const { error: deleteUserError } = await supabase.auth.admin.deleteUser(user.id);
+
+        if (deleteUserError) {
+        console.error("Supabase user deletion error:", deleteUserError);
+        return res.status(400).json({ error: deleteUserError.message });
+        }
+
 
         // Clear OTP after successful deletion
         otpService.clearOTP(user.id, 'account_deletion');

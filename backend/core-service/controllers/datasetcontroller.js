@@ -84,9 +84,15 @@ const redis = require("../shared/redis-config/redisClient.js");
 //     res.status(500).json({ error: "Failed to fetch datasets" });
 //   }
 // };
+
 const getDataSet = async (req, res) => {
   try {
     const lite = req.query.lite === "true";
+    const user_id = req.query.user_id;
+
+    if (!user_id) {
+      return res.status(400).json({ error: "Missing user_id in request" });
+    }
 
     if (!lite) {
       const keys = await redis.keys("dataset:*");
@@ -99,6 +105,7 @@ const getDataSet = async (req, res) => {
       const { data, error } = await supabase
         .from("datasets")
         .select("id, name, type, created_at, data")
+        .eq("user_id", user_id) // 🔥 Filter by user
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -119,10 +126,11 @@ const getDataSet = async (req, res) => {
       return res.json(formatted);
     }
 
-    // ⚠️ For lite=true → query the view instead of full table
+    // 🔥 For lite=true → use view but filter by user_id
     const { data, error } = await supabase
       .from("datasets_with_count")
-      .select("id, name, type, created_at, data_points");
+      .select("id, name, type, created_at, data_points")
+      .eq("user_id", user_id); // 🔥 Make sure your view includes user_id
 
     if (error) throw error;
 
@@ -140,6 +148,65 @@ const getDataSet = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch datasets" });
   }
 };
+
+// const getDataSet = async (req, res) => {
+//   try {
+//     const lite = req.query.lite === "true";
+
+//     if (!lite) {
+//       const keys = await redis.keys("dataset:*");
+//       if (keys.length > 0) {
+//         console.log(`[CACHE HIT] Retrieved ${keys.length} cached datasets from Redis`);
+//         const cached = await Promise.all(keys.map((k) => redis.get(k)));
+//         return res.json(cached);
+//       }
+
+//       const { data, error } = await supabase
+//         .from("datasets")
+//         .select("id, name, type, created_at, data")
+//         .order("created_at", { ascending: false });
+
+//       if (error) throw error;
+
+//       const formatted = data.map((dataset) => ({
+//         id: dataset.id,
+//         name: dataset.name,
+//         type: dataset.type,
+//         createdAt: dataset.created_at,
+//         dataPoints: Array.isArray(dataset.data) ? dataset.data.length : 0,
+//         data: dataset.data,
+//       }));
+
+//       for (const dataset of formatted) {
+//         await redis.set(`dataset:${dataset.id}`, dataset, { ex: 600 });
+//       }
+
+//       return res.json(formatted);
+//     }
+
+//     // ⚠️ For lite=true → query the view instead of full table
+//     const { data, error } = await supabase
+//       .from("datasets_with_count")
+//       .select("id, name, type, created_at, data_points");
+
+//     if (error) throw error;
+
+//     const formattedLite = data.map((dataset) => ({
+//       id: dataset.id,
+//       name: dataset.name,
+//       type: dataset.type,
+//       createdAt: dataset.created_at,
+//       dataPoints: dataset.data_points,
+//     }));
+
+//     return res.json(formattedLite);
+//   } catch (error) {
+//     console.error("Supabase query error:", error);
+//     res.status(500).json({ error: "Failed to fetch datasets" });
+//   }
+// };
+
+
 
 
 
@@ -273,6 +340,10 @@ const updateDataSetName = async (req, res) => {
       }
       throw error;
     }
+
+    // Invalidate Redis cache
+    await redis.set(`dataset:${id}`, JSON.stringify(data), { ex: 600 });
+    console.log(`[CACHE UPDATE] dataset:${id} updated in Redis`);
 
     res.json(data);
   } catch (error) {
