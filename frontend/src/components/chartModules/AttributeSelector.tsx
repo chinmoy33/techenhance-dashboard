@@ -74,12 +74,91 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
     }
   }, [dataset.data, selectedAttributes]);
 
+  // ===== ENHANCED DATE DETECTION UTILITY =====
+  /**
+   * Enhanced date detection function that recognizes various date formats
+   * including dd/mm/yyyy, dd-mm-yyyy, yyyy-mm-dd, etc.
+   */
+  const isDateString = (val: string): boolean => {
+    if (typeof val !== "string") return false;
+
+    // Trim whitespace
+    const trimmedVal = val.trim();
+    if (trimmedVal === "") return false;
+
+    // Common date patterns
+    const datePatterns = [
+      /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/, // dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy
+      /^\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}$/, // yyyy/mm/dd, yyyy-mm-dd, yyyy.mm.dd
+      /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2}$/, // dd/mm/yy, dd-mm-yy, dd.mm.yy
+      /^\d{1,2}\s+\w{3,9}\s+\d{4}$/, // dd Month yyyy (e.g., 15 January 2021)
+      /^\w{3,9}\s+\d{1,2},?\s+\d{4}$/, // Month dd, yyyy (e.g., January 15, 2021)
+      /^\d{4}$/, // yyyy (year only)
+      /^\d{1,2}\/\d{4}$/, // mm/yyyy
+      /^\d{4}-\d{2}$/, // yyyy-mm
+    ];
+
+    // Check if it matches any date pattern
+    const matchesPattern = datePatterns.some((pattern) =>
+      pattern.test(trimmedVal)
+    );
+
+    if (!matchesPattern) return false;
+
+    // Additional validation: try to parse as date
+    // Handle different date formats more robustly
+    let dateToTest = trimmedVal;
+
+    // Convert dd/mm/yyyy to mm/dd/yyyy for Date.parse (US format)
+    if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(trimmedVal)) {
+      const parts = trimmedVal.split(/[\/\-\.]/);
+      if (parts.length === 3) {
+        // Assume dd/mm/yyyy format and convert to mm/dd/yyyy for parsing
+        dateToTest = `${parts[1]}/${parts[0]}/${parts[2]}`;
+      }
+    }
+
+    const parsed = Date.parse(dateToTest);
+    if (isNaN(parsed)) {
+      // Try alternative parsing for dd/mm/yyyy format
+      if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(trimmedVal)) {
+        const parts = trimmedVal.split(/[\/\-\.]/);
+        if (parts.length === 3) {
+          const day = parseInt(parts[0]);
+          const month = parseInt(parts[1]);
+          const year = parseInt(parts[2]);
+
+          // Basic validation
+          if (
+            day >= 1 &&
+            day <= 31 &&
+            month >= 1 &&
+            month <= 12 &&
+            year >= 1900 &&
+            year <= 2100
+          ) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // Check if the parsed date is within a reasonable range
+    const date = new Date(parsed);
+    const currentYear = new Date().getFullYear();
+    const dateYear = date.getFullYear();
+
+    return dateYear >= 1900 && dateYear <= currentYear + 10;
+  };
+
   // ===== ATTRIBUTE ANALYSIS FUNCTION =====
   /**
    * Analyzes dataset attributes to determine data types and statistics
    * Automatically detects numeric, categorical, and date columns
    * Note: This function now includes ALL attributes for analysis,
    * but filtering is handled separately in the render logic
+   * Enhanced with improved date detection logic
    */
   const analyzeAttributes = () => {
     const firstRow = dataset.data[0];
@@ -97,24 +176,30 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
       // Determine data type using heuristics
       let type: "number" | "string" | "date" = "string";
 
-      // Check if it's a number (80% threshold for numeric classification)
-      const numericValues = values.filter(
-        (val) => !isNaN(Number(val)) && val !== ""
-      );
-      if (numericValues.length > values.length * 0.8) {
-        type = "number";
-      }
-
-      // Check if it's a date (80% threshold for date classification)
-      const dateValues = values.filter((val) => {
-        const date = new Date(val);
-        return (
-          !isNaN(date.getTime()) &&
-          val.toString().match(/\d{4}|\d{2}\/\d{2}|\d{2}-\d{2}/)
-        );
-      });
+      // Check for dates first (80% threshold for date classification)
+      const dateValues = values.filter((val) => isDateString(String(val)));
       if (dateValues.length > values.length * 0.8) {
         type = "date";
+      } else {
+        // Check if it's a number (80% threshold for numeric classification)
+        const numericValues = values.filter(
+          (val) =>
+            !isNaN(Number(val)) && val !== "" && !isDateString(String(val))
+        );
+        if (numericValues.length > values.length * 0.8) {
+          type = "number";
+        }
+
+        // Check if it's a date (80% threshold for date classification)
+        // const dateValues = values.filter((val) => {
+        //   const date = new Date(val);
+        //   return (
+        //     !isNaN(date.getTime()) &&
+        //     val.toString().match(/\d{4}|\d{2}\/\d{2}|\d{2}-\d{2}/)
+        //   );
+        // });
+        // if (dateValues.length > values.length * 0.8) {
+        //   type = "date";
       }
 
       return {
@@ -245,6 +330,33 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
   };
 
   /**
+   * Selects all date attributes (up to the limit)
+   * New function to handle date selection
+   */
+  const selectAllDates = () => {
+    const dateAttributes = attributes
+      .filter((attr) => {
+        // Apply current filter logic
+        if (filterType === "compatible") {
+          return attr.type === "date" && isCompatibleAttribute(attr.name);
+        }
+        return attr.type === "date";
+      })
+      .map((attr) => attr.name)
+      .slice(0, MAX_SELECTION_LIMIT); // Respect selection limit
+
+    onAttributeChange(dateAttributes);
+    setAttributes((prev) =>
+      prev.map((attr) => ({
+        ...attr,
+        selected: dateAttributes.includes(attr.name),
+      }))
+    );
+
+    toast.success(`Selected ${dateAttributes.length} date attributes`);
+  };
+
+  /**
    * Clears all selected attributes
    */
   const clearSelection = () => {
@@ -307,7 +419,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
 
   /**
    * Filters attributes based on current filter type
-   * Updated to include the "compatible" filter logic
+   * Updated to include the "compatible" filter logic and date filtering
    */
   const filteredAttributes = attributes.filter((attr) => {
     switch (filterType) {
@@ -319,6 +431,8 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
         return attr.type === "number";
       case "categorical":
         return attr.type === "string";
+      case "date":
+        return attr.type === "date";
       default:
         return true;
     }
@@ -394,6 +508,15 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
         </button>
 
         <button
+          onClick={selectAllDates}
+          disabled={selectedAttributes.length >= MAX_SELECTION_LIMIT}
+          className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 text-sm hover:bg-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Calendar size={16} className="text-green-400" />
+          <span>Select Dates</span>
+        </button>
+
+        <button
           onClick={clearSelection}
           className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 text-sm hover:bg-red-500/20"
         >
@@ -422,6 +545,9 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
             </option>
             <option value="categorical" className="bg-slate-800">
               Categorical Only
+            </option>
+            <option value="date" className="bg-slate-800">
+              Date Only
             </option>
           </select>
         </div>
