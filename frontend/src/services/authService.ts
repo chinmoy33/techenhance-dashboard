@@ -144,7 +144,12 @@ export const authService = {
    */
   async deleteAccount() {
     try {
-      const response = await api.delete("/delete-account");
+      const {
+            data: { user },
+            error,
+          } = await supabase.auth.getUser();
+
+      const response = await api.delete(`/delete-account?user_id=${user?.id}`);
 
       // Sign out from Supabase client
       await supabase.auth.signOut();

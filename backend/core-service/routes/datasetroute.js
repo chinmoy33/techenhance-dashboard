@@ -9,9 +9,9 @@ const {
   getDataSetById,
   deleteDataSet,
   updateDataSetName,
-} = require("../controllers/datasetcontroller");
+} = require("../controllers/datasetcontroller.js");
 
-const supabase = require("../supabaseClient.ts");
+const supabase = require("../shared/supabase-config/supabaseClient.ts");
 
 // Use memory storage instead of disk
 const upload = multer({
@@ -58,7 +58,57 @@ router.put("/:id", (req, res) => {
 // Delete dataset
 router.delete("/:id", deleteDataSet);
 
-async function insertDatasetChunks(results, baseName, chunkSize = 10000) {
+// async function insertDatasetChunks(results, baseName, chunkSize = 10000) {
+//   const chunk = results.slice(0, chunkSize);
+//   const { error } = await supabase.from("datasets").insert([
+//     {
+//       name: `${baseName}`,
+//       data: chunk,
+//       type: "uploaded",
+//       created_at: new Date().toISOString(),
+//     },
+//   ]);
+
+//   if (error) {
+//     console.error(`Chunk insert failed :`, error.message || error);
+//     throw error;
+//   }
+// }
+
+// router.post("/upload/csv", upload.single("file"), async (req, res) => {
+//   if (!req.file) {
+//     return res.status(400).json({ error: "No file uploaded" });
+//   }
+
+//   const results = [];
+//   const bufferStream = require("streamifier").createReadStream(req.file.buffer);
+
+//   try {
+//     // Step 1: Parse the CSV
+//     await new Promise((resolve, reject) => {
+//       bufferStream
+//         .pipe(csv())
+//         .on("data", (data) => results.push(data))
+//         .on("end", resolve)
+//         .on("error", reject);
+//     });
+
+//     // Step 2: Chunked insert into Supabase
+//     const baseName = req.file.originalname.replace(".csv", "");
+//     await insertDatasetChunks(results, baseName, 10000); // Chunk size: 10k
+
+//     res.json({
+//       success: true,
+//       message: "Data inserted in chunks",
+//       total_rows: results.length,
+//     });
+//   } catch (error) {
+//     console.error("Upload error:", error.message || error);
+//     res.status(500).json({ error: "Error processing CSV file" });
+//   }
+// });
+
+async function insertDatasetChunks(results, baseName, user_id, chunkSize = 10000) {
   const chunk = results.slice(0, chunkSize);
   const { error } = await supabase.from("datasets").insert([
     {
@@ -66,6 +116,7 @@ async function insertDatasetChunks(results, baseName, chunkSize = 10000) {
       data: chunk,
       type: "uploaded",
       created_at: new Date().toISOString(),
+      user_id, // 👈 Include user ID
     },
   ]);
 
@@ -76,8 +127,9 @@ async function insertDatasetChunks(results, baseName, chunkSize = 10000) {
 }
 
 router.post("/upload/csv", upload.single("file"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+  const user_id = req.body.user_id;
+  if (!req.file || !user_id) {
+    return res.status(400).json({ error: "Missing file or user_id" });
   }
 
   const results = [];
@@ -95,7 +147,7 @@ router.post("/upload/csv", upload.single("file"), async (req, res) => {
 
     // Step 2: Chunked insert into Supabase
     const baseName = req.file.originalname.replace(".csv", "");
-    await insertDatasetChunks(results, baseName, 10000); // Chunk size: 10k
+    await insertDatasetChunks(results, baseName, user_id, 10000); // 👈 Pass user_id
 
     res.json({
       success: true,
@@ -107,5 +159,6 @@ router.post("/upload/csv", upload.single("file"), async (req, res) => {
     res.status(500).json({ error: "Error processing CSV file" });
   }
 });
+
 
 module.exports = router;
