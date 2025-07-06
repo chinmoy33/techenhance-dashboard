@@ -4,7 +4,7 @@ const csv = require("csv-parser");
 const fs = require("fs");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
-const pool = require("./db");
+const pool = require("./shared/db/db");
 const multer = require("multer");
 
 // Import routes
@@ -30,17 +30,9 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/datasets", datasetroute);
-app.use("/api/recommendations", require("./routes/recommendationroute"));
+// app.use("/api/recommendations", require("../recommendation-service/routes/recommendationroute"));
 // User authentication routes
 app.use('/api/user-auth', userAuthRoutes)
-// Test the connection
-// pool.query("SELECT NOW()", (err, res) => {
-//   if (err) {
-//     console.error("PostgreSQL connection error:", err);
-//   } else {
-//     console.log("PostgreSQL connected at:", res.rows[0].now);
-//   }
-// });
 
 // Health check
 app.get("/api/health", (req, res) => {

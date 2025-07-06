@@ -1,6 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const supabase = require('../supabaseClient.ts');
+const supabase = require('../shared/supabase-config/supabaseClient.ts');
 const emailService = require('../services/emailService.js');
 const otpService = require('../services/otpService.js');
 

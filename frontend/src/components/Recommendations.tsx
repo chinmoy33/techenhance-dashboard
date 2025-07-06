@@ -6,6 +6,7 @@ import { FilterControls } from "./recommendations/FilterControls.tsx";
 import { StatsOverview } from "./recommendations/StatsOverview.tsx";
 import { Target, Sparkles } from "lucide-react";
 import { dataService } from "../services/dataService";
+import {recommendationService} from "../services/recommendationService.ts"
 import { useTransformData } from "../hooks/useTransformData.ts";
 import {useSortApplicants} from "../hooks/useSortApplicants.ts";
 import { scoreApplicant } from "../utils/ScoreApplicants.ts";
@@ -23,7 +24,7 @@ function Recommendations() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await dataService.getRecommendations();
+      const data = await recommendationService.getRecommendations();
       const transformedData = useTransformData(data);
       console.log("Fetched Recommendations:", data);
       if (data) {

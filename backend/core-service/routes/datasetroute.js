@@ -9,9 +9,9 @@ const {
   getDataSetById,
   deleteDataSet,
   updateDataSetName,
-} = require("../controllers/datasetcontroller");
+} = require("../controllers/datasetcontroller.js");
 
-const supabase = require("../supabaseClient.ts");
+const supabase = require("../shared/supabase-config/supabaseClient.ts");
 
 // Use memory storage instead of disk
 const upload = multer({

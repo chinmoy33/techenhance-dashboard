@@ -1,4 +1,4 @@
-const supabase = require("../supabaseClient.ts");
+const supabase = require("../shared/supabase-config/supabaseClient.ts");
 
 // const getDataSet = async (req, res) => {
 //   try {
@@ -38,7 +38,7 @@ const supabase = require("../supabaseClient.ts");
 //   }
 // };
 
-const redis = require("../lib/redisClient.js");
+const redis = require("../shared/redis-config/redisClient.js");
 //const supabase = require("../supabaseClient.ts");
 
 // const getDataSet = async (req, res) => {

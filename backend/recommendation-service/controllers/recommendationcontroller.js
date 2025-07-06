@@ -1,4 +1,4 @@
-const supabase = require("../supabaseClient.ts");
+const supabase = require("../shared/supabase-config/supabaseClient.ts");
 const client = require("../twilio-config/twilio.js").client;
 
 const getRecommendations = async (req, res) => {

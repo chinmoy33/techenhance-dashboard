@@ -92,8 +92,9 @@ export const dataService = {
     return response.data;
   },
 
-  async getRecommendations(): Promise<LoanApplicant[]> {
-    const response = await api.get("/recommendations");
-    return response.data;
-  },
+  // async getRecommendations(): Promise<LoanApplicant[]> {
+  //   // const response = await api.get("/recommendations");
+  //   const response = await axios.get("http://localhost:3002/recommendations");
+  //   return response.data;
+  // },
 };
