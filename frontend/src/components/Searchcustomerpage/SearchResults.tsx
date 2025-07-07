@@ -1,10 +1,12 @@
-import { FixedSizeList as List } from 'react-window';
+import { VariableSizeList as List } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer'; // optional for responsive sizing
 //import { GroupedResult } from '../../types/searchcustomerpage';
 import { ProfileCard } from './ProfileCard';
 import { TransactionCard } from './TransactionCard';
 import { User, FileText, SearchX } from 'lucide-react';
 import { GroupedResult, ProfileData , TransactionData } from '../../types/searchcustomerpage';
+import {useMemo} from 'react'
+//import { VariableSizeList as List } from 'react-window';
 
 interface SearchResultsProps {
   results: GroupedResult[];
@@ -12,11 +14,25 @@ interface SearchResultsProps {
   isLoading: boolean;
 }
 
+
+
 export const SearchResults: React.FC<SearchResultsProps> = ({
   results,
   searchTerm,
   isLoading,
 }) => {
+
+
+  const rowHeights = useMemo(() => {
+  return results.map((group) => {
+    const profileHeight = group.profile ? 382.44 : 0;
+    const transactionHeight = 464.89 + (group.transactions.length-1) * 448.89;
+    const spacing = 80; // headers, margin, etc.
+    return profileHeight + transactionHeight + spacing;
+  });
+  }, [results]);
+
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
@@ -79,7 +95,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
             <List
               height={height}
               itemCount={results.length}
-              itemSize={1900} // Adjust based on average item height
+              itemSize={(index:any) => rowHeights[index]}  // Adjust based on average item height
               width={width}
             >
               {({ index , style }) => {
@@ -114,6 +130,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
                 );
               }}
             </List>
+            
           )}
         </AutoSizer>
       </div>
