@@ -1,0 +1,38 @@
+# Use [ docker compose -f docker-compose.prod.yml up --build ] to build and run the containers or
+# just [ docker compose -f docker-compose.prod.yml up ] to run the containers
+services:
+  core-service:
+    build:
+      context: ./backend
+      dockerfile: core-service/Dockerfile.prod
+    working_dir: /app
+    env_file: ./backend/core-service/.env
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - RECOMMENDATION_URL=http://recommendation-service:3002
+    depends_on:
+      - recommendation-service
+
+  recommendation-service:
+    build:
+      context: ./backend
+      dockerfile: recommendation-service/Dockerfile.prod
+    working_dir: /app
+    env_file: ./backend/recommendation-service/.env
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    env_file: ./frontend/.env
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_CORE_API=http://localhost:3001
+      - REACT_APP_RECOMMENDATION_API=http://localhost:3002
