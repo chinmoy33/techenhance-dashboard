@@ -4,9 +4,7 @@ WORKDIR /app
 
 COPY core-service/package*.json ./
 RUN npm install
-
-COPY shared ./shared
-COPY core-service/. .
+RUN npm install nodemon --save-dev
 
 EXPOSE 3001
-CMD ["node", "server.js"]
+CMD ["npm", "run", "dev"]

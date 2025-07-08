@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
@@ -13,16 +13,20 @@ export default defineConfig({
   //   },
   // },
   server: {
-  port: 3000,
-  proxy: {
-    '/api': {
-      target: process.env.VITE_CORE_API || 'http://localhost:3001',
-      changeOrigin: true,
+    port: 3000,
+    proxy: {
+      "/api": {
+        target: process.env.VITE_CORE_API || "http://localhost:3001",
+        changeOrigin: true,
+      },
+    },
+    watch: {
+      usePolling: true, // Enable polling
+      interval: 1000, // Check every 1 second
     },
   },
-},
 
   optimizeDeps: {
-    exclude: ['lucide-react'],
+    exclude: ["lucide-react"],
   },
 });

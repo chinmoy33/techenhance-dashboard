@@ -1,5 +1,3 @@
-
-
 services:
   core-service:
     build:
@@ -14,6 +12,10 @@ services:
       - RECOMMENDATION_URL=http://recommendation-service:3002
     depends_on:
       - recommendation-service
+    volumes:
+      - ./backend/core-service:/app
+      - ./backend/shared:/app/shared
+    command: ["npm", "run", "dev"] # Assumes you have a "dev" script with nodemon
 
   recommendation-service:
     build:
@@ -25,6 +27,10 @@ services:
       - "3002:3002"
     environment:
       - PORT=3002
+    volumes:
+      - ./backend/recommendation-service:/app
+      - ./backend/shared:/app/shared
+    command: ["npm", "run", "dev"] # Assumes you have a "dev" script with nodemon
 
   frontend:
     build:
@@ -32,7 +38,11 @@ services:
       dockerfile: Dockerfile
     env_file: ./frontend/.env
     ports:
-      - "3000:80"
+      - "3000:3000" # Changed to match dev server port
     environment:
-      - REACT_APP_CORE_API=http://localhost:3001
-      - REACT_APP_RECOMMENDATION_API=http://localhost:3002
+      - REACT_APP_CORE_API=http://core-service:3001
+      - REACT_APP_RECOMMENDATION_API=http://recommendation-service:3002
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Prevent overwriting node_modules
+    command: ["npm", "start"] # Use development server
