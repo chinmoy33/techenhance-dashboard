@@ -63,8 +63,8 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
   const [attributes, setAttributes] = useState<AttributeInfo[]>([]);
   // const [showAdvanced, setShowAdvanced] = useState(false);
   const [filterType, setFilterType] = useState<
-    "all" | "compatible" | "selected" | "numeric" | "categorical"
-  >("all");
+    "compatible" | "all" | "selected" | "numeric" | "categorical"
+  >("compatible");
 
   // ===== INITIALIZATION EFFECT =====
   // Analyze dataset attributes when data changes
@@ -263,8 +263,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
     // Provide user feedback
     const action = isCurrentlySelected ? "removed" : "added";
     toast.success(
-      `${attributeName} ${action} ${
-        isCurrentlySelected ? "from" : "to"
+      `${attributeName} ${action} ${isCurrentlySelected ? "from" : "to"
       } selection`
     );
   };
@@ -273,88 +272,88 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
    * Selects all numeric attributes (up to the limit)
    * Updated to respect the current filter type
    */
-  const selectAllNumeric = () => {
-    const numericAttributes = attributes
-      .filter((attr) => {
-        // Apply current filter logic
-        if (filterType === "compatible") {
-          return attr.type === "number" && isCompatibleAttribute(attr.name);
-        }
-        return attr.type === "number";
-      })
-      .map((attr) => attr.name)
-      .slice(0, MAX_SELECTION_LIMIT); // Respect selection limit
+  // const selectAllNumeric = () => {
+  //   const numericAttributes = attributes
+  //     .filter((attr) => {
+  //       // Apply current filter logic
+  //       if (filterType === "compatible") {
+  //         return attr.type === "number" && isCompatibleAttribute(attr.name);
+  //       }
+  //       return attr.type === "number";
+  //     })
+  //     .map((attr) => attr.name)
+  //     .slice(0, MAX_SELECTION_LIMIT); // Respect selection limit
 
-    onAttributeChange(numericAttributes);
-    setAttributes((prev) =>
-      prev.map((attr) => ({
-        ...attr,
-        selected: numericAttributes.includes(attr.name),
-      }))
-    );
+  //   onAttributeChange(numericAttributes);
+  //   setAttributes((prev) =>
+  //     prev.map((attr) => ({
+  //       ...attr,
+  //       selected: numericAttributes.includes(attr.name),
+  //     }))
+  //   );
 
-    toast.success(`Selected ${numericAttributes.length} numeric attributes`);
-  };
+  //   toast.success(`Selected ${numericAttributes.length} numeric attributes`);
+  // };
 
   /**
    * Selects all categorical attributes with low cardinality (up to the limit)
    * Updated to respect the current filter type
    */
-  const selectAllCategorical = () => {
-    const categoricalAttributes = attributes
-      .filter((attr) => {
-        // Apply current filter logic
-        if (filterType === "compatible") {
-          return (
-            attr.type === "string" &&
-            attr.uniqueCount < 20 &&
-            isCompatibleAttribute(attr.name)
-          );
-        }
-        return attr.type === "string" && attr.uniqueCount < 20;
-      })
-      .map((attr) => attr.name)
-      .slice(0, MAX_SELECTION_LIMIT); // Respect selection limit
+  // const selectAllCategorical = () => {
+  //   const categoricalAttributes = attributes
+  //     .filter((attr) => {
+  //       // Apply current filter logic
+  //       if (filterType === "compatible") {
+  //         return (
+  //           attr.type === "string" &&
+  //           attr.uniqueCount < 20 &&
+  //           isCompatibleAttribute(attr.name)
+  //         );
+  //       }
+  //       return attr.type === "string" && attr.uniqueCount < 20;
+  //     })
+  //     .map((attr) => attr.name)
+  //     .slice(0, MAX_SELECTION_LIMIT); // Respect selection limit
 
-    onAttributeChange(categoricalAttributes);
-    setAttributes((prev) =>
-      prev.map((attr) => ({
-        ...attr,
-        selected: categoricalAttributes.includes(attr.name),
-      }))
-    );
+  //   onAttributeChange(categoricalAttributes);
+  //   setAttributes((prev) =>
+  //     prev.map((attr) => ({
+  //       ...attr,
+  //       selected: categoricalAttributes.includes(attr.name),
+  //     }))
+  //   );
 
-    toast.success(
-      `Selected ${categoricalAttributes.length} categorical attributes`
-    );
-  };
+  //   toast.success(
+  //     `Selected ${categoricalAttributes.length} categorical attributes`
+  //   );
+  // };
 
   /**
    * Selects all date attributes (up to the limit)
    * New function to handle date selection
    */
-  const selectAllDates = () => {
-    const dateAttributes = attributes
-      .filter((attr) => {
-        // Apply current filter logic
-        if (filterType === "compatible") {
-          return attr.type === "date" && isCompatibleAttribute(attr.name);
-        }
-        return attr.type === "date";
-      })
-      .map((attr) => attr.name)
-      .slice(0, MAX_SELECTION_LIMIT); // Respect selection limit
+  // const selectAllDates = () => {
+  //   const dateAttributes = attributes
+  //     .filter((attr) => {
+  //       // Apply current filter logic
+  //       if (filterType === "compatible") {
+  //         return attr.type === "date" && isCompatibleAttribute(attr.name);
+  //       }
+  //       return attr.type === "date";
+  //     })
+  //     .map((attr) => attr.name)
+  //     .slice(0, MAX_SELECTION_LIMIT); // Respect selection limit
 
-    onAttributeChange(dateAttributes);
-    setAttributes((prev) =>
-      prev.map((attr) => ({
-        ...attr,
-        selected: dateAttributes.includes(attr.name),
-      }))
-    );
+  //   onAttributeChange(dateAttributes);
+  //   setAttributes((prev) =>
+  //     prev.map((attr) => ({
+  //       ...attr,
+  //       selected: dateAttributes.includes(attr.name),
+  //     }))
+  //   );
 
-    toast.success(`Selected ${dateAttributes.length} date attributes`);
-  };
+  //   toast.success(`Selected ${dateAttributes.length} date attributes`);
+  // };
 
   /**
    * Clears all selected attributes
@@ -368,22 +367,22 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
   /**
    * Changes the data type of an attribute
    */
-  const changeAttributeType = (
-    attributeName: string,
-    newType: "number" | "string" | "date"
-  ) => {
-    setAttributes((prev) =>
-      prev.map((attr) =>
-        attr.name === attributeName ? { ...attr, type: newType } : attr
-      )
-    );
+  // const changeAttributeType = (
+  //   attributeName: string,
+  //   newType: "number" | "string" | "date"
+  // ) => {
+  //   setAttributes((prev) =>
+  //     prev.map((attr) =>
+  //       attr.name === attributeName ? { ...attr, type: newType } : attr
+  //     )
+  //   );
 
-    if (onDataTypeChange) {
-      onDataTypeChange(attributeName, newType);
-    }
+  //   if (onDataTypeChange) {
+  //     onDataTypeChange(attributeName, newType);
+  //   }
 
-    toast.success(`Changed ${attributeName} type to ${newType}`);
-  };
+  //   toast.success(`Changed ${attributeName} type to ${newType}`);
+  // };
 
   // ===== UTILITY FUNCTIONS =====
 
@@ -489,40 +488,32 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
 
       {/* Quick Action Buttons */}
       <div className="flex flex-wrap gap-3">
-        <button
+        {/* <button
           onClick={selectAllNumeric}
           disabled={selectedAttributes.length >= MAX_SELECTION_LIMIT}
           className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 text-sm hover:bg-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Hash size={16} className="text-blue-400" />
           <span>Select Numeric</span>
-        </button>
+        </button> */}
 
-        <button
+        {/* <button
           onClick={selectAllCategorical}
           disabled={selectedAttributes.length >= MAX_SELECTION_LIMIT}
           className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 text-sm hover:bg-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Type size={16} className="text-purple-400" />
           <span>Select Categorical</span>
-        </button>
+        </button> */}
 
-        <button
+        {/* <button
           onClick={selectAllDates}
           disabled={selectedAttributes.length >= MAX_SELECTION_LIMIT}
           className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 text-sm hover:bg-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Calendar size={16} className="text-green-400" />
           <span>Select Dates</span>
-        </button>
-
-        <button
-          onClick={clearSelection}
-          className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 text-sm hover:bg-red-500/20"
-        >
-          <X size={16} className="text-red-400" />
-          <span>Clear All</span>
-        </button>
+        </button> */}
 
         {/* Filter Dropdown */}
         <div className="relative">
@@ -531,11 +522,11 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
             onChange={(e) => setFilterType(e.target.value as any)}
             className="glass-button px-4 py-2 rounded-lg text-sm bg-transparent border border-white/20 text-white"
           >
-            <option value="all" className="bg-slate-800">
-              All Attributes
-            </option>
             <option value="compatible" className="bg-slate-800">
               Compatible Attributes
+            </option>
+            <option value="all" className="bg-slate-800">
+              All Attributes
             </option>
             <option value="selected" className="bg-slate-800">
               Selected Only
@@ -551,6 +542,14 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
             </option>
           </select>
         </div>
+
+        <button
+          onClick={clearSelection}
+          className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2 text-sm hover:bg-red-500/20"
+        >
+          <X size={16} className="text-red-400" />
+          <span>Clear All</span>
+        </button>
       </div>
 
       {/* Attributes Grid */}
@@ -565,13 +564,12 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
           return (
             <div
               key={attribute.name}
-              className={`glass-card p-4 transition-all duration-200 cursor-pointer hover:scale-105 ${
-                attribute.selected
-                  ? "bg-primary-500/20 border-primary-500/50"
-                  : isDisabled
+              className={`glass-card p-4 transition-all duration-200 cursor-pointer hover:scale-105 ${attribute.selected
+                ? "bg-primary-500/20 border-primary-500/50"
+                : isDisabled
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-white/10"
-              }`}
+                }`}
               onClick={() => !isDisabled && toggleAttribute(attribute.name)}
             >
               <div className="flex items-center justify-between mb-3">
@@ -591,13 +589,12 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
                     if (!isDisabled) toggleAttribute(attribute.name);
                   }}
                   disabled={isDisabled}
-                  className={`p-1 rounded transition-colors ${
-                    attribute.selected
-                      ? "text-primary-400 hover:text-primary-300"
-                      : isDisabled
+                  className={`p-1 rounded transition-colors ${attribute.selected
+                    ? "text-primary-400 hover:text-primary-300"
+                    : isDisabled
                       ? "text-gray-600 cursor-not-allowed"
                       : "text-gray-500 hover:text-gray-300"
-                  }`}
+                    }`}
                 >
                   {attribute.selected ? (
                     <Eye size={16} />

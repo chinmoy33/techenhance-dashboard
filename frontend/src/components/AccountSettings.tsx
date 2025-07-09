@@ -848,11 +848,10 @@ const AccountSettings: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-all ${
-                  activeTab === tab.id
-                    ? "bg-primary-500/20 text-primary-300 border border-primary-500/30"
-                    : "hover:bg-white/10 text-gray-300 hover:text-white"
-                }`}
+                className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-all ${activeTab === tab.id
+                  ? "bg-primary-500/20 text-primary-300 border border-primary-500/30"
+                  : "hover:bg-white/10 text-gray-300 hover:text-white"
+                  }`}
               >
                 <Icon size={16} />
                 <span className="font-medium">{tab.label}</span>
