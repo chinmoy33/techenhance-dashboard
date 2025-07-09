@@ -122,7 +122,7 @@ function Recommendations() {
         <div className="mb-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-white">
-              Recommended Candidates ({sortedApplicants.length})
+              Top Candidates ({sortedApplicants.length})
             </h2>
             {filters.search ||
             filters.loantype !== "all" ||
