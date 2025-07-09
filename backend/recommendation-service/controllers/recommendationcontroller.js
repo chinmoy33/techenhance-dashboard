@@ -35,21 +35,21 @@ const getRecommendations = async (req, res) => {
     // }
     // );
 
-    // const cleanedNumber=data[0].phone.replace(/\s+/g, '');
-    // console.log("Cleaned Number:", cleanedNumber);
-    // client.messages
-    //   .create({
-    //     from: 'whatsapp:+14155238886', // Twilio Sandbox number
-    //     to: `whatsapp:${cleanedNumber}`,  // Your verified phone number
-    //     body: `Hello ${data[0].name}. Check out these cool shoes!`,
-    //     mediaUrl: ['https://res.cloudinary.com/defslgocx/image/upload/f_auto,q_auto/v1747042778/JEC-Space/v5tlvaymwlfd7zdg5auo.jpg']
-    //     //mediaUrl:['https://demo.twilio.com/owl.png']
-    //     //mediaUrl: ['https://res.cloudinary.com/defslgocx/image/upload/v1747042778/JEC-Space/v5tlvaymwlfd7zdg5auo.webp'] // Publicly accessible image
-    //   })
-    //   .then(message => console.log('Message SID:', message.sid))
-    //   .catch(error => console.error('Error:', error));
+    const cleanedNumber=data[0].phone.replace(/\s+/g, '');
+    console.log("Cleaned Number:", cleanedNumber);
+    client.messages
+      .create({
+        from: 'whatsapp:+14155238886', // Twilio Sandbox number
+        to: `whatsapp:${cleanedNumber}`,  // Your verified phone number
+        body: `Hello ${data[0].name}. Check out these cool shoes!`,
+        mediaUrl: ['https://res.cloudinary.com/defslgocx/image/upload/f_auto,q_auto/v1747042778/JEC-Space/v5tlvaymwlfd7zdg5auo.jpg']
+        //mediaUrl:['https://demo.twilio.com/owl.png']
+        //mediaUrl: ['https://res.cloudinary.com/defslgocx/image/upload/v1747042778/JEC-Space/v5tlvaymwlfd7zdg5auo.webp'] // Publicly accessible image
+      })
+      .then(message => console.log('Message SID:', message.sid))
+      .catch(error => console.error('Error:', error));
 
-    // console.log("sending twilio message to users....");
+    console.log("sending twilio message to users....");
 
 
     return res.json(data);

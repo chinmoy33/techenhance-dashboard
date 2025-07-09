@@ -2,7 +2,7 @@
   "name": "data-visualizer-backend",
   "version": "1.0.0",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "nodemon --legacy-watch src/index.js",
     "start": "node server.js"
   },
   "dependencies": {

@@ -32,17 +32,28 @@ services:
       - ./backend/shared:/app/shared
     command: ["npm", "run", "dev"] # Assumes you have a "dev" script with nodemon
 
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   env_file: ./frontend/.env
+  #   ports:
+  #     - "3000:3000" # Changed to match dev server port
+  #   environment:
+  #     - REACT_APP_CORE_API=http://core-service:3001
+  #     - REACT_APP_RECOMMENDATION_API=http://recommendation-service:3002
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules # Prevent overwriting node_modules
+  #   command: ["npm", "start"] # Use development server
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     env_file: ./frontend/.env
     ports:
-      - "3000:3000" # Changed to match dev server port
-    environment:
-      - REACT_APP_CORE_API=http://core-service:3001
-      - REACT_APP_RECOMMENDATION_API=http://recommendation-service:3002
+      - "3000:3000"
     volumes:
       - ./frontend:/app
-      - /app/node_modules # Prevent overwriting node_modules
-    command: ["npm", "start"] # Use development server
+      - /app/node_modules  # Prevents overwriting node_modules
+    command: ["npm", "start"]
