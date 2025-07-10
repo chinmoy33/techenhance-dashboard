@@ -47,6 +47,7 @@ import AttributeSelector from "./chartModules/AttributeSelector";
 import RangeSelector from "./chartModules/RangeSelector";
 import { chartTypes, colorThemes } from "./chartModules/ChartConstants";
 import toast from "react-hot-toast";
+import throttle from 'lodash/throttle';
 import zoomPlugin from "chartjs-plugin-zoom";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import AllChartsView from "../components/chartModules/AllChartsViews";
@@ -156,7 +157,7 @@ const ChartView: React.FC<ChartViewProps> = ({
 		}
 		// Initialize range selector
 		if (dataset.data) {
-			setSelectedRange([0, Math.min(dataset.data.length - 1, 30)]);
+			setSelectedRange([0, dataset.data.length - 1]);
 		}
 	}, [dataset.data]);
 
@@ -938,6 +939,17 @@ const ChartView: React.FC<ChartViewProps> = ({
 		toast.success("Settings reset to default");
 	};
 
+	const handleRangeChange = useCallback(
+		(range: [number, number]) => {
+			setSelectedRange(range);
+		},
+		[setSelectedRange]
+	);
+
+	const throttledHandleRangeChange = useMemo(
+		() => throttle(handleRangeChange, 100),
+		[handleRangeChange]
+	);
 	// ===== MEMOIZED VALUES =====
 	const chartData = useMemo(
 		() => getChartData(selectedChartType),
@@ -1171,9 +1183,6 @@ const ChartView: React.FC<ChartViewProps> = ({
 				/>
 			)}
 
-
-
-
 			{/* Chart Type Selector - Only show compatible types */}
 			<div className="glass-card p-4">
 				<div className="flex items-center justify-between mb-4">
@@ -1260,60 +1269,10 @@ const ChartView: React.FC<ChartViewProps> = ({
 				<RangeSelector
 					data={dataset.data}
 					selectedRange={selectedRange}
-					onRangeChange={setSelectedRange}
+					onRangeChange={throttledHandleRangeChange}
 					labels={rangeLabels}
 				/>
 			)}
-			{/* Chart Information Panel */}
-			{/* <div className="glass-card p-6">
-				<div className="flex items-start space-x-4">
-					<div className="p-3 bg-primary-500/20 rounded-lg">
-						{React.createElement(
-							chartTypes.find((ct) => ct.type === selectedChartType)?.icon ||
-							LineChart,
-							{
-								size: 24,
-								className: "text-primary-400",
-							}
-						)}
-					</div>
-					<div>
-						<h3 className="text-lg font-semibold text-white mb-2">
-							{chartTypes.find((ct) => ct.type === selectedChartType)?.label}
-						</h3>
-						<p className="text-gray-400 mb-4">
-							{
-								chartTypes.find((ct) => ct.type === selectedChartType)
-									?.description
-							}
-						</p>
-						<div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-							<div>
-								<span className="text-gray-500">Chart Type</span>
-								<p className="text-white font-medium">{selectedChartType}</p>
-							</div>
-							<div>
-								<span className="text-gray-500">Data Points</span>
-								<p className="text-white font-medium">
-									{getFilteredData?.length || 0}
-								</p>
-							</div>
-							<div>
-								<span className="text-gray-500">Attributes</span>
-								<p className="text-white font-medium">
-									{selectedAttributes.length}
-								</p>
-							</div>
-							<div>
-								<span className="text-gray-500">Created</span>
-								<p className="text-white font-medium">
-									{new Date(dataset.createdAt).toLocaleDateString()}
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div> */}
 
 			{/* Data Preview Table */}
 			<div className="glass-card p-6">

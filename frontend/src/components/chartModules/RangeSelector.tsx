@@ -87,7 +87,7 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
 
             <div
                 ref={sliderRef}
-                className="relative h-8 bg-gray-700 rounded-lg cursor-pointer"
+                className="relative h-12 bg-gray-700 rounded-lg cursor-pointer"
                 style={{
                     background:
                         "linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)",
@@ -98,7 +98,7 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
 
                 {/* Selected range */}
                 <div
-                    className="absolute top-0 bottom-0 bg-primary-500/40 border border-primary-500/60 rounded"
+                    className="absolute top-0 bottom-0 bg-primary-500/40 border border-primary-500/60 rounded cursor-move"
                     style={{
                         left: `${startPercentage}%`,
                         width: `${endPercentage - startPercentage}%`,
@@ -108,7 +108,7 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
 
                 {/* Start handle */}
                 <div
-                    className="absolute top-1/2 w-4 h-6 bg-primary-500 border-2 border-white rounded cursor-grab hover:bg-primary-400 transition-colors"
+                    className="absolute top-1/2 w-4 h-8 bg-primary-500 border-2 border-white rounded cursor-grab hover:bg-primary-400 transition-colors"
                     style={{
                         left: `${startPercentage}%`,
                         transform: "translate(-50%, -50%)",
@@ -118,7 +118,7 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
 
                 {/* End handle */}
                 <div
-                    className="absolute top-1/2 w-4 h-6 bg-primary-500 border-2 border-white rounded cursor-grab hover:bg-primary-400 transition-colors"
+                    className="absolute top-1/2 w-4 h-8 bg-primary-500 border-2 border-white rounded cursor-grab hover:bg-primary-400 transition-colors"
                     style={{
                         left: `${endPercentage}%`,
                         transform: "translate(-50%, -50%)",
