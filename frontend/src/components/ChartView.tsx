@@ -40,6 +40,7 @@ import {
 	RotateCcw,
 	Filter,
 	RotateCw,
+	Minimize2,
 } from "lucide-react";
 import { Dataset, ChartConfig } from "../types";
 import AttributeSelector from "./chartModules/AttributeSelector";
@@ -62,7 +63,7 @@ ChartJS.register(
 	ArcElement,
 	RadialLinearScale,
 	Filler,
-	zoomPlugin, // Add zoom plugin
+	zoomPlugin,
 	ChartDataLabels,
 );
 
@@ -241,6 +242,7 @@ const ChartView: React.FC<ChartViewProps> = ({
 
 	// ===== REFS =====
 	const chartRef = useRef<any>(null);
+	const fullscreenRef = useRef<HTMLDivElement>(null);
 
 	// ===== AUTO-INITIALIZATION EFFECT =====
 	// Initialize selected attributes when dataset changes
@@ -704,7 +706,7 @@ const ChartView: React.FC<ChartViewProps> = ({
 				position: "top" as const,
 				labels: {
 					color: "rgba(255, 255, 255, 0.8)",
-					font: { size: 12 },
+					font: { size: isFullscreen ? 14 : 12 },
 				},
 			},
 			title: {
@@ -714,7 +716,7 @@ const ChartView: React.FC<ChartViewProps> = ({
 					`${dataset.name} - ${chartTypes.find((ct) => ct.type === chartType)?.label
 					}`,
 				color: "rgba(255, 255, 255, 0.9)",
-				font: { size: 16, weight: "bold" },
+				font: { size: isFullscreen ? 20 : 16, weight: "bold" },
 			},
 			tooltip: {
 				backgroundColor: "rgba(0, 0, 0, 0.8)",
@@ -722,6 +724,8 @@ const ChartView: React.FC<ChartViewProps> = ({
 				bodyColor: "white",
 				borderColor: "rgba(255, 255, 255, 0.2)",
 				borderWidth: 1,
+				titleFont: { size: isFullscreen ? 14 : 12 },
+				bodyFont: { size: isFullscreen ? 12 : 10 },
 				// Custom tooltip for histogram
 				callbacks:
 					chartType === "pie" || chartType === "polarArea"
@@ -803,12 +807,16 @@ const ChartView: React.FC<ChartViewProps> = ({
 						isSingleSelectedAttribute &&
 						(chartType === "line" || chartType === "bar")
 					),
-					ticks: { color: "rgba(255, 255, 255, 0.7)" },
+					ticks: {
+						color: "rgba(255, 255, 255, 0.7)",
+						font: { size: isFullscreen ? 12 : 10 },
+					},
 					grid: { color: "rgba(255, 255, 255, 0.1)" },
 					title: {
 						display: !!xLabel || chartType === "histogram",
 						text: chartType === "histogram" ? "Value Range" : xLabel || "",
 						color: "rgba(255, 255, 255, 0.8)",
+						font: { size: isFullscreen ? 14 : 12 },
 					},
 					...(chartType === "histogram" && {
 						offset: false,
@@ -820,12 +828,16 @@ const ChartView: React.FC<ChartViewProps> = ({
 				},
 
 				y: {
-					ticks: { color: "rgba(255, 255, 255, 0.7)" },
+					ticks: {
+						color: "rgba(255, 255, 255, 0.7)",
+						font: { size: isFullscreen ? 12 : 10 },
+					},
 					grid: { color: "rgba(255, 255, 255, 0.1)" },
 					title: {
 						display: !!yLabel || chartType === "histogram",
 						text: chartType === "histogram" ? "Frequency" : yLabel || "",
 						color: "rgba(255, 255, 255, 0.8)",
+						font: { size: isFullscreen ? 14 : 12 },
 					},
 					beginAtZero: chartType === "histogram",
 				},
@@ -833,9 +845,15 @@ const ChartView: React.FC<ChartViewProps> = ({
 			: chartType === "radar"
 				? {
 					r: {
-						ticks: { color: "rgba(255, 255, 255, 0.7)" },
+						ticks: {
+							color: "rgba(255, 255, 255, 0.7)",
+							font: { size: isFullscreen ? 12 : 10 },
+						},
 						grid: { color: "rgba(255, 255, 255, 0.2)" },
-						pointLabels: { color: "rgba(255, 255, 255, 0.8)" },
+						pointLabels: {
+							color: "rgba(255, 255, 255, 0.8)",
+							font: { size: isFullscreen ? 12 : 10 },
+						},
 					},
 				}
 				: {},
@@ -1067,6 +1085,7 @@ const ChartView: React.FC<ChartViewProps> = ({
 	// Render Single Chart View
 	return (
 		<div
+			ref={fullscreenRef}
 			className={`space-y-6 animate-fade-in ${isFullscreen ? "fixed inset-0 z-50 bg-slate-900 p-6 overflow-auto" : ""
 				}`}
 		>
@@ -1154,8 +1173,9 @@ const ChartView: React.FC<ChartViewProps> = ({
 					<button
 						onClick={toggleFullscreen}
 						className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"
+						title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
 					>
-						{isFullscreen ? <X size={16} /> : <Maximize2 size={16} />}
+						{isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
 						<span>{isFullscreen ? "Exit" : "Fullscreen"}</span>
 					</button>
 
@@ -1300,7 +1320,7 @@ const ChartView: React.FC<ChartViewProps> = ({
 			{/* Main Chart Container */}
 			<div className="glass-card p-6">
 				<div
-					className={`w-full ${isFullscreen ? "h-[calc(100vh-200px)]" : "h-[525px]"
+					className={`w-full ${isFullscreen ? "h-[calc(100vh-250px)]" : "h-[525px]"
 						}`}
 				>
 					{chartData &&
