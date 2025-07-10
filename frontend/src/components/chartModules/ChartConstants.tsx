@@ -18,6 +18,7 @@ export const chartTypes = [
     icon: LineChart,
     description: "Show trends over time",
     compatibility: ["1-numeric", "1-numeric-1-categorical", "2-numeric"],
+    supportsRange: true,
   },
   {
     type: "bar" as const,
@@ -25,6 +26,7 @@ export const chartTypes = [
     icon: BarChart3,
     description: "Compare categories",
     compatibility: ["1-categorical", "1-numeric-1-categorical"],
+    supportsRange: true,
   },
   {
     type: "histogram" as const,
@@ -32,6 +34,7 @@ export const chartTypes = [
     icon: BarChart2,
     description: "Show data distribution",
     compatibility: ["1-numeric"],
+    supportsRange: false,
   },
   {
     type: "pie" as const,
@@ -39,6 +42,7 @@ export const chartTypes = [
     icon: PieChartIcon,
     description: "Show proportions",
     compatibility: ["1-categorical"],
+    supportsRange: false,
   },
   {
     type: "scatter" as const,
@@ -46,6 +50,7 @@ export const chartTypes = [
     icon: Target,
     description: "Show correlations",
     compatibility: ["2-numeric", "1-categorical"],
+    supportsRange: true,
   },
   {
     type: "radar" as const,
@@ -53,6 +58,7 @@ export const chartTypes = [
     icon: Zap,
     description: "Multi-dimensional data",
     compatibility: ["2-numeric", "3-numeric"],
+    supportsRange: false,
   },
   {
     type: "polarArea" as const,
@@ -60,6 +66,7 @@ export const chartTypes = [
     icon: Activity,
     description: "Radial bar chart",
     compatibility: ["1-categorical"],
+    supportsRange: false,
   },
 ];
 
