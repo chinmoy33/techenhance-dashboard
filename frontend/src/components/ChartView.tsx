@@ -17,23 +17,16 @@ import {
 	Line,
 	Bar,
 	Pie,
-	// Doughnut,
 	Scatter,
 	Radar,
 	PolarArea,
-	// Bubble,
 } from "react-chartjs-2";
 import {
 	Settings,
 	Download,
 	Maximize2,
-	// BarChart3,
 	LineChart,
 	PieChart as PieChartIcon,
-	// Target,
-	// Zap,
-	// Activity,
-	// TrendingUp,
 	Grid3X3,
 	X,
 	Palette,
@@ -42,15 +35,17 @@ import {
 	RotateCw,
 	Minimize2,
 } from "lucide-react";
+
 import { Dataset, ChartConfig } from "../types";
 import AttributeSelector from "./chartModules/AttributeSelector";
 import RangeSelector from "./chartModules/RangeSelector";
 import { chartTypes, colorThemes } from "./chartModules/ChartConstants";
 import toast from "react-hot-toast";
-import throttle from 'lodash/throttle';
+import { throttle } from 'lodash';
 import zoomPlugin from "chartjs-plugin-zoom";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import AllChartsView from "../components/chartModules/AllChartsViews";
+
 
 // Register Chart.js components for all chart types
 ChartJS.register(
@@ -76,15 +71,13 @@ interface ChartViewProps {
 	onChartSelect?: (chartType: ChartConfig["type"]) => void;
 }
 
-
-
-
 const ChartView: React.FC<ChartViewProps> = ({
 	dataset,
 	initialChartType = "line",
 	showAllCharts = false,
 	onChartSelect,
 }) => {
+
 	// ===== STATE MANAGEMENT =====
 	const [selectedChartType, setSelectedChartType] =
 		useState<ChartConfig["type"]>(initialChartType);
@@ -272,12 +265,6 @@ const ChartView: React.FC<ChartViewProps> = ({
 		}
 	}, [compatibleChartTypes]);
 
-	// ===== ATTRIBUTE ANALYSIS FUNCTIONS =====
-
-	/**
-	 * Analyzes selected attributes to determine their types
-	 * @returns Object containing counts of numeric and categorical attributes
-	 */
 
 	// ===== DATA PROCESSING FUNCTIONS =====
 
@@ -812,13 +799,6 @@ const ChartView: React.FC<ChartViewProps> = ({
 			onChartSelect(chartType);
 		}
 	};
-
-	/**
-	 * Toggles fullscreen mode
-	 */
-	// const toggleFullscreen = () => {
-	// 	setIsFullscreen(!isFullscreen);
-	// };
 
 	/**
 	 * Resets chart zoom to original view
