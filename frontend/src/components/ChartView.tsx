@@ -927,13 +927,13 @@ const ChartView: React.FC<ChartViewProps> = ({
 	);
 
 	const throttledHandleRangeChange = useMemo(
-		() => throttle(handleRangeChange, 100),
+		() => throttle(handleRangeChange, 16),
 		[handleRangeChange]
 	);
 	// ===== MEMOIZED VALUES =====
 	const chartData = useMemo(
 		() => getChartData(selectedChartType),
-		[dataset.data, selectedChartType, selectedAttributes, chartConfig.colors]
+		[dataset.data, selectedChartType, selectedAttributes, chartConfig.colors, selectedRange]
 	);
 
 	const currentChartType = chartTypes.find((ct) => ct.type === selectedChartType);
@@ -1245,6 +1245,7 @@ const ChartView: React.FC<ChartViewProps> = ({
 				</div>
 			</div>
 
+			{/* Range Selector */}
 			{supportsRangeSelector && rangeLabels.length > 1 && (
 				<RangeSelector
 					data={dataset.data}
