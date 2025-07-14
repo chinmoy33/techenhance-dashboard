@@ -1,6 +1,9 @@
-import { ChartConfig, Dataset } from "../types";
-import { chartTypes } from "../constants/chartConstants";
+import { ChartConfig, Dataset } from "../../types";
+import { chartTypes } from "../constants/ChartConstants";
 
+/**
+ * Generates Chart.js options based on chart type
+ */
 export const getChartOptions = (
   chartType: ChartConfig["type"],
   isSingleSelectedAttribute: boolean,
@@ -38,6 +41,7 @@ export const getChartOptions = (
       borderWidth: 1,
       titleFont: { size: isFullscreen ? 14 : 12 },
       bodyFont: { size: isFullscreen ? 12 : 10 },
+      // Custom tooltip for histogram
       callbacks:
         chartType === "pie" || chartType === "polarArea"
           ? {
@@ -84,6 +88,7 @@ export const getChartOptions = (
             textStrokeWidth: 2,
           }
         : { display: false },
+    // Added zoom plugin configuration
     zoom: !["pie", "radar", "polarArea"].includes(chartType)
       ? {
           limits: {

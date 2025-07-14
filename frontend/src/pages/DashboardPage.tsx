@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import DashboardView from "../components/Dashboard";
-import ChartView from "../components/ChartView";
+import ChartView from "../components/ChartView/ChartView";
 import DataManager from "../components/DataManager";
 import AccountSettings from "../components/AccountSettings";
 import { Dataset } from "../types";
