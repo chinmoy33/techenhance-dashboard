@@ -10,6 +10,7 @@ import DataPreviewTable from "./DataPreviewTable";
 import AttributeSelector from "../chartModules/AttributeSelector";
 import RangeSelector from "../chartModules/RangeSelector";
 import AllChartsView from "../chartModules/AllChartsViews";
+import ChartPreview from "./ChartPreview";
 import toast from "react-hot-toast";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, ArcElement, RadialLinearScale, Filler } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
@@ -187,14 +188,10 @@ const ChartView: React.FC<ChartViewProps> = ({
                 compatibleChartTypes={compatibleChartTypes}
                 getChartData={getChartData}
                 renderChart={(chartType, data) => (
-                    <ChartContainer
+                    <ChartPreview
                         selectedChartType={chartType}
                         chartData={data}
                         chartOptions={chartOptions}
-                        chartRef={chartRef}
-                        selectedAttributes={selectedAttributes}
-                        compatibleChartTypes={compatibleChartTypes}
-                        isFullscreen={isFullscreen}
                     />
                 )}
                 onChartSelect={onChartSelect}

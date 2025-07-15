@@ -75,7 +75,7 @@ const AllChartsView: React.FC<AllChartsViewProps> = ({
       )}
 
       {/* Compatible Charts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6">
         {compatibleChartTypes.map((chartType) => {
           const Icon = chartType.icon;
           const data = getChartData(chartType.type);
@@ -95,7 +95,7 @@ const AllChartsView: React.FC<AllChartsViewProps> = ({
                 </div>
               </div>
 
-              <div className="h-32 mb-3">
+              <div className="h-64 mb-3">
                 {data && renderChart(chartType.type, data)}
               </div>
 
@@ -126,7 +126,7 @@ const AllChartsView: React.FC<AllChartsViewProps> = ({
       )}
 
       {/* Data Preview Section */}
-      <div className="glass-card p-6">
+      <div className="glass-card p-6 mt-6">
         <h3 className="text-lg font-semibold text-white mb-4">
           Filtered Data Preview
         </h3>
