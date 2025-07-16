@@ -135,39 +135,6 @@ const LoanFunnel: React.FC<LoanFunnelProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Mutual Fund Analysis */}
-      {/* <div className="bg-gray-800 rounded-lg shadow-xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Mutual Fund Distribution</h3>
-        <div className="space-y-3">
-          {Array.from(
-            new Set(
-                data
-                .map(item => item.type_of_mutual_fund?.trim())
-                .filter(fundType => fundType)  // removes undefined, null, and empty strings
-                
-            )
-            ).map(fundType => {
-
-            const count = data.filter(item => item.type_of_mutual_fund === fundType).length;
-            const percentage = (count / totalApplications) * 100;
-            return (
-              <div key={fundType} className="flex justify-between items-center">
-                <span className="text-gray-300">{fundType}</span>
-                <div className="flex items-center space-x-3">
-                  <div className="w-24 bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-indigo-500 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                  <span className="text-white text-sm w-12 text-right">{count}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div> */}
-      {/* Mutual Fund Analysis */}
 <div className="bg-gray-800 rounded-lg shadow-xl p-6">
   <h3 className="text-lg font-semibold text-white mb-4">Mutual Fund Distribution</h3>
   <div className="space-y-3">
