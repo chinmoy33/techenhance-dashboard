@@ -2,11 +2,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import warningReducer from "./warningSlice";
 import refetchDataReducer from "./refetchDataSlice";
+import leadReducer from "./leadSlice"
 
 export const store = configureStore({
   reducer: {
     warning: warningReducer,
     reloading: refetchDataReducer,
+    lead: leadReducer
   },
 });
 

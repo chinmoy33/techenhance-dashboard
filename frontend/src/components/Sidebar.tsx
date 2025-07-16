@@ -10,6 +10,7 @@ import {
   UserSearch,
   ArrowRightCircle,
   Settings,
+  NotebookPen,
 } from "lucide-react";
 import { ViewType } from "../types";
 
@@ -40,6 +41,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
       id: "recommendations" as ViewType,
       label: "Recommendations",
       icon: TrendingUp,
+    },
+    {
+      id: "lead tracking" as ViewType,
+      label: "Lead Tracking",
+      icon: NotebookPen,
     },
 
     { id: "charts" as ViewType, label: "Charts", icon: BarChart3 },

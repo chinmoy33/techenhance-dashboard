@@ -11,6 +11,9 @@ import { dataService } from "../services/dataService";
 import Recommendations from "../components/Recommendations";
 import Searchcustomerpage from "./Searchcustomerpage";
 import { DatabaseRecord } from "../types/searchcustomerpage";
+import Leadtrackingpage from "./Leadtrackingpage"
+import {useDispatch,useSelector} from 'react-redux'
+import {RootState} from "../store"
 
 const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState<
@@ -21,11 +24,16 @@ const Dashboard: React.FC = () => {
     | "recommendations"
     | "searchcustomerpage"
     | "account"
+    | "lead tracking"
   >("dashboard");
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
   const [selectedChartType, setSelectedChartType] = useState<string>("line");
   const [loading, setLoading] = useState(true);
+  const [showLead,setShowLead] = useState(false);
+  const hasClicked = useSelector(
+      (state: RootState) => state.lead.hasClicked
+    );
 
   useEffect(() => {
     loadDatasets();
@@ -36,6 +44,14 @@ const Dashboard: React.FC = () => {
       loadFullDatasetsIfNeeded();
     }
   }, [currentView]);
+
+  useEffect(()=>{
+    if(showLead)
+    {
+      setCurrentView("lead tracking");
+    }
+    setShowLead(true);
+  },[hasClicked])
 
   const loadFullDatasetsIfNeeded = async () => {
     const incomplete = datasets.filter((d) => !Array.isArray(d.data));
@@ -101,7 +117,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleViewChange = (
-    view: "dashboard" | "charts" | "allCharts" | "data" | "account"
+    view: "dashboard" | "charts" | "allCharts" | "data" | "account" | "lead tracking"
   ) => {
     setCurrentView(view);
 
@@ -204,6 +220,9 @@ const Dashboard: React.FC = () => {
           }))
         );
         return <Searchcustomerpage records={records} />;
+
+      case "lead tracking":
+        return <Leadtrackingpage/>;
 
       default:
         return (
