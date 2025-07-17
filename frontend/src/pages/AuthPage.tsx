@@ -77,6 +77,8 @@ const AuthPage: React.FC = () => {
     }
   };
 
+  const redirectURL = import.meta.env.MODE === 'development' ? "http://localhost:3000/auth/callback" : "https://data-visualisation-v1.vercel.app/auth/callback"
+
   // 🔐 Google OAuth Login
   const handleGoogleLogin = async () => {
     const { data,error } = await supabase.auth.signInWithOAuth({
@@ -88,7 +90,8 @@ const AuthPage: React.FC = () => {
     //   },
     options: {
     //redirectTo: "http://localhost:3000/auth/callback",
-    redirectTo: "https://data-visualisation-v1.vercel.app/auth/callback"
+    //redirectTo: "https://data-visualisation-v1.vercel.app/auth/callback"
+    redirectTo: redirectURL
   },
     });
     //console.log("Google OAuth data:", data);
