@@ -175,8 +175,9 @@ function Leadtrackingpage() {
         </div>
 
         {/* DataTable Section */}
-        <div>
+        <div className="flex gap-2">
           <DataTable data={filteredLead} />
+          <FunnelChart data={filteredLead} />
         </div>
 
 
@@ -185,18 +186,18 @@ function Leadtrackingpage() {
           <LoanFunnel data={filteredLead} />
 
           {/* Chart Toggle Buttons */}
-          <div className="flex gap-4 mt-6">
+          {/* <div className="flex gap-4 mt-6"> */}
             {/* New Funnel Chart Button */}
-            <button
+            {/* <button
               onClick={() => setShowFunnelChart(!showFunnelChart)}
               className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
             >
               {showFunnelChart ? 'Hide Funnel Pipeline' : 'Show Funnel Pipeline'}
             </button>
-          </div>
+          </div> */}
 
           {/* Conditionally render the new funnel chart */}
-          {showFunnelChart && <FunnelChart data={filteredLead} />}
+          {/* {showFunnelChart && <FunnelChart data={filteredLead} />} */}
         </div>
       </main>
 

@@ -199,7 +199,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data }) => {
     }, []);
 
     return (
-        <div className="bg-gray-800 rounded-lg shadow-xl p-6 mt-6">
+        <div className="bg-gray-800 rounded-lg shadow-xl p-6">
             {/* Chart Container - Increased height for vertical funnel */}
             <div className="h-[500px] mb-6">
                 <Chart
