@@ -87,7 +87,8 @@ const AuthPage: React.FC = () => {
     //     },
     //   },
     options: {
-    redirectTo: "http://localhost:3000/auth/callback",
+    //redirectTo: "http://localhost:3000/auth/callback",
+    redirectTo: "https://data-visualisation-v1.vercel.app/auth/callback"
   },
     });
     //console.log("Google OAuth data:", data);
