@@ -2,8 +2,12 @@ import axios from "axios";
 import { supabase } from "../supabaseClient";
 
 // Create axios instance for backend API calls
+const API_BASE_URL =
+  import.meta.env.MODE === 'development'
+    ? '/api/user-auth' // for local dev with Nginx proxy (Docker)
+    : 'https://core-service-m7so.onrender.com/api/user-auth'; // for production
 const api = axios.create({
-  baseURL: "/api/user-auth",
+  baseURL: API_BASE_URL,
   timeout: 10000,
 });
 

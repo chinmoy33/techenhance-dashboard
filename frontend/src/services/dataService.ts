@@ -4,7 +4,11 @@ import { LoanApplicant } from "../types/loan";
 import { supabase } from "../supabaseClient";
 
 // Base URL for API endpoints
-const API_BASE_URL = "/api";
+//const API_BASE_URL = "/api";
+const API_BASE_URL =
+  import.meta.env.MODE === 'development'
+    ? '/api' // for local dev with Nginx proxy (Docker)
+    : 'https://core-service-m7so.onrender.com/api'; // for production
 
 // Create an Axios instance with default config
 const api = axios.create({
