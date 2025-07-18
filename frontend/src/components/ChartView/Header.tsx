@@ -118,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({
                     {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
                     <span>{isFullscreen ? "Exit" : "Fullscreen"}</span>
                 </button>
-                {!["pie", "radar", "polarArea"].includes(selectedChartType) && (
+                {!["pie", "radar"].includes(selectedChartType) && (
                     <button
                         onClick={resetZoom}
                         className="glass-button px-4 py-2 rounded-lg flex items-center space-x-2"

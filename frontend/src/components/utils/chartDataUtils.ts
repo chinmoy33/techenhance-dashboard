@@ -52,9 +52,7 @@ export const getCompatibleChartTypes = (
   const total = selectedAttributes.length;
 
   if (categorical === total && total > 0 && total < 2) {
-    return chartTypes.filter((chartType) =>
-      ["pie", "polarArea"].includes(chartType.type)
-    );
+    return chartTypes.filter((chartType) => ["pie"].includes(chartType.type));
   }
 
   // Generate compatibility key based on selection

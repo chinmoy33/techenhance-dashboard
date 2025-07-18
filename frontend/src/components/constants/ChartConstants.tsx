@@ -60,14 +60,14 @@ export const chartTypes = [
     compatibility: ["2-numeric", "3-numeric"],
     supportsRange: false,
   },
-  {
-    type: "polarArea" as const,
-    label: "Polar Area",
-    icon: Activity,
-    description: "Radial bar chart",
-    compatibility: ["1-categorical"],
-    supportsRange: false,
-  },
+  // {
+  //   type: "polarArea" as const,
+  //   label: "Polar Area",
+  //   icon: Activity,
+  //   description: "Radial bar chart",
+  //   compatibility: ["1-categorical"],
+  //   supportsRange: false,
+  // },
 ];
 
 // ===== COLOR THEMES =====

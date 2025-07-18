@@ -14,6 +14,11 @@ import {
 import { getChartOptions } from "../utils/chartOptions";
 import { throttle } from "lodash";
 
+export interface AttributeInfo {
+  name: string;
+  type: "number" | "string" | "date";
+}
+
 export const useChartData = (
   dataset: Dataset,
   selectedChartType: ChartConfig["type"],
@@ -21,13 +26,71 @@ export const useChartData = (
   selectedRange: [number, number],
   setSelectedRange: (range: [number, number]) => void,
   chartConfig: ChartConfig,
-  isFullscreen: boolean
+  isFullscreen: boolean,
+  attributeTypes: AttributeInfo[] // New parameter to receive attribute types
 ) => {
+  // Determine if the first selected attribute is categorical
+  const isCategorical = useMemo(() => {
+    if (selectedAttributes.length === 0) return false;
+    const attr = attributeTypes.find((a) => a.name === selectedAttributes[0]);
+    return attr?.type === "string";
+  }, [selectedAttributes, attributeTypes]);
+
+  // Sort data based on the first selected attribute
+  const sortedDataAndIndices = useMemo(() => {
+    if (!dataset.data || selectedAttributes.length === 0) {
+      return {
+        sortedData: dataset.data,
+        originalIndices: dataset.data?.map((_, i) => i) || [],
+      };
+    }
+
+    const attr = selectedAttributes[0];
+    const attrType =
+      attributeTypes.find((a) => a.name === attr)?.type || "string";
+
+    if (attrType === "string") {
+      // For categorical attributes, return unsorted data
+      return {
+        sortedData: dataset.data,
+        originalIndices: dataset.data.map((_, i) => i),
+      };
+    }
+
+    // For numerical or date attributes, sort in ascending order
+    const sortedData = [...dataset.data];
+    const originalIndices = dataset.data.map((_, i) => i);
+
+    sortedData.sort((a, b) => {
+      const valA = a[attr];
+      const valB = b[attr];
+
+      if (attrType === "date") {
+        const dateA = new Date(valA);
+        const dateB = new Date(valB);
+        return dateA.getTime() - dateB.getTime();
+      }
+
+      const numA = Number(valA);
+      const numB = Number(valB);
+      return numA - numB;
+    });
+
+    // Update originalIndices to reflect sorted order
+    const sortedIndices = sortedData.map((item, index) => {
+      return dataset.data.findIndex(
+        (d, i) => d === item && originalIndices[i] !== undefined
+      );
+    });
+
+    return { sortedData, originalIndices: sortedIndices };
+  }, [dataset.data, selectedAttributes, attributeTypes]);
+
   const getFilteredData = useMemo(() => {
     if (!dataset.data || selectedAttributes.length === 0) return dataset.data;
 
     // Filter only selected attributes
-    const baseData = dataset.data.map((row) => {
+    const baseData = sortedDataAndIndices.sortedData.map((row) => {
       const filteredRow: any = {};
       selectedAttributes.forEach((attr) => {
         filteredRow[attr] = row[attr];
@@ -41,9 +104,22 @@ export const useChartData = (
     );
     if (
       currentChartType?.supportsRange &&
-      selectedRange[0] !== selectedRange[1]
+      selectedRange[0] !== selectedRange[1] &&
+      !isCategorical
     ) {
-      return baseData.slice(selectedRange[0], selectedRange[1] + 1);
+      const selectedIndices = sortedDataAndIndices.originalIndices.slice(
+        selectedRange[0],
+        selectedRange[1] + 1
+      );
+      return selectedIndices
+        .map((index) => dataset.data[index])
+        .map((row) => {
+          const filteredRow: any = {};
+          selectedAttributes.forEach((attr) => {
+            filteredRow[attr] = row[attr];
+          });
+          return filteredRow;
+        });
     }
 
     // Downsample the filtered result to a max of 1000 rows
@@ -56,7 +132,14 @@ export const useChartData = (
     } else {
       return baseData;
     }
-  }, [dataset.data, selectedAttributes, selectedRange, selectedChartType]);
+  }, [
+    dataset.data,
+    selectedAttributes,
+    selectedRange,
+    selectedChartType,
+    sortedDataAndIndices,
+    isCategorical,
+  ]);
 
   const getChartData = useCallback(
     (chartType: ChartConfig["type"]) => {
@@ -64,7 +147,6 @@ export const useChartData = (
 
       switch (chartType) {
         case "pie":
-        case "polarArea":
           return generateCategoricalChartData(
             getFilteredData,
             selectedAttributes,
@@ -115,16 +197,19 @@ export const useChartData = (
   const rangeLabels = useMemo(() => {
     if (!dataset.data || selectedAttributes.length === 0) return [];
     const labelAttr = selectedAttributes[0];
-    return dataset.data.map(
+    return sortedDataAndIndices.sortedData.map(
       (item, index) => item[labelAttr] || `Point ${index + 1}`
     );
-  }, [dataset.data, selectedAttributes]);
+  }, [dataset.data, selectedAttributes, sortedDataAndIndices]);
 
   const currentChartType = chartTypes.find(
     (ct) => ct.type === selectedChartType
   );
   const supportsRangeSelector =
-    currentChartType?.supportsRange && dataset.data && dataset.data.length > 1;
+    currentChartType?.supportsRange &&
+    dataset.data &&
+    dataset.data.length > 1 &&
+    !isCategorical;
 
   const chartOptions = useMemo(
     () =>

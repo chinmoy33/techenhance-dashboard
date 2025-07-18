@@ -1,5 +1,5 @@
 import React from "react";
-import { Line, Bar, Pie, Scatter, Radar, PolarArea } from "react-chartjs-2";
+import { Line, Bar, Pie, Scatter, Radar } from "react-chartjs-2";
 import { ChartConfig } from "../../types";
 
 interface ChartPreviewProps {
@@ -45,7 +45,7 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
                                 pointLabels: { font: { size: 10 } }, // Slightly larger for readability
                             },
                         }
-                        : chartType !== "pie" && chartType !== "polarArea"
+                        : chartType !== "pie"
                             ? {
                                 x: {
                                     display: true, // Show axes for better context
@@ -76,8 +76,8 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
                 return <Scatter {...commonProps} />;
             case "radar":
                 return <Radar {...commonProps} />;
-            case "polarArea":
-                return <PolarArea {...commonProps} />;
+            // case "polarArea":
+            //     return <PolarArea {...commonProps} />;
             default:
                 return <Line {...commonProps} />;
         }
