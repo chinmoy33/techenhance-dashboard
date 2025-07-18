@@ -81,7 +81,7 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
                 <h4 className="text-sm font-medium text-white">Data Range Selector</h4>
                 <div className="text-xs text-gray-400">
                     {labels[selectedRange[0]]} - {labels[selectedRange[1]]} (
-                    {selectedRange[1] - selectedRange[0] + 1} points)
+                    {selectedRange[1] - selectedRange[0] + 1} records)
                 </div>
             </div>
 
