@@ -62,6 +62,95 @@ const ChartView: React.FC<ChartViewProps> = ({
         resetSettings,
     } = useChartState(dataset, initialChartType);
 
+    // Compute attribute types (similar to AttributeSelector)
+    const attributeTypes: AttributeInfo[] = React.useMemo(() => {
+        if (!dataset.data || dataset.data.length === 0) return [];
+        const firstRow = dataset.data[0];
+        const attributeNames = Object.keys(firstRow);
+
+        return attributeNames.map((name) => {
+            const values = dataset.data
+                .map((row) => row[name])
+                .filter((val) => val !== null && val !== undefined && val !== "");
+
+            let type: "number" | "string" | "date" = "string";
+
+            // Enhanced date detection
+            const isDateString = (val: string): boolean => {
+                if (typeof val !== "string") return false;
+                const trimmedVal = val.trim();
+                if (trimmedVal === "") return false;
+
+                const datePatterns = [
+                    /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/,
+                    /^\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}$/,
+                    /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2}$/,
+                    /^\d{1,2}\s+\w{3,9}\s+\d{4}$/,
+                    /^\w{3,9}\s+\d{1,2},?\s+\d{4}$/,
+                    /^\d{4}$/,
+                    /^\d{1,2}\/\d{4}$/,
+                    /^\d{4}-\d{2}$/,
+                ];
+
+                const matchesPattern = datePatterns.some((pattern) =>
+                    pattern.test(trimmedVal)
+                );
+                if (!matchesPattern) return false;
+
+                let dateToTest = trimmedVal;
+                if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(trimmedVal)) {
+                    const parts = trimmedVal.split(/[\/\-\.]/);
+                    if (parts.length === 3) {
+                        dateToTest = `${parts[1]}/${parts[0]}/${parts[2]}`;
+                    }
+                }
+
+                const parsed = Date.parse(dateToTest);
+                if (isNaN(parsed)) {
+                    if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(trimmedVal)) {
+                        const parts = trimmedVal.split(/[\/\-\.]/);
+                        if (parts.length === 3) {
+                            const day = parseInt(parts[0]);
+                            const month = parseInt(parts[1]);
+                            const year = parseInt(parts[2]);
+                            if (
+                                day >= 1 &&
+                                day <= 31 &&
+                                month >= 1 &&
+                                month <= 12 &&
+                                year >= 1900 &&
+                                year <= 2100
+                            ) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+
+                const date = new Date(parsed);
+                const currentYear = new Date().getFullYear();
+                const dateYear = date.getFullYear();
+                return dateYear >= 1900 && dateYear <= currentYear + 10;
+            };
+
+            const dateValues = values.filter((val) => isDateString(String(val)));
+            if (dateValues.length > values.length * 0.8) {
+                type = "date";
+            } else {
+                const numericValues = values.filter(
+                    (val) =>
+                        !isNaN(Number(val)) && val !== "" && !isDateString(String(val))
+                );
+                if (numericValues.length > values.length * 0.8) {
+                    type = "number";
+                }
+            }
+
+            return { name, type };
+        });
+    }, [dataset.data]);
+
     const {
         chartData,
         compatibleChartTypes,
@@ -77,7 +166,8 @@ const ChartView: React.FC<ChartViewProps> = ({
         selectedRange,
         setSelectedRange,
         chartConfig,
-        isFullscreen
+        isFullscreen,
+        attributeTypes // Pass attribute types
     );
 
     const handleChartTypeChange = (chartType: ChartConfig["type"]) => {
