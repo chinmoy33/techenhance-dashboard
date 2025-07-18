@@ -1,5 +1,5 @@
 import React from "react";
-import { Line, Bar, Pie, Scatter, Radar, PolarArea } from "react-chartjs-2";
+import { Line, Bar, Pie, Scatter, Radar } from "react-chartjs-2";
 import { ChartConfig } from "../../types";
 import { Filter } from "lucide-react";
 
@@ -46,8 +46,8 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
                 return <Scatter {...commonProps} />;
             case "radar":
                 return <Radar {...commonProps} />;
-            case "polarArea":
-                return <PolarArea {...commonProps} />;
+            // case "polarArea":
+            //     return <PolarArea {...commonProps} />;
             default:
                 return <Line {...commonProps} />;
         }
@@ -60,7 +60,7 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
                     <div className="relative h-full">
                         {renderChart(selectedChartType, chartData)}
                         {/* Add Zoom Instructions */}
-                        {!["pie", "radar", "polarArea"].includes(selectedChartType) && (
+                        {!["pie", "radar"].includes(selectedChartType) && (
                             <div className="absolute top-2 right-2 text-xs text-gray-500 bg-black/50 px-2 py-1 rounded">
                                 Ctrl+Wheel: Zoom • Ctrl+Drag: Pan
                             </div>

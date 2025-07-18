@@ -64,7 +64,6 @@ export const useChartData = (
 
       switch (chartType) {
         case "pie":
-        case "polarArea":
           return generateCategoricalChartData(
             getFilteredData,
             selectedAttributes,

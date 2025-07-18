@@ -43,7 +43,7 @@ export const getChartOptions = (
       bodyFont: { size: isFullscreen ? 12 : 10 },
       // Custom tooltip for histogram
       callbacks:
-        chartType === "pie" || chartType === "polarArea"
+        chartType === "pie"
           ? {
               label: function (context: any) {
                 const dataset = context.dataset;
@@ -68,7 +68,7 @@ export const getChartOptions = (
           : undefined,
     },
     datalabels:
-      chartType === "pie" || chartType === "polarArea"
+      chartType === "pie"
         ? {
             display: true,
             formatter: (value: number, context: any) => {
@@ -89,7 +89,7 @@ export const getChartOptions = (
           }
         : { display: false },
     // Added zoom plugin configuration
-    zoom: !["pie", "radar", "polarArea"].includes(chartType)
+    zoom: !["pie", "radar"].includes(chartType)
       ? {
           limits: {
             x: { min: "original", max: "original" },
@@ -113,7 +113,7 @@ export const getChartOptions = (
         }
       : undefined,
   },
-  scales: !["pie", "radar", "polarArea"].includes(chartType)
+  scales: !["pie", "radar"].includes(chartType)
     ? {
         x: {
           display: !(
