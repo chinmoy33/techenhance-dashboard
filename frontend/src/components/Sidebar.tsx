@@ -110,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
       style={{ width: `${currentWidth}px`,height: "calc(100vh - 80px)", overflowY: "auto" }}
     >
       {/* Sidebar Content */}
-      <div className="h-full flex flex-col p-4">
+      <div className="h-full flex flex-col p-4 overflow-auto">
         {/* Collapse Toggle */}
         <div className="flex items-center justify-between mb-6">
           {!isCollapsed}
