@@ -98,6 +98,13 @@ const Header: React.FC<HeaderProps> = ({isMobile}) => {
   //     </div>
   //   </header>
   // );
+  let attributes = "";
+
+  if(!isMobile)
+  {
+    attributes = "glass-card px-3 py-2 rounded-lg"
+  }
+
   return (
     <header className="glass-card border-b border-white/10 h-20 px-4 sm:px-16 py-4">
       <div className="flex items-center justify-between">
@@ -132,7 +139,7 @@ const Header: React.FC<HeaderProps> = ({isMobile}) => {
           )}
 
           {user && (
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center space-x-2 ${attributes}`}>
               {user.avatarUrl ? (
                 <img
                   src={user.avatarUrl}
@@ -147,15 +154,16 @@ const Header: React.FC<HeaderProps> = ({isMobile}) => {
                 <span className="text-sm text-gray-300">{user.username}</span>
               )}
 
-              <button
+              
+            </div>
+          )}
+          <button
                 onClick={handleLogout}
                 className="glass-button p-2 rounded-lg hover:bg-red-500/20 transition-colors"
                 title="Logout"
               >
                 <LogOut size={16} className="text-gray-400 hover:text-red-400" />
               </button>
-            </div>
-          )}
         </div>
       </div>
     </header>

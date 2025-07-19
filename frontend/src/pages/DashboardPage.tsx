@@ -31,13 +31,21 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const isMenuClicked = useSelector((state: RootState) => state.ui.isMenuClicked);
+  const [isTablet,setIsTablet] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  const checkResponsive = () => {
+    const width = window.innerWidth;
+    setIsMobile(width <= 768);
+    setIsTablet(width > 768 && width <= 1280);
+  };
+
+  checkResponsive(); // Initial check
+
+  window.addEventListener("resize", checkResponsive);
+
+  return () => window.removeEventListener("resize", checkResponsive);
+}, []);
 
   useEffect(() => {
     loadDatasets();
@@ -248,10 +256,10 @@ const Dashboard: React.FC = () => {
         {/* <Sidebar currentView={currentView} onViewChange={handleViewChange} /> */}
         {(isMobile && isMenuClicked) ? (
           <div className="fixed z-50 w-[80%] h-full bg-background shadow-lg transition-all duration-300 ease-in-out">
-            <Sidebar currentView={currentView} onViewChange={handleViewChange} />
+            <Sidebar currentView={currentView} onViewChange={handleViewChange} isTablet={isTablet}/>
           </div>
         ) : !isMobile ? (
-          <Sidebar currentView={currentView} onViewChange={handleViewChange} />
+          <Sidebar currentView={currentView} onViewChange={handleViewChange} isTablet={isTablet}/>
         ) : null}
         
         <main className="flex-1 p-6 overflow-auto">
