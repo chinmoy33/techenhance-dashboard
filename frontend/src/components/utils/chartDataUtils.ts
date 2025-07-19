@@ -120,7 +120,7 @@ export const generateCategoricalChartData = (
 };
 
 /**
- * Generates data for scatter and bubble charts
+ * Generates data for scatter charts
  */
 export const generateScatterChartData = (
   filteredData: any[],

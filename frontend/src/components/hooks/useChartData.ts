@@ -251,5 +251,6 @@ export const useChartData = (
     chartOptions,
     getChartData,
     throttledHandleRangeChange,
+    getFilteredData,
   };
 };
