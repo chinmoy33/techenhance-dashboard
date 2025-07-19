@@ -36,8 +36,9 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
   const checkResponsive = () => {
     const width = window.innerWidth;
+    console.log("Viewport width:", width); // Add this
     setIsMobile(width <= 768);
-    setIsTablet(width > 768 && width <= 1280);
+    setIsTablet(width > 768 && width <= 1536);
   };
 
   checkResponsive(); // Initial check
