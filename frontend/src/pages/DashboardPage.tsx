@@ -11,6 +11,9 @@ import { dataService } from "../services/dataService";
 import Recommendations from "../components/Recommendations";
 import Searchcustomerpage from "./Searchcustomerpage";
 import { DatabaseRecord } from "../types/searchcustomerpage";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store"; // Adjust import
+import { setMenu } from "../store/uiSlice";
 
 const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState<
@@ -26,6 +29,15 @@ const Dashboard: React.FC = () => {
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
   const [selectedChartType, setSelectedChartType] = useState<string>("line");
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const isMenuClicked = useSelector((state: RootState) => state.ui.isMenuClicked);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     loadDatasets();
@@ -229,10 +241,19 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="mb-4">
-        <Header />
+        {/* <Header /> */}
+        <Header isMobile={isMobile} />
       </div>
       <div className="flex flex-1">
-        <Sidebar currentView={currentView} onViewChange={handleViewChange} />
+        {/* <Sidebar currentView={currentView} onViewChange={handleViewChange} /> */}
+        {(isMobile && isMenuClicked) ? (
+          <div className="fixed z-50 w-[80%] h-full bg-background shadow-lg transition-all duration-300 ease-in-out">
+            <Sidebar currentView={currentView} onViewChange={handleViewChange} />
+          </div>
+        ) : !isMobile ? (
+          <Sidebar currentView={currentView} onViewChange={handleViewChange} />
+        ) : null}
+        
         <main className="flex-1 p-6 overflow-auto">
           <div className="max-w-7xl mx-auto">
             <Routes>

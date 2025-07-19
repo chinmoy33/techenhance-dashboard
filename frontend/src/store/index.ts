@@ -2,11 +2,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import warningReducer from "./warningSlice";
 import refetchDataReducer from "./refetchDataSlice";
+import uiReducer from "./uiSlice";
 
 export const store = configureStore({
   reducer: {
     warning: warningReducer,
     reloading: refetchDataReducer,
+    ui: uiReducer
   },
 });
 

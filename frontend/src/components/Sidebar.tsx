@@ -94,8 +94,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
   return (
     <aside
       ref={sidebarRef}
-      className="relative glass-card border-r border-white/10 transition-all duration-300 ease-in-out flex-shrink-0"
-      style={{ width: `${currentWidth}px` }}
+      className="fixed top-[80px] left-0 bg-gray-900 border-r border-white/10 transition-all duration-300 ease-in-out flex-shrink-0 z-50"
+      style={{ width: `${currentWidth}px`,height: "calc(100vh - 80px)", overflowY: "auto" }}
     >
       {/* Sidebar Content */}
       <div className="h-full flex flex-col p-4">
