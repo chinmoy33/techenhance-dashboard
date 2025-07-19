@@ -17,9 +17,10 @@ import { ViewType } from "../types";
 interface SidebarProps {
   currentView: ViewType;
   onViewChange: (view: ViewType) => void;
+  isTablet?: boolean; // Optional prop to handle tablet-specific styles
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }) => {
   const [sidebarWidth, setSidebarWidth] = useState(256); // Default 64 * 4 = 256px
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -97,14 +98,25 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
 
   const currentWidth = isCollapsed ? collapsedWidth : sidebarWidth;
 
+  let position = "sticky";
+
+  if(isCollapsed && !isTablet)
+  {
+    position="fixed"
+  }
+  else
+  {
+    position="sticky"
+  }
+
   return (
     <aside
       ref={sidebarRef}
-      className="relative glass-card border-r border-white/10 transition-all duration-300 ease-in-out flex-shrink-0"
-      style={{ width: `${currentWidth}px` }}
+      className={`${position} top-[80px] left-0 bg-gray-900 border-r border-white/10 transition-all duration-300 ease-in-out flex-shrink-0 z-50`}
+      style={{ width: `${currentWidth}px`,height: "calc(100vh - 80px)", overflowY: "auto" }}
     >
       {/* Sidebar Content */}
-      <div className="h-full flex flex-col p-4">
+      <div className="h-full flex flex-col p-4 overflow-auto">
         {/* Collapse Toggle */}
         <div className="flex items-center justify-between mb-6">
           {!isCollapsed}
