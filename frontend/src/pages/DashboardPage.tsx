@@ -11,15 +11,10 @@ import { dataService } from "../services/dataService";
 import Recommendations from "../components/Recommendations";
 import Searchcustomerpage from "./Searchcustomerpage";
 import { DatabaseRecord } from "../types/searchcustomerpage";
-<<<<<<< HEAD
 import Leadtrackingpage from "./Leadtrackingpage"
 import {useDispatch,useSelector} from 'react-redux'
-import {RootState} from "../store"
-=======
-import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store"; // Adjust import
 import { setMenu } from "../store/uiSlice";
->>>>>>> f2a1366d96544759f0153212cbd25fb292696544
 
 const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState<
@@ -36,12 +31,10 @@ const Dashboard: React.FC = () => {
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
   const [selectedChartType, setSelectedChartType] = useState<string>("line");
   const [loading, setLoading] = useState(true);
-<<<<<<< HEAD
   const [showLead,setShowLead] = useState(false);
   const hasClicked = useSelector(
       (state: RootState) => state.lead.hasClicked
     );
-=======
   const [isMobile, setIsMobile] = useState(false);
   const isMenuClicked = useSelector((state: RootState) => state.ui.isMenuClicked);
   const [isTablet,setIsTablet] = useState(false);
@@ -60,7 +53,6 @@ const Dashboard: React.FC = () => {
 
   return () => window.removeEventListener("resize", checkResponsive);
 }, []);
->>>>>>> f2a1366d96544759f0153212cbd25fb292696544
 
   useEffect(() => {
     loadDatasets();

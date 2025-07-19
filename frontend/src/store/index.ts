@@ -9,7 +9,7 @@ export const store = configureStore({
   reducer: {
     warning: warningReducer,
     reloading: refetchDataReducer,
-    lead: leadReducer
+    lead: leadReducer,
     ui: uiReducer
   },
 });
