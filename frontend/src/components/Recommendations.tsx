@@ -85,23 +85,45 @@ function Recommendations() {
   //   });
   // }, [filteredApplicants]);
   const sortedApplicants = useSortApplicants(filteredApplicants);
+  let attribute;
+  if (window.innerWidth <= 768) {
+    attribute = "flex-col items-start";
+  }
+  else
+  {
+    attribute = "items-center";
+  }
 
   return (
     <div className="min-h-screen bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
+          <div className={`flex ${attribute} gap-3 mb-2`}>
             <div className="p-2 bg-blue-600 rounded-lg">
               <Target className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-white">
-              Loan Recommendations
-            </h1>
-            <div className="flex items-center gap-1 text-blue-400">
-              <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-medium">AI-Powered</span>
-            </div>
+            {window.innerWidth <= 768 ? (
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1 text-blue-400">
+                  <Sparkles className="w-4 h-4" />
+                  <span className="text-sm font-medium">AI-Powered</span>
+                </div>
+                <h1 className="text-3xl font-bold text-white">
+                  Loan Recommendations
+                </h1>
+              </div>)
+               : (<div>
+                  <h1 className="text-3xl font-bold text-white">
+                    Loan Recommendations
+                  </h1>
+                  <div className="flex items-center gap-1 text-blue-400">
+                    <Sparkles className="w-4 h-4" />
+                    <span className="text-sm font-medium">AI-Powered</span>
+                  </div>
+               </div>)
+            }
+            
           </div>
           <p className="text-slate-400 text-lg">
             Discover the most suitable loan candidates based on
