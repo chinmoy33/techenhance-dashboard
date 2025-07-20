@@ -721,6 +721,15 @@ const AccountSettings: React.FC = () => {
   /**
    * Renders the account management tab
    */
+  let attribute1;
+  if(window.innerWidth <=768){
+    attribute1="flex-col items-center"
+  }
+  else
+  {
+    attribute1="items-start"
+  }
+
   const renderDangerTab = () => (
     <div className="space-y-6">
       <div>
@@ -735,7 +744,7 @@ const AccountSettings: React.FC = () => {
 
       {/* Account Deletion Section */}
       <div className="glass-card p-6 bg-red-500/10 border-red-500/30">
-        <div className="flex items-start space-x-4">
+        <div className={`flex ${attribute1} space-x-4`}>
           <div className="p-2 bg-red-500/20 rounded-lg">
             <Trash2 size={24} className="text-red-400" />
           </div>
