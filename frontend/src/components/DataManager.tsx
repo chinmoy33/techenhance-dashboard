@@ -490,7 +490,7 @@
 //     attribute4=""
 //   }
 
-  
+
 
 //   const renderDatasetItem = (dataset: Dataset) => (
 //     <div
@@ -525,7 +525,7 @@
 //                 {dataset.type.replace("_", " ")}
 //               </span>
 //             </span>
-            
+
 //             {window.innerWidth>768 && <span>•</span>}
 //             <span>{window.innerWidth<=768 && <span>•</span>}{new Date(dataset.createdAt).toLocaleDateString()}</span>
 //           </div>
@@ -1229,15 +1229,14 @@ const DataManager: React.FC<DataManagerProps> = ({
             <span className="flex items-center gap-1 min-w-0">
               {window.innerWidth <= 768 && <span>•</span>}
               <span
-                className={`px-2 py-1 rounded-full text-xs ${
-                  dataset.type === "time_series"
-                    ? "bg-blue-500/20 text-blue-300"
-                    : dataset.type === "categorical"
+                className={`px-2 py-1 rounded-full text-xs ${dataset.type === "time_series"
+                  ? "bg-blue-500/20 text-blue-300"
+                  : dataset.type === "categorical"
                     ? "bg-purple-500/20 text-purple-300"
                     : dataset.type === "distribution"
-                    ? "bg-green-500/20 text-green-300"
-                    : "bg-gray-500/20 text-gray-300"
-                } overflow-hidden text-ellipsis whitespace-nowrap`}
+                      ? "bg-green-500/20 text-green-300"
+                      : "bg-gray-500/20 text-gray-300"
+                  } overflow-hidden text-ellipsis whitespace-nowrap`}
               >
                 {dataset.type.replace("_", " ")}
               </span>
@@ -1361,8 +1360,8 @@ const DataManager: React.FC<DataManagerProps> = ({
         onDatasetChange={onDatasetChange}
         deleteConfirmationName={deleteConfirmationName}
         setDeleteConfirmationName={setDeleteConfirmationName}
-        confirmDeleteDataset={() => {}}
-        cancelDeleteDataset={() => {}}
+        confirmDeleteDataset={() => { }}
+        cancelDeleteDataset={() => { }}
       />
     </div>
   ) : (
