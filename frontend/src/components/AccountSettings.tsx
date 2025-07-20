@@ -111,9 +111,9 @@ const AccountSettings: React.FC = () => {
       toast.success(response.message);
 
       // For demo purposes, show OTP in development
-      if (response.otp && process.env.NODE_ENV === "development") {
-        toast.success(`Demo OTP: ${response.otp}`, { duration: 10000 });
-      }
+      // if (response.otp && process.env.NODE_ENV === "development") {
+      //   toast.success(`Demo OTP: ${response.otp}`, { duration: 10000 });
+      // }
     } catch (error: any) {
       setOtpStates((prev) => ({
         ...prev,
