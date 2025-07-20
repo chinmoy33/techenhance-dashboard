@@ -38,7 +38,37 @@ const AllChartsView: React.FC<AllChartsViewProps> = ({
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header Section */}
-      <div className="flex items-center justify-between">
+      {window.innerWidth <= 768 ? (
+        <div className="flex flex-col justify-between">
+          <Grid3X3 size={24} className="text-primary-400" />
+        <div>
+          <h1 className="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
+            <span>All Charts - {dataset.name}</span>
+          </h1>
+        </div>
+        <div>
+          <p className="text-gray-400">
+            {dataset.dataPoints || dataset.data?.length || 0} data points •
+            Showing {compatibleChartTypes.length} compatible charts
+          </p>
+        </div>
+
+        {/* Control Buttons */}
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setShowAttributeSelector(!showAttributeSelector)}
+            className={`glass-button px-4 py-2 rounded-lg flex items-center space-x-2 ${showAttributeSelector
+              ? "bg-primary-500/20 border-primary-500/50 mt-2"
+              : ""
+              }`}
+          >
+            <Filter size={16} />
+            <span>Attributes</span>
+          </button>
+        </div>
+      </div>
+      ):(
+        <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
             <Grid3X3 size={24} className="text-primary-400" />
@@ -63,7 +93,10 @@ const AllChartsView: React.FC<AllChartsViewProps> = ({
             <span>Attributes</span>
           </button>
         </div>
-      </div>
+      </div>)
+      
+      }
+      
 
       {/* Attribute Selector */}
       {showAttributeSelector && (
