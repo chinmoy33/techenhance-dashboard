@@ -1,4 +1,3 @@
-// Test
 import React from "react";
 import { ChartViewProps } from "./types";
 import { useChartState } from "../hooks/useChartState";
@@ -15,6 +14,8 @@ import toast from "react-hot-toast";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, ArcElement, RadialLinearScale, Filler } from "chart.js";
 import zoomPlugin from "chartjs-plugin-zoom";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { isDateString } from "../utils/dateUtils";
+
 // Register Chart.js components for all chart types
 ChartJS.register(
     CategoryScale,
@@ -73,68 +74,71 @@ const ChartView: React.FC<ChartViewProps> = ({
                 .map((row) => row[name])
                 .filter((val) => val !== null && val !== undefined && val !== "");
 
+            console.log(`Processing attribute: ${name}`, values);
+
             let type: "number" | "string" | "date" = "string";
 
             // Enhanced date detection
-            const isDateString = (val: string): boolean => {
-                if (typeof val !== "string") return false;
-                const trimmedVal = val.trim();
-                if (trimmedVal === "") return false;
+            // const isDateString = (val: string): boolean => {
+            //     if (typeof val !== "string") return false;
+            //     const trimmedVal = val.trim();
+            //     if (trimmedVal === "") return false;
 
-                const datePatterns = [
-                    /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/,
-                    /^\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}$/,
-                    /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2}$/,
-                    /^\d{1,2}\s+\w{3,9}\s+\d{4}$/,
-                    /^\w{3,9}\s+\d{1,2},?\s+\d{4}$/,
-                    /^\d{4}$/,
-                    /^\d{1,2}\/\d{4}$/,
-                    /^\d{4}-\d{2}$/,
-                ];
+            //     const datePatterns = [
+            //         /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/,
+            //         /^\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}$/,
+            //         /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2}$/,
+            //         /^\d{1,2}\s+\w{3,9}\s+\d{4}$/,
+            //         /^\w{3,9}\s+\d{1,2},?\s+\d{4}$/,
+            //         /^\d{4}$/,
+            //         /^\d{1,2}\/\d{4}$/,
+            //         /^\d{4}-\d{2}$/,
+            //     ];
 
-                const matchesPattern = datePatterns.some((pattern) =>
-                    pattern.test(trimmedVal)
-                );
-                if (!matchesPattern) return false;
+            //     const matchesPattern = datePatterns.some((pattern) =>
+            //         pattern.test(trimmedVal)
+            //     );
+            //     if (!matchesPattern) return false;
 
-                let dateToTest = trimmedVal;
-                if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(trimmedVal)) {
-                    const parts = trimmedVal.split(/[\/\-\.]/);
-                    if (parts.length === 3) {
-                        dateToTest = `${parts[1]}/${parts[0]}/${parts[2]}`;
-                    }
-                }
+            //     let dateToTest = trimmedVal;
+            //     if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(trimmedVal)) {
+            //         const parts = trimmedVal.split(/[\/\-\.]/);
+            //         if (parts.length === 3) {
+            //             dateToTest = `${parts[1]}/${parts[0]}/${parts[2]}`;
+            //         }
+            //     }
 
-                const parsed = Date.parse(dateToTest);
-                if (isNaN(parsed)) {
-                    if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(trimmedVal)) {
-                        const parts = trimmedVal.split(/[\/\-\.]/);
-                        if (parts.length === 3) {
-                            const day = parseInt(parts[0]);
-                            const month = parseInt(parts[1]);
-                            const year = parseInt(parts[2]);
-                            if (
-                                day >= 1 &&
-                                day <= 31 &&
-                                month >= 1 &&
-                                month <= 12 &&
-                                year >= 1900 &&
-                                year <= 2100
-                            ) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                }
+            //     const parsed = Date.parse(dateToTest);
+            //     if (isNaN(parsed)) {
+            //         if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(trimmedVal)) {
+            //             const parts = trimmedVal.split(/[\/\-\.]/);
+            //             if (parts.length === 3) {
+            //                 const day = parseInt(parts[0]);
+            //                 const month = parseInt(parts[1]);
+            //                 const year = parseInt(parts[2]);
+            //                 if (
+            //                     day >= 1 &&
+            //                     day <= 31 &&
+            //                     month >= 1 &&
+            //                     month <= 12 &&
+            //                     year >= 1900 &&
+            //                     year <= 2100
+            //                 ) {
+            //                     return true;
+            //                 }
+            //             }
+            //         }
+            //         return false;
+            //     }
 
-                const date = new Date(parsed);
-                const currentYear = new Date().getFullYear();
-                const dateYear = date.getFullYear();
-                return dateYear >= 1900 && dateYear <= currentYear + 10;
-            };
+            //     const date = new Date(parsed);
+            //     const currentYear = new Date().getFullYear();
+            //     const dateYear = date.getFullYear();
+            //     return dateYear >= 1900 && dateYear <= currentYear + 10;
+            // };
 
             const dateValues = values.filter((val) => isDateString(String(val)));
+            console.log(`Date values for ${name}:`, dateValues);
             if (dateValues.length > values.length * 0.8) {
                 type = "date";
             } else {
