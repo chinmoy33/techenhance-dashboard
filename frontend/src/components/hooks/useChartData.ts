@@ -569,7 +569,7 @@ export interface AttributeInfo {
 // Add this helper function outside of your useChartData hook
 const parseDDMMYYYY = (dateString: string): Date => {
   if (!dateString) return new Date(NaN); // Handle empty/null strings
-  const parts = dateString.split('/');
+  const parts = dateString.split(/[-\/]/);
   // Note: Month is 0-indexed in Date constructor, so parts[1] - 1
   return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));
 };
