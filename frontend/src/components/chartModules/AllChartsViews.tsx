@@ -39,10 +39,10 @@ const AllChartsView: React.FC<AllChartsViewProps> = ({
     <div className="space-y-6 animate-fade-in">
       {/* Header Section */}
       {window.innerWidth <= 768 ? (
-        <div className="flex flex-col justify-between">
+        <div className="flex flex-col justify-between w-full sm:w-auto">
           <Grid3X3 size={24} className="text-primary-400" />
         <div>
-          <h1 className="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
+          <h1 className="text-2xl font-bold text-white mb-2 break-words">
             <span>All Charts - {dataset.name}</span>
           </h1>
         </div>
