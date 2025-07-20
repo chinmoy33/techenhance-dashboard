@@ -109,8 +109,13 @@ function Recommendations() {
                   <Sparkles className="w-4 h-4" />
                   <span className="text-sm font-medium">AI-Powered</span>
                 </div>
-                <h1 className="text-3xl font-bold text-white">
-                  Loan Recommendations
+                <h1 className="text-3xl font-bold text-white flex flex-col">
+                  <span>
+                    Loan
+                  </span>
+                  <span className="break-all">
+                    Recommendations
+                  </span>
                 </h1>
               </div>)
                : (<div>

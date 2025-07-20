@@ -318,7 +318,7 @@ const Header: React.FC<HeaderProps> = ({
         onClick={() => setShowSettings(!showSettings)}
         className="glass-button w-full sm:w-auto h-10 flex items-center justify-center space-x-2 text-sm px-4"
       >
-        <Settings size={16} />
+        {window.innerWidth >=319 && <Settings size={16} />}
         <span>Settings</span>
       </button>
       {/* Settings Panel */}
