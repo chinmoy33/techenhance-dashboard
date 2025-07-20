@@ -12,7 +12,6 @@ export const isDateString = (val: string): boolean => {
     /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2}$/, // dd/mm/yy, dd-mm-yy, dd.mm.yy
     /^\d{1,2}\s+\w{3,9}\s+\d{4}$/, // dd Month yyyy (e.g., 15 January 2021)
     /^\w{3,9}\s+\d{1,2},?\s+\d{4}$/, // Month dd, yyyy (e.g., January 15, 2021)
-    /^\d{4}$/, // yyyy (year only)
     /^\d{1,2}\/\d{4}$/, // mm/yyyy
     /^\d{4}-\d{2}$/, // yyyy-mm
   ];

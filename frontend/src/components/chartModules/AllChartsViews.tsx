@@ -68,20 +68,21 @@ const AllChartsView: React.FC<AllChartsViewProps> = ({
         </div>
       </div>
       ):(
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col mr-auto justify-between">
         <div>
+          <Grid3X3 size={24} className="text-primary-400" />
           <h1 className="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
-            <Grid3X3 size={24} className="text-primary-400" />
-            <span>All Charts - {dataset.name}</span>
+            
+            <span className="break-all">All Charts - {dataset.name}</span>
           </h1>
-          <p className="text-gray-400">
+          
+        </div>
+        <p className="text-gray-400">
             {dataset.dataPoints || dataset.data?.length || 0} data points •
             Showing {compatibleChartTypes.length} compatible charts
           </p>
-        </div>
-
         {/* Control Buttons */}
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 ml-auto">
           <button
             onClick={() => setShowAttributeSelector(!showAttributeSelector)}
             className={`glass-button px-4 py-2 rounded-lg flex items-center space-x-2 ${showAttributeSelector

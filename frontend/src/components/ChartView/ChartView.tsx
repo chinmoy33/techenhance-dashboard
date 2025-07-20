@@ -74,6 +74,8 @@ const ChartView: React.FC<ChartViewProps> = ({
                 .map((row) => row[name])
                 .filter((val) => val !== null && val !== undefined && val !== "");
 
+            console.log(`Processing attribute: ${name}`, values);
+
             let type: "number" | "string" | "date" = "string";
 
             // Enhanced date detection
@@ -136,6 +138,7 @@ const ChartView: React.FC<ChartViewProps> = ({
             // };
 
             const dateValues = values.filter((val) => isDateString(String(val)));
+            console.log(`Date values for ${name}:`, dateValues);
             if (dateValues.length > values.length * 0.8) {
                 type = "date";
             } else {

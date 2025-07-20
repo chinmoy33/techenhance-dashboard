@@ -1,5 +1,5 @@
 import React from "react";
-import { Download, Filter, Maximize2, Minimize2, Settings, RotateCcw, Palette, ZoomOut } from "lucide-react";
+import { Download, Filter, Maximize2, Minimize2, Settings, RotateCcw, Palette, ZoomOut, BarChart3 } from "lucide-react";
 import { Dataset, ChartConfig } from "../../types";
 import { colorThemes } from "../constants/ChartConstants";
 
@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({
     let attribute2;
     let attribute3;
     if (window.innerWidth <= 768) {
-        attribute1 = "flex-col";
+        attribute1 = "flex sm:flex-row  p-4 sm:p-0";
         attribute2 = "grid grid-cols-2 gap-2 mt-2";
         attribute3 = "left-0";
     } else {
@@ -221,8 +221,9 @@ const Header: React.FC<HeaderProps> = ({
 //   </div>
 // </div>
 
-  <div className={`flex flex-col sm:flex-row ${attribute1} items-center justify-between p-4 sm:p-0`}>
+  <div className={`flex-col  ${attribute1} items-center justify-between`}>
   {/* Left Section: Header Title and Sentences */}
+  <BarChart3 size={32} className="text-primary-400 mr-auto" />
   <div className="w-full sm:w-auto mb-4 sm:mb-0">
     <h1 className="text-xl sm:text-2xl font-bold text-white mb-1 break-words">
       {dataset.name}
