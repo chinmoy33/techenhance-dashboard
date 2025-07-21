@@ -12,8 +12,6 @@ import Recommendations from "../components/Recommendations";
 import Searchcustomerpage from "./Searchcustomerpage";
 import { DatabaseRecord } from "../types/searchcustomerpage";
 import Leadtrackingpage from "./Leadtrackingpage"
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from "../store"
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store"; // Adjust import
 import { setMenu } from "../store/uiSlice";
