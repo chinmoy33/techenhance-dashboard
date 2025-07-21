@@ -256,7 +256,6 @@
 //   };
 // };
 
-
 // Data processing and chart options hook
 // Data processing and chart options hook
 // Add this helper function outside of your useChartData hook,
@@ -298,7 +297,6 @@
 //   attributeTypes: AttributeInfo[] // New parameter to receive attribute types
 // ) => {
 
-  
 //   // Determine if the first selected attribute is categorical
 //   const isCategorical = useMemo(() => {
 //     if (selectedAttributes.length === 0) return false;
@@ -544,7 +542,6 @@
 //   };
 // };
 
-
 // Data processing and chart options hook
 import { useMemo, useCallback } from "react";
 import { ChartConfig, Dataset } from "../../types";
@@ -690,7 +687,10 @@ export const useChartData = (
     // The previous downsampleToSize function and its call are removed.
     // This means `filteredAttributesData` will be returned as is, without size limits.
 
-    console.log("Filtered data sent to chart (NO DOWNSAMPLING):", filteredAttributesData);
+    console.log(
+      "Filtered data sent to chart (NO DOWNSAMPLING):",
+      filteredAttributesData
+    );
     return filteredAttributesData; // Return the data without downsampling
   }, [
     dataset.data, // Only for initial empty check
@@ -758,19 +758,22 @@ export const useChartData = (
     if (!dataset.data || selectedAttributes.length === 0) return [];
     const labelAttr = selectedAttributes[0];
     // Range labels should directly reflect the sorted data
-    return sortedDataAndIndices.sortedData.map(
-      (item, index) => {
-          const value = item[labelAttr];
-          const attrType = attributeTypes.find(a => a.name === labelAttr)?.type;
-          if (attrType === "date" && value) {
-              const date = parseDDMMYYYY(value);
-              if (isNaN(date.getTime())) return `Invalid Date: ${value}`;
-              return date.toLocaleDateString('en-GB'); // 'en-GB' for dd/mm/yyyy format
-          }
-          return value || `Point ${index + 1}`;
+    return sortedDataAndIndices.sortedData.map((item, index) => {
+      const value = item[labelAttr];
+      const attrType = attributeTypes.find((a) => a.name === labelAttr)?.type;
+      if (attrType === "date" && value) {
+        const date = parseDDMMYYYY(value);
+        if (isNaN(date.getTime())) return `Invalid Date: ${value}`;
+        return date.toLocaleDateString("en-GB"); // 'en-GB' for dd/mm/yyyy format
       }
-    );
-  }, [dataset.data, selectedAttributes, sortedDataAndIndices.sortedData, attributeTypes]);
+      return value || `Point ${index + 1}`;
+    });
+  }, [
+    dataset.data,
+    selectedAttributes,
+    sortedDataAndIndices.sortedData,
+    attributeTypes,
+  ]);
 
   const currentChartType = chartTypes.find(
     (ct) => ct.type === selectedChartType
@@ -821,5 +824,6 @@ export const useChartData = (
     chartOptions,
     getChartData,
     throttledHandleRangeChange,
+    sortedDataAndIndices,
   };
 };

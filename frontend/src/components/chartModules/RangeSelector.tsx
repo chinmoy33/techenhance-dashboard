@@ -95,21 +95,28 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
         }
 
         const firstAttribute = selectedAttributes[0];
+        // Create an array of { index, date } pairs
+        const dateIndices = data
+            .map((item, index) => ({
+                index,
+                date: parseDDMMYYYY(item[firstAttribute]),
+            }))
+            .filter(({ date }) => !isNaN(date.getTime()))
+            .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+        if (dateIndices.length === 0) {
+            return [0, data.length - 1];
+        }
+
         let startIndex = 0;
         let endIndex = data.length - 1;
 
-        // Find the indices that match the date range
-        for (let i = 0; i < data.length; i++) {
-            const itemDateStr = data[i][firstAttribute];
-            const itemDate = parseDDMMYYYY(itemDateStr);
-
-            if (!isNaN(itemDate.getTime())) {
-                if (itemDate >= startDate && startIndex === 0) {
-                    startIndex = i;
-                }
-                if (itemDate <= endDate) {
-                    endIndex = i;
-                }
+        for (const { index, date } of dateIndices) {
+            if (date >= startDate && startIndex === 0) {
+                startIndex = index;
+            }
+            if (date <= endDate) {
+                endIndex = index;
             }
         }
 
@@ -132,6 +139,8 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
                         startDate: dayjs(startDate).format('YYYY-MM-DD'),
                         endDate: dayjs(endDate).format('YYYY-MM-DD'),
                     });
+                } else {
+                    setDateValue({ startDate: null, endDate: null });
                 }
             }
         }
@@ -145,9 +154,9 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
         setDateValue({ startDate, endDate });
 
         if (startDate && endDate) {
-            // Convert string dates to Date objects
-            const start = typeof startDate === 'string' ? new Date(startDate) : startDate;
-            const end = typeof endDate === 'string' ? new Date(endDate) : endDate;
+            // Convert date picker's YYYY-MM-DD to Date objects
+            const start = typeof startDate === 'string' ? dayjs(startDate, 'YYYY-MM-DD').toDate() : startDate;
+            const end = typeof endDate === 'string' ? dayjs(endDate, 'YYYY-MM-DD').toDate() : endDate;
 
             const [newStartIndex, newEndIndex] = getDateRangeIndices(start, end);
             onRangeChange([newStartIndex, newEndIndex]);

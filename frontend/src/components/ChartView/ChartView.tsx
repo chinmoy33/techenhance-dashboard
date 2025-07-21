@@ -109,6 +109,7 @@ const ChartView: React.FC<ChartViewProps> = ({
         chartOptions,
         getChartData,
         throttledHandleRangeChange,
+        sortedDataAndIndices,
     } = useChartData(
         dataset,
         selectedChartType,
@@ -287,7 +288,7 @@ const ChartView: React.FC<ChartViewProps> = ({
             />
             {supportsRangeSelector && rangeLabels.length > 1 && (
                 <RangeSelector
-                    data={dataset.data}
+                    data={sortedDataAndIndices.sortedData}
                     selectedRange={selectedRange}
                     onRangeChange={throttledHandleRangeChange}
                     labels={rangeLabels}
