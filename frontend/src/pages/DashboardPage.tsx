@@ -12,8 +12,11 @@ import Recommendations from "../components/Recommendations";
 import Searchcustomerpage from "./Searchcustomerpage";
 import { DatabaseRecord } from "../types/searchcustomerpage";
 import Leadtrackingpage from "./Leadtrackingpage"
-import {useDispatch,useSelector} from 'react-redux'
-import {RootState} from "../store"
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from "../store"
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store"; // Adjust import
+import { setMenu } from "../store/uiSlice";
 
 const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState<
@@ -30,10 +33,28 @@ const Dashboard: React.FC = () => {
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
   const [selectedChartType, setSelectedChartType] = useState<string>("line");
   const [loading, setLoading] = useState(true);
-  const [showLead,setShowLead] = useState(false);
+  const [showLead, setShowLead] = useState(false);
   const hasClicked = useSelector(
-      (state: RootState) => state.lead.hasClicked
-    );
+    (state: RootState) => state.lead.hasClicked
+  );
+  const [isMobile, setIsMobile] = useState(false);
+  const isMenuClicked = useSelector((state: RootState) => state.ui.isMenuClicked);
+  const [isTablet, setIsTablet] = useState(false);
+
+  useEffect(() => {
+    const checkResponsive = () => {
+      const width = window.innerWidth;
+      console.log("Viewport width:", width); // Add this
+      setIsMobile(width <= 768);
+      setIsTablet(width > 768 && width <= 1536);
+    };
+
+    checkResponsive(); // Initial check
+
+    window.addEventListener("resize", checkResponsive);
+
+    return () => window.removeEventListener("resize", checkResponsive);
+  }, []);
 
   useEffect(() => {
     loadDatasets();
@@ -45,13 +66,12 @@ const Dashboard: React.FC = () => {
     }
   }, [currentView]);
 
-  useEffect(()=>{
-    if(showLead)
-    {
+  useEffect(() => {
+    if (showLead) {
       setCurrentView("lead tracking");
     }
     setShowLead(true);
-  },[hasClicked])
+  }, [hasClicked])
 
   const loadFullDatasetsIfNeeded = async () => {
     const incomplete = datasets.filter((d) => !Array.isArray(d.data));
@@ -222,7 +242,7 @@ const Dashboard: React.FC = () => {
         return <Searchcustomerpage records={records} />;
 
       case "lead tracking":
-        return <Leadtrackingpage/>;
+        return <Leadtrackingpage />;
 
       default:
         return (
@@ -248,10 +268,19 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="mb-4">
-        <Header />
+        {/* <Header /> */}
+        <Header isMobile={isMobile} />
       </div>
       <div className="flex flex-1">
-        <Sidebar currentView={currentView} onViewChange={handleViewChange} />
+        {/* <Sidebar currentView={currentView} onViewChange={handleViewChange} /> */}
+        {(isMobile && isMenuClicked) ? (
+          <div className="fixed z-50 w-[80%] h-full bg-background shadow-lg transition-all duration-300 ease-in-out overflow-auto">
+            <Sidebar currentView={currentView} onViewChange={handleViewChange} isTablet={isTablet} />
+          </div>
+        ) : !isMobile ? (
+          <Sidebar currentView={currentView} onViewChange={handleViewChange} isTablet={isTablet} />
+        ) : null}
+
         <main className="flex-1 p-6 overflow-auto">
           <div className="max-w-7xl mx-auto">
             <Routes>

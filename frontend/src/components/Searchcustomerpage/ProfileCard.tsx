@@ -7,7 +7,8 @@ interface ProfileCardProps {
   timestamp: string;
 }
 
-export const ProfileCard: React.FC<ProfileCardProps> = ({ data, timestamp }) => {
+export const ProfileCard: React.FC<ProfileCardProps> = ({ data, timestamp}) => {
+
   const formatCurrency = (amount: string) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',

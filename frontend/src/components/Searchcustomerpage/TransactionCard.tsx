@@ -7,7 +7,8 @@ interface TransactionCardProps {
   timestamp: string;
 }
 
-export const TransactionCard: React.FC<TransactionCardProps> = ({ data, timestamp }) => {
+export const TransactionCard: React.FC<TransactionCardProps> = ({ data, timestamp}) => {
+
   const formatCurrency = (amount: string) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',

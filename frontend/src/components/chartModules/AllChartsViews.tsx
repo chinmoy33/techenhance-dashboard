@@ -38,12 +38,15 @@ const AllChartsView: React.FC<AllChartsViewProps> = ({
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header Section */}
-      <div className="flex items-center justify-between">
+      {window.innerWidth <= 768 ? (
+        <div className="flex flex-col justify-between w-full sm:w-auto">
+          <Grid3X3 size={24} className="text-primary-400" />
         <div>
-          <h1 className="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
-            <Grid3X3 size={24} className="text-primary-400" />
+          <h1 className="text-2xl font-bold text-white mb-2 break-words">
             <span>All Charts - {dataset.name}</span>
           </h1>
+        </div>
+        <div>
           <p className="text-gray-400">
             {dataset.dataPoints || dataset.data?.length || 0} data points •
             Showing {compatibleChartTypes.length} compatible charts
@@ -55,7 +58,7 @@ const AllChartsView: React.FC<AllChartsViewProps> = ({
           <button
             onClick={() => setShowAttributeSelector(!showAttributeSelector)}
             className={`glass-button px-4 py-2 rounded-lg flex items-center space-x-2 ${showAttributeSelector
-              ? "bg-primary-500/20 border-primary-500/50"
+              ? "bg-primary-500/20 border-primary-500/50 mt-2"
               : ""
               }`}
           >
@@ -64,6 +67,37 @@ const AllChartsView: React.FC<AllChartsViewProps> = ({
           </button>
         </div>
       </div>
+      ):(
+        <div className="flex flex-col mr-auto justify-between">
+        <div>
+          <Grid3X3 size={24} className="text-primary-400" />
+          <h1 className="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
+            
+            <span className="break-all">All Charts - {dataset.name}</span>
+          </h1>
+          
+        </div>
+        <p className="text-gray-400">
+            {dataset.dataPoints || dataset.data?.length || 0} data points •
+            Showing {compatibleChartTypes.length} compatible charts
+          </p>
+        {/* Control Buttons */}
+        <div className="flex space-x-2 ml-auto">
+          <button
+            onClick={() => setShowAttributeSelector(!showAttributeSelector)}
+            className={`glass-button px-4 py-2 rounded-lg flex items-center space-x-2 ${showAttributeSelector
+              ? "bg-primary-500/20 border-primary-500/50"
+              : ""
+              }`}
+          >
+            <Filter size={16} />
+            <span>Attributes</span>
+          </button>
+        </div>
+      </div>)
+      
+      }
+      
 
       {/* Attribute Selector */}
       {showAttributeSelector && (

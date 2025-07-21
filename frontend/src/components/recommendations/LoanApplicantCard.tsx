@@ -247,20 +247,20 @@ export const LoanApplicantCard: React.FC<RecommendedApplicantProps> = ({ applica
       </div>
 
 
-      <div className="flex items-center gap-4 pt-4 border-t border-slate-700">
+      <div className="flex items-center gap-4 pt-4 border-t border-slate-700 flex-wrap">
         <a
           href={`mailto:${applicant.emailAddress}`}
-          className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors text-sm"
+          className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors text-sm hover:underline"
         >
-          <Mail className="w-4 h-4 mb-4" />
-          <span>Email- {applicant.emailAddress}</span>
+          <Mail className="w-4 h-4" />
+          <span>Email- <span className="break-all">{applicant.emailAddress}</span></span>
         </a>
         <a
           href={`tel:${applicant.phoneNumber}`}
-          className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors text-sm"
+          className="break-words flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors text-sm hover:underline"
         >
-          <Phone className="w-4 h-4 mb-4" />
-          <span>Call- {applicant.phoneNumber}</span>
+          <Phone className="w-4 h-4" />
+          <span>Call- <span className="break-all">{applicant.phoneNumber}</span></span>
         </a>
         {/* <div className="ml-auto">
           <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
