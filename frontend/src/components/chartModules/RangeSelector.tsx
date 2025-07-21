@@ -669,7 +669,7 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
                             inputClassName="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 backdrop-blur-sm transition-all duration-200 hover:bg-white/15"
                             containerClassName="relative"
                             toggleClassName="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors duration-200"
-                            popoverClassName="bg-slate-800 border border-white/20 rounded-lg shadow-2xl backdrop-blur-sm"
+                            popoverClassName="bg-slate-800 border border-white/20 rounded-lg shadow-2xl backdrop-blur-sm z-[9999]"
                         />
                     </div>
                     {availableDateRange.minDate && availableDateRange.maxDate && (
