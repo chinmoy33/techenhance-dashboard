@@ -7,13 +7,16 @@ interface LoanFunnelProps {
 }
 
 const LoanFunnel: React.FC<LoanFunnelProps> = ({ data }) => {
+  if (!data || data.length === 0) {
+    return <div className="text-center text-gray-500">No data available</div>;
+  }
   const totalApplications = data.length;
   const interestedUsers = data.filter(item => item.interested=="yes" || item.interested=="Yes").length;
   const kycCompleted = data.filter(item => item.kyc_completed).length;
   const finalDisbursed = data.filter(item => item.final_disbursed_amt > 0).length;
   
   const totalRequestedAmount = data.reduce((sum, item) => sum + (item.amount ?? 0), 0);
-  const totalFinalAmount = data.reduce((sum, item) => sum + (item.final_amount ?? 0), 0);
+  //const totalFinalAmount = data.reduce((sum, item) => sum + (item.final_amount ?? 0), 0);
   const totalDisbursedAmount = data.reduce((sum, item) => sum + (item.final_disbursed_amt ?? 0), 0);
   
   const conversionRate = (finalDisbursed / totalApplications) * 100;
@@ -50,16 +53,16 @@ const LoanFunnel: React.FC<LoanFunnelProps> = ({ data }) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="sm:w-[90vw] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
       {/* Funnel Visualization */}
-      <div className="bg-gray-800 rounded-lg shadow-xl p-6">
+      <div className="bg-gray-800 rounded-lg shadow-xl p-6 justify-items-stretch">
         <h3 className="text-lg font-semibold text-white mb-4">Application Journey</h3>
         <div className="">
           {funnelStages.map((stage, index) => {
             const Icon = stage.icon;
             return (
-              <div key={index} className="relative">
+              <div key={index} className="relative ">
                 <div className="flex items-center space-x-4">
                   <div className={`${stage.color} p-3 rounded-full`}>
                     <Icon className="w-6 h-6 text-white" />
@@ -103,18 +106,18 @@ const LoanFunnel: React.FC<LoanFunnelProps> = ({ data }) => {
           Financial Overview
         </h3>
         <div className="grid grid-cols-1 gap-4">
-          <div className="bg-gray-700 rounded-lg p-4">
+          <div className="bg-gray-700 rounded-lg p-4 justify-items-stretch">
             <div className="flex justify-between items-center">
               <span className="text-gray-300 text-sm">Total Requested</span>
               <span className="text-white font-semibold">₹{totalRequestedAmount.toLocaleString()}</span>
             </div>
           </div>
-          <div className="bg-gray-700 rounded-lg p-4">
+          {/* <div className="bg-gray-700 rounded-lg p-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-300 text-sm">Total Approved</span>
               <span className="text-white font-semibold">₹{totalFinalAmount.toLocaleString()}</span>
             </div>
-          </div>
+          </div> */}
           <div className="bg-gray-700 rounded-lg p-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-300 text-sm">Total Disbursed</span>
@@ -145,7 +148,7 @@ const LoanFunnel: React.FC<LoanFunnelProps> = ({ data }) => {
       return (
         <div key={fundType} className="flex justify-between items-center">
           <span className="text-gray-300">{fundType}</span>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center">
             <div className="w-24 bg-gray-700 rounded-full h-2">
               <div
                 className="bg-indigo-500 h-2 rounded-full transition-all duration-500"

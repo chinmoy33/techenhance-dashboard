@@ -1,10 +1,6 @@
 import React from 'react';
 import { RecommendationData } from '../../types/loan';
 import { scoreApplicant } from '../../utils/ScoreApplicants';
-import  ContactForm  from "./ContactForm.tsx"
-import {recommendationService} from "../../services/recommendationService.ts"
-import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
 import { 
   User, 
   Phone, 
@@ -22,8 +18,6 @@ import {
   Cake,
   Filter,
 } from 'lucide-react';
-import { setHasClicked } from "../../store/leadSlice";
-import { RootState } from "../../store";
 
 interface RecommendedApplicantProps {
   applicant: RecommendationData;
@@ -31,11 +25,6 @@ interface RecommendedApplicantProps {
 
 export const LoanApplicantCard: React.FC<RecommendedApplicantProps> = ({ applicant }) => {
   const score = scoreApplicant(applicant);
-  const [showForm, setShowForm] = React.useState(false);
-  const dispatch = useDispatch();
-  const hasClicked = useSelector(
-        (state: RootState) => state.lead.hasClicked
-      );
 
   const getRiskLevel = (score: number): "low" | "medium" | "high" => {
   if (score >= 35) return "low";
@@ -86,56 +75,9 @@ export const LoanApplicantCard: React.FC<RecommendedApplicantProps> = ({ applica
     }
   };
   
-  const handleFilterClick=()=>{
-    dispatch(setHasClicked(!hasClicked));
-  }
-  
   return (
     
     <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-slate-600 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10">
-      <div className="flex gap-4 mb-4">
-        <button
-          className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm"
-          onClick={() => setShowForm(true)}
-        >
-          Mark as Contacted
-        </button>
-        <button onClick={handleFilterClick}>
-          <Filter className="w-5 h-5 mt-1 cursor-pointer hover:text-blue-400"/>
-        </button>
-        
-      </div>
-
-      {showForm && (
-        <ContactForm
-          onSubmit={async(formData) => {
-            console.log('Form Data Submitted:', formData);
-            // TODO: POST to Supabase here
-            try{
-              const {success,message}=await recommendationService.updateLeads(applicant.id,formData);
-              if(success)
-              {
-                toast.success(message);
-              }
-              else
-              {
-                toast.error(message)
-              }
-              
-            }
-            catch(error)
-            {
-              console.error("error occured while updating Leads!");
-            }
-            finally{
-               setShowForm(false);
-            }
-           
-          }}
-          onCancel={() => setShowForm(false)}
-        />
-      )}
-
       <div className="flex items-start gap-4 mb-4">
         {/* <img
           src={applicant.avatar}

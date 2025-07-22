@@ -7,7 +7,7 @@ interface DataTableProps {
 
 const DataTable: React.FC<DataTableProps> = ({ data }) => {
   return (
-  <div className="bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+  <div className="h-full bg-gray-800 rounded-lg shadow-xl overflow-hidden">
   <div className="px-6 py-4 bg-gray-700 border-b border-gray-600">
     <h2 className="text-xl font-semibold text-white">Loan Application Data</h2>
     <p className="text-gray-300 text-sm mt-1">Complete dataset overview</p>
@@ -25,7 +25,6 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Interested</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Mutual Fund Type</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Amount</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Final Amount</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">KYC Completed</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Final Disbursed</th>
           </tr>
@@ -45,12 +44,11 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-red-100 text-red-800'
                 }`}>
-                  {item.interested?.toLowerCase() === 'yes' ? 'Yes' : 'No'}
+                  {item.interested?.toLowerCase() === 'yes' ? 'Yes' : item.interested?.toLowerCase() === 'no' ? 'No' : 'Not Decided'}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{item?.type_of_mutual_fund}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">₹{item?.amount?.toLocaleString()}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">₹{item?.final_amount}</td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                   item?.kyc_completed

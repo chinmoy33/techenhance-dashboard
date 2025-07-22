@@ -18,7 +18,7 @@ interface updateLeadResponse {
 };
 
 interface formDatatype{
-  interested:boolean,
+  interested:string,
   type_of_mutual_fund:string,
   amount:number,
   final_amount:number,
@@ -38,5 +38,9 @@ export const recommendationService = {
   async updateLeads(id:number,formData:formDatatype): Promise<updateLeadResponse> {
     const response = await recommendationApi.post(`/api/recommendations/updateLeads/${id}`,formData);
     return response.data
-  }
+  },
+  async getHistory(): Promise<LoanApplicant[]> {
+    const response = await recommendationApi.get("/api/recommendations/history");
+    return response.data;
+  },
 };
