@@ -97,8 +97,8 @@ frontend/
 │   │   ├── chartModules/      # Chart-related modules
 │   │   ├── recommendations/   # Recommendation system
 │   │   ├── Searchcustomerpage/# Customer search interface
-│   │   └── utils/              # Reusable Utility functions
-│   │   ├── hooks/              # Custom Hooks for ChartView
+│   │   |── utils/              # Reusable Utility functions
+│   │   └── hooks/              # Custom Hooks for ChartView
 │   ├── pages/                 # Main application pages
 │   ├── services/             # API and data services
 │   ├── store/               # Redux store configuration
