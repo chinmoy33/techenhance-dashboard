@@ -111,7 +111,6 @@ const ChartView: React.FC<ChartViewProps> = ({
         throttledHandleRangeChange,
         getFilteredData,
         sortedDataAndIndices,
-        getFilteredData
     } = useChartData(
         dataset,
         selectedChartType,
