@@ -111,7 +111,7 @@ function Recommendations() {
                 </div>
                 <h1 className="text-3xl font-bold text-white flex flex-col">
                   <span>
-                    Loan
+                    Fund
                   </span>
                   <span className="break-all">
                     Recommendations
@@ -120,7 +120,7 @@ function Recommendations() {
               </div>)
                : (<div>
                   <h1 className="text-3xl font-bold text-white">
-                    Loan Recommendations
+                    Fund Recommendations
                   </h1>
                   <div className="flex items-center gap-1 text-blue-400">
                     <Sparkles className="w-4 h-4" />
@@ -131,7 +131,7 @@ function Recommendations() {
             
           </div>
           <p className="text-slate-400 text-lg">
-            Discover the most suitable loan candidates based on
+            Discover the most suitable fund candidates based on
             creditworthiness, income, and risk assessment.
           </p>
         </div>
@@ -192,7 +192,7 @@ function Recommendations() {
               </h3>
               <p className="text-slate-400">
                 Try adjusting your search criteria or filters to find suitable
-                loan candidates.
+                fund candidates.
               </p>
             </div>
           </div>
