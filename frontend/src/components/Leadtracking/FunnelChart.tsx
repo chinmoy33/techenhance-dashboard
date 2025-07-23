@@ -56,14 +56,14 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data }) => {
         return {
             stages: [
                 {
-                    label: 'Origination',
+                    label: 'Lead Capture',
                     count: totalApplications,
                     amount: totalRequestedAmount,
                     color: 'rgba(59, 130, 246, 0.8)', // Blue
                     borderColor: 'rgba(59, 130, 246, 1)'
                 },
                 {
-                    label: 'Underwriting',
+                    label: 'Qualified Leads',
                     count: interestedUsers,
                     amount: interestedAmount,
                     color: 'rgba(249, 115, 22, 0.8)', // Orange
@@ -71,7 +71,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data }) => {
                 },
                 // Removed Stage 3 (3-Propose)
                 {
-                    label: 'Close', // Renamed from 4-Close to 3-Close for sequential numbering
+                    label: 'Disbursal', 
                     count: finalDisbursed,
                     amount: disbursedAmount,
                     color: 'rgba(245, 158, 11, 0.8)', // Yellow
