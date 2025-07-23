@@ -49,7 +49,8 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
     // Parse DD/MM/YYYY format to Date object
     const parseDDMMYYYY = useCallback((dateString: string): Date => {
         if (!dateString) return new Date(NaN);
-        const parts = dateString.split('/');
+        //const parts = dateString.split('/');
+        const parts = dateString.split(/[-\/]/);
         if (parts.length !== 3) return new Date(NaN);
         return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));
     }, []);
@@ -94,15 +95,24 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
             return [0, data.length - 1];
         }
 
+        // Normalize dates to remove time component for accurate comparison
+        const normalizedStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+        const normalizedEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+
         const firstAttribute = selectedAttributes[0];
         // Create an array of { index, date } pairs
         const dateIndices = data
-            .map((item, index) => ({
-                index,
-                date: parseDDMMYYYY(item[firstAttribute]),
-            }))
-            .filter(({ date }) => !isNaN(date.getTime()))
-            .sort((a, b) => a.date.getTime() - b.date.getTime());
+            .map((item, index) => {
+                const parsedDate = parseDDMMYYYY(item[firstAttribute]);
+                // Normalize the parsed date to remove time component
+                const normalizedDate = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
+                return {
+                    index,
+                    date: normalizedDate,
+                    originalDate: parsedDate
+                };
+            })
+            .filter(({ originalDate }) => !isNaN(originalDate.getTime()));
 
         if (dateIndices.length === 0) {
             return [0, data.length - 1];
@@ -111,15 +121,39 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
         let startIndex = 0;
         let endIndex = data.length - 1;
 
-        for (const { index, date } of dateIndices) {
-            if (date >= startDate && startIndex === 0) {
-                startIndex = index;
-            }
-            if (date <= endDate) {
-                endIndex = index;
+        // Find the exact start date or the closest date after it
+        const startMatch = dateIndices.find(({ date }) => date.getTime() === normalizedStartDate.getTime());
+        if (startMatch) {
+            // Exact match found
+            startIndex = startMatch.index;
+        } else {
+            // Find the closest date after start date
+            const laterDates = dateIndices.filter(({ date }) => date.getTime() > normalizedStartDate.getTime());
+            if (laterDates.length > 0) {
+                const closestLater = laterDates.reduce((closest, current) =>
+                    current.date.getTime() < closest.date.getTime() ? current : closest
+                );
+                startIndex = closestLater.index;
             }
         }
 
+        // Find the exact end date or the closest date before it
+        const endMatch = dateIndices.find(({ date }) => date.getTime() === normalizedEndDate.getTime());
+        if (endMatch) {
+            // Exact match found
+            endIndex = endMatch.index;
+        } else {
+            // Find the closest date before end date
+            const earlierDates = dateIndices.filter(({ date }) => date.getTime() < normalizedEndDate.getTime());
+            if (earlierDates.length > 0) {
+                const closestEarlier = earlierDates.reduce((closest, current) =>
+                    current.date.getTime() > closest.date.getTime() ? current : closest
+                );
+                endIndex = closestEarlier.index;
+            }
+        }
+
+        // Ensure endIndex is not before startIndex
         return [startIndex, Math.max(startIndex, endIndex)];
     }, [data, selectedAttributes, parseDDMMYYYY]);
 
@@ -163,21 +197,20 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
         }
     }, [isDateAttribute, getDateRangeIndices, onRangeChange]);
 
-    const handleMouseDown = useCallback(
-        (e: React.MouseEvent, type: "start" | "end" | "range") => {
-            e.preventDefault();
+    const handleInteractionStart = useCallback(
+        (clientPos: number, type: "start" | "end" | "range") => {
             setIsDragging(type);
-            setDragStart(e.clientX);
+            setDragStart(clientPos);
         },
         []
     );
 
-    const handleMouseMove = useCallback(
-        (e: MouseEvent) => {
+    const handleInteractionMove = useCallback(
+        (clientPos: number) => {
             if (!isDragging || !sliderRef.current) return;
 
             const rect = sliderRef.current.getBoundingClientRect();
-            const percentage = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const percentage = Math.max(0, Math.min(1, (clientPos - rect.left) / rect.width));
             const newIndex = Math.round(percentage * (data.length - 1));
 
             if (isDragging === "start") {
@@ -196,25 +229,78 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
         [isDragging, selectedRange, data.length, onRangeChange]
     );
 
-    const handleMouseUp = useCallback(() => {
+    const handleInteractionEnd = useCallback(() => {
         setIsDragging(null);
     }, []);
 
+    // Mouse Event Handlers
+    const handleMouseDown = useCallback(
+        (e: React.MouseEvent, type: "start" | "end" | "range") => {
+            e.preventDefault();
+            handleInteractionStart(e.clientX, type);
+        },
+        [handleInteractionStart]
+    );
+
+    const handleMouseMove = useCallback(
+        (e: MouseEvent) => {
+            handleInteractionMove(e.clientX);
+        },
+        [handleInteractionMove]
+    );
+
+    const handleMouseUp = useCallback(() => {
+        handleInteractionEnd();
+    }, [handleInteractionEnd]);
+
+    // Touch Event Handlers
+    const handleTouchStart = useCallback(
+        (e: React.TouchEvent, type: "start" | "end" | "range") => {
+            e.preventDefault(); // Prevent scrolling
+            if (e.touches.length > 0) {
+                handleInteractionStart(e.touches[0].clientX, type);
+            }
+        },
+        [handleInteractionStart]
+    );
+
+    const handleTouchMove = useCallback(
+        (e: TouchEvent) => {
+            if (e.touches.length > 0) {
+                handleInteractionMove(e.touches[0].clientX);
+            }
+        },
+        [handleInteractionMove]
+    );
+
+    const handleTouchEnd = useCallback(() => {
+        handleInteractionEnd();
+    }, [handleInteractionEnd]);
+
+    // Effect for adding and removing event listeners
     React.useEffect(() => {
         if (isDragging) {
+            // Mouse Listeners
             document.addEventListener("mousemove", handleMouseMove);
             document.addEventListener("mouseup", handleMouseUp);
+            // Touch Listeners
+            document.addEventListener("touchmove", handleTouchMove, { passive: false }); // passive: false to allow preventDefault
+            document.addEventListener("touchend", handleTouchEnd);
             document.body.style.cursor = "grabbing";
             document.body.style.userSelect = "none";
         }
 
         return () => {
+            // Clean up Mouse Listeners
             document.removeEventListener("mousemove", handleMouseMove);
             document.removeEventListener("mouseup", handleMouseUp);
+            // Clean up Touch Listeners
+            document.removeEventListener("touchmove", handleTouchMove);
+            document.removeEventListener("touchend", handleTouchEnd);
             document.body.style.cursor = "";
             document.body.style.userSelect = "";
         };
-    }, [isDragging, handleMouseMove, handleMouseUp]);
+    }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
     const startPercentage = (selectedRange[0] / (data.length - 1)) * 100;
     const endPercentage = (selectedRange[1] / (data.length - 1)) * 100;
@@ -265,7 +351,7 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
                             inputClassName="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 backdrop-blur-sm transition-all duration-200 hover:bg-white/15"
                             containerClassName="relative"
                             toggleClassName="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors duration-200"
-                            popoverClassName="bg-slate-800 border border-white/20 rounded-lg shadow-2xl backdrop-blur-sm"
+                            popoverClassName="bg-slate-800 border border-white/20 rounded-lg shadow-2xl backdrop-blur-sm z-[9999]"
                         />
                     </div>
                     {availableDateRange.minDate && availableDateRange.maxDate && (
@@ -301,6 +387,7 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
                             width: `${endPercentage - startPercentage}%`,
                         }}
                         onMouseDown={(e) => handleMouseDown(e, "range")}
+                        onTouchStart={(e) => handleTouchStart(e, "range")}
                     />
 
                     {/* Start handle */}
@@ -311,6 +398,7 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
                             transform: "translate(-50%, -50%)",
                         }}
                         onMouseDown={(e) => handleMouseDown(e, "start")}
+                        onTouchStart={(e) => handleTouchStart(e, "start")}
                     />
 
                     {/* End handle */}
@@ -321,6 +409,7 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
                             transform: "translate(-50%, -50%)",
                         }}
                         onMouseDown={(e) => handleMouseDown(e, "end")}
+                        onTouchStart={(e) => handleTouchStart(e, "end")}
                     />
 
                     {/* Data points indicators */}
