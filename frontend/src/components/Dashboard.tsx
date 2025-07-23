@@ -40,12 +40,12 @@ const Dashboard: React.FC<DashboardProps> = ({ datasets, onDatasetSelect }) => {
       icon: BarChart3,
       color: "text-purple-400",
     },
-    {
-      label: "Active Users",
-      value: "1",
-      icon: Users,
-      color: "text-orange-400",
-    },
+    // {
+    //   label: "Active Users",
+    //   value: "1",
+    //   icon: Users,
+    //   color: "text-orange-400",
+    // },
   ];
 
   return (
@@ -60,7 +60,7 @@ const Dashboard: React.FC<DashboardProps> = ({ datasets, onDatasetSelect }) => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -105,15 +105,14 @@ const Dashboard: React.FC<DashboardProps> = ({ datasets, onDatasetSelect }) => {
                   {dataset.name}
                 </h3>
                 <span
-                  className={`px-2 py-1 rounded-full text-xs ${
-                    dataset.type === "time_series"
-                      ? "bg-blue-500/20 text-blue-300"
-                      : dataset.type === "categorical"
+                  className={`px-2 py-1 rounded-full text-xs ${dataset.type === "time_series"
+                    ? "bg-blue-500/20 text-blue-300"
+                    : dataset.type === "categorical"
                       ? "bg-purple-500/20 text-purple-300"
                       : dataset.type === "distribution"
-                      ? "bg-green-500/20 text-green-300"
-                      : "bg-gray-500/20 text-gray-300"
-                  }`}
+                        ? "bg-green-500/20 text-green-300"
+                        : "bg-gray-500/20 text-gray-300"
+                    }`}
                 >
                   {dataset.type.replace("_", " ")}
                 </span>
