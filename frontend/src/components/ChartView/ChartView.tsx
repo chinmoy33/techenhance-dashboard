@@ -110,6 +110,7 @@ const ChartView: React.FC<ChartViewProps> = ({
         getChartData,
         throttledHandleRangeChange,
         sortedDataAndIndices,
+        getFilteredData
     } = useChartData(
         dataset,
         selectedChartType,
@@ -171,7 +172,7 @@ const ChartView: React.FC<ChartViewProps> = ({
      */
     const exportData = (format: "csv" | "json") => {
         try {
-            const filteredData = dataset.data;
+            const filteredData = getFilteredData;
             let content = "";
             let mimeType = "";
             let extension = "";

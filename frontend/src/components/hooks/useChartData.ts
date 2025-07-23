@@ -825,5 +825,6 @@ export const useChartData = (
     getChartData,
     throttledHandleRangeChange,
     sortedDataAndIndices,
+    getFilteredData,
   };
 };
