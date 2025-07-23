@@ -31,4 +31,8 @@ export type ViewType =
   | "charts"
   | "allCharts"
   | "data"
-  | "account";
+  | "account"
+  | "lead tracking"
+  | "recommendations"
+  | "searchcustomerpage"
+  | "recommendation history";

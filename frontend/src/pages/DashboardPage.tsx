@@ -15,6 +15,7 @@ import Leadtrackingpage from "./Leadtrackingpage"
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store"; // Adjust import
 import { setMenu } from "../store/uiSlice";
+import RecommendationHistoryPage from "./RecommendationHistoryPage";
 
 const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState<
@@ -26,6 +27,7 @@ const Dashboard: React.FC = () => {
     | "searchcustomerpage"
     | "account"
     | "lead tracking"
+    | "recommendation history"
   >("dashboard");
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
@@ -135,7 +137,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleViewChange = (
-    view: "dashboard" | "charts" | "allCharts" | "data" | "account" | "lead tracking"
+    view: "dashboard" | "charts" | "allCharts" | "data" | "account" | "lead tracking" | "recommendations" | "searchcustomerpage" | "recommendation history"
   ) => {
     setCurrentView(view);
 
@@ -210,6 +212,10 @@ const Dashboard: React.FC = () => {
 
       case "recommendations":
         return <Recommendations />;
+
+      case "recommendation history":
+        return <RecommendationHistoryPage />;
+
 
       case "searchcustomerpage":
         const allHaveData = datasets.every((ds) => Array.isArray(ds.data));

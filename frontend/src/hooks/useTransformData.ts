@@ -4,6 +4,7 @@ import {LoanData} from '../types/LoanData'
 export function useTransformData(rawData: any[]): RecommendationData[] {
   return rawData.map((raw) => ({
     id: raw.id,
+    contacted: raw.contacted,
     accountNumber: raw["Account Number"],
     accountType: raw["Account Type"],
     age: raw.Age,
@@ -27,6 +28,7 @@ export function useTransformData(rawData: any[]): RecommendationData[] {
 export function useTransformLead(rawData: any[]): LoanData[] {
   return rawData.map((raw) => ({
     id: raw.id,
+    contacted: raw.contacted,
     eligible_person_id: raw.eligible_person_id,
     interested: raw.interested,
     type_of_mutual_fund: raw.type_of_mutual_fund,

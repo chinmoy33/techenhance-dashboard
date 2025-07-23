@@ -11,6 +11,7 @@ import {
   ArrowRightCircle,
   Settings,
   NotebookPen,
+  History
 } from "lucide-react";
 import { ViewType } from "../types";
 
@@ -42,6 +43,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
       id: "recommendations" as ViewType,
       label: "Recommendations",
       icon: TrendingUp,
+    },
+    {
+      id: "recommendation history" as ViewType,
+      label: "Recommendation History",
+      icon: History,
     },
     {
       id: "lead tracking" as ViewType,
@@ -150,7 +156,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
                 <Icon size={20} className="flex-shrink-0" />
                 {!isCollapsed && (
                   <>
-                    <span className="font-medium truncate">{item.label}</span>
+                    <span className="font-medium text-left flex-1 break-words">{item.label}</span>
                     {isActive && (
                       <ArrowRightCircle
                         size={16}

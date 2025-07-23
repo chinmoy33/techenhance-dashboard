@@ -5,6 +5,7 @@ const uiSlice = createSlice({
   name: 'ui',
   initialState: {
     isMenuClicked: false,
+    showContactForm:false
   },
   reducers: {
     toggleMenu(state) {
@@ -12,9 +13,12 @@ const uiSlice = createSlice({
     },
     setMenu(state, action) {
       state.isMenuClicked = action.payload;
+    },
+    toggleContactForm(state) {
+      state.showContactForm = !state.showContactForm;
     }
   },
 });
 
-export const { toggleMenu, setMenu } = uiSlice.actions;
+export const { toggleMenu, setMenu,toggleContactForm } = uiSlice.actions;
 export default uiSlice.reducer;

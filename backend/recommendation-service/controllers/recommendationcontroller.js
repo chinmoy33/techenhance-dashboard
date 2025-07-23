@@ -128,11 +128,8 @@ const getLeads = async (req, res) => {
 
     const { data, error } = await supabase
   .from("contacted_dataset")
-  .select(`*, eligible_mutualfunds_clients("Person's Name", "Account Number")`)
+  .select(`*, eligible_mutualfunds_clients:recommendation_history("Person's Name", "Account Number")`)
   .order("id", { ascending: true });
-
-  console.log(data[0].eligible_mutualfunds_clients);
-
 
 
     if (error) {
@@ -140,9 +137,9 @@ const getLeads = async (req, res) => {
       return res.status(500).json({ error: "Supabase error" });
     }
 
-    if (!data || data.length === 0) {
-      return res.status(404).json({ message: "No Leads found" });
-    }
+    // if (!data || data.length === 0) {
+    //   return res.status(404).json({ message: "No Leads found" });
+    // }
 
     
 
@@ -159,13 +156,14 @@ const updateLeads = async (req, res) => {
     const id = req.params.id;
     const {
       interested,
+      contacted,
       type_of_mutual_fund,
       amount,
       final_amount,
       kyc_completed=false,
       final_disbursed_amt,
     } = req.body;
-
+    
     let new_final_disbursed_amt=null
     if(!kyc_completed && interested==="yes")
     {
@@ -179,7 +177,21 @@ const updateLeads = async (req, res) => {
     if (!id) {
       return res.status(400).json({ success: false, message: "Missing ID parameter" });
     }
+    // delete the record if contacted is no
+    if(contacted==="no")
+    {
+        const { data: updateData, error: updateError } = await supabase
+        .from("contacted_dataset")
+        .delete()
+        .eq("eligible_person_id", id)
 
+        if (updateError) {
+          console.error("Supabase update error:", updateError);
+          return res.status(500).json({ success: false, message: "Failed to update lead" });
+        }
+
+        return res.status(201).json({ success: true, message: "Lead deleted successfully" });
+    }
     // Try updating the record
     const { data: updateData, error: updateError } = await supabase
       .from("contacted_dataset")
@@ -231,7 +243,30 @@ const updateLeads = async (req, res) => {
   }
 };
 
+const getRecommendationsHistory = async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("recommendation_history").select("*").order("id", { ascending: true });
+
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return res.status(500).json({ error: "Supabase error" });
+    }
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ message: "No recommendations found" });
+    }
+
+    return res.json(data);
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
 
 module.exports = {
-  getRecommendations,getRecommendationsReal,getLeads,updateLeads
+  getRecommendations,getRecommendationsReal,getLeads,updateLeads,getRecommendationsHistory
 };
+
