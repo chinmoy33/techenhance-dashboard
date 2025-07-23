@@ -106,20 +106,18 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
 
   let position = "sticky";
 
-  if(isCollapsed && !isTablet)
-  {
-    position="fixed"
+  if (isCollapsed && !isTablet) {
+    position = "fixed"
   }
-  else
-  {
-    position="sticky"
+  else {
+    position = "sticky"
   }
 
   return (
     <aside
       ref={sidebarRef}
       className={`${position} top-[80px] left-0 bg-gray-900 border-r border-white/10 transition-all duration-300 ease-in-out flex-shrink-0 z-50`}
-      style={{ width: `${currentWidth}px`,height: "calc(100vh - 80px)", overflowY: "auto" }}
+      style={{ width: `${currentWidth}px`, height: "calc(100vh - 80px)", overflowY: "auto" }}
     >
       {/* Sidebar Content */}
       <div className="h-full flex flex-col p-4 overflow-auto">
@@ -149,11 +147,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
               <button
                 key={item.id}
                 onClick={() => onViewChange(item.id)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
-                  isActive
-                    ? "bg-primary-500/20 text-primary-300 border border-primary-500/30"
-                    : "hover:bg-white/10 text-gray-300 hover:text-white"
-                }`}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive
+                  ? "bg-primary-500/20 text-primary-300 border border-primary-500/30"
+                  : "hover:bg-white/10 text-gray-300 hover:text-white"
+                  }`}
                 title={isCollapsed ? item.label : undefined}
               >
                 <Icon size={20} className="flex-shrink-0" />
@@ -174,7 +171,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
         </nav>
 
         {/* Quick Stats */}
-        {!isCollapsed && (
+        {/* {!isCollapsed && (
           <div className="mt-8 p-4 glass-card rounded-lg">
             <h3 className="text-sm font-semibold text-gray-300 mb-2">
               Quick Stats
@@ -198,7 +195,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Resize Handle */}
