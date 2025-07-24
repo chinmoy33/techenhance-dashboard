@@ -94,7 +94,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data }) => {
         labels: funnelData.stages.map(stage => stage.label),
         datasets: [
             {
-                label: 'Loan Pipeline',
+                label: 'Fund Pipeline',
                 data: normalizedData,
                 backgroundColor: funnelData.stages.map(stage => stage.color),
                 borderColor: funnelData.stages.map(stage => stage.borderColor),
@@ -114,7 +114,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data }) => {
             },
             title: {
                 display: true,
-                text: 'Loans Pipeline Funnel',
+                text: 'Funds Pipeline Funnel',
                 color: '#FFFFFF',
                 font: {
                     size: 20,

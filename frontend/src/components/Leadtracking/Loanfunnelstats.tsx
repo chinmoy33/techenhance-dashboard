@@ -92,7 +92,7 @@ const LoanFunnel: React.FC<LoanFunnelProps> = ({ data }) => {
             );
           })}
           <div className="bg-gray-700 rounded-lg shadow-xl p-6 mt-4">
-                <h2 className="text-xl font-semibold text-white mb-2">Loan Funnel Analysis</h2>
+                <h2 className="text-xl font-semibold text-white mb-2">Fund Funnel Analysis</h2>
                 <p className="text-gray-300 text-sm">Conversion rate: {conversionRate.toFixed(1)}%</p>
           </div>
           
