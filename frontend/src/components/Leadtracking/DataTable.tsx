@@ -9,7 +9,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
   return (
   <div className="h-full bg-gray-800 rounded-lg shadow-xl overflow-hidden">
   <div className="px-6 py-4 bg-gray-700 border-b border-gray-600">
-    <h2 className="text-xl font-semibold text-white">Loan Application Data</h2>
+    <h2 className="text-xl font-semibold text-white">Fund Application Data</h2>
     <p className="text-gray-300 text-sm mt-1">Complete dataset overview</p>
   </div>
 
