@@ -13,15 +13,16 @@ import {
   NotebookPen,
   History
 } from "lucide-react";
-import { ViewType } from "../types";
+import { ViewType, Dataset } from "../types";
 
 interface SidebarProps {
   currentView: ViewType;
   onViewChange: (view: ViewType) => void;
-  isTablet?: boolean; // Optional prop to handle tablet-specific styles
+  isTablet?: boolean;
+  datasets: Dataset[]; // Optional prop to handle tablet-specific styles
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet, datasets }) => {
   const [sidebarWidth, setSidebarWidth] = useState(256); // Default 64 * 4 = 256px
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -102,6 +103,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
     setIsCollapsed(!isCollapsed);
   };
 
+  const totalDataPoints = datasets.reduce(
+    (sum, dataset) => sum + (dataset.dataPoints || 0),
+    0
+  );
+
   const currentWidth = isCollapsed ? collapsedWidth : sidebarWidth;
 
   let position = "sticky";
@@ -171,7 +177,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
         </nav>
 
         {/* Quick Stats */}
-        {/* {!isCollapsed && (
+        {!isCollapsed && (
           <div className="mt-8 p-4 glass-card rounded-lg">
             <h3 className="text-sm font-semibold text-gray-300 mb-2">
               Quick Stats
@@ -179,23 +185,23 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-400">Active Charts</span>
-                <span className="text-primary-400 font-medium">8</span>
+                <span className="text-primary-400 font-medium">6</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Chart Types</span>
-                <span className="text-accent-400 font-medium">8</span>
+                <span className="text-accent-400 font-medium">6</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Data Points</span>
-                <span className="text-green-400 font-medium">2.4K</span>
+                <span className="text-green-400 font-medium">{totalDataPoints.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between">
+              {/* <div className="flex justify-between">
                 <span className="text-gray-400">Last Update</span>
                 <span className="text-green-400 font-medium">Live</span>
-              </div>
+              </div> */}
             </div>
           </div>
-        )} */}
+        )}
       </div>
 
       {/* Resize Handle */}

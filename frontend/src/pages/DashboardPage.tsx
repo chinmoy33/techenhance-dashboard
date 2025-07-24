@@ -279,10 +279,10 @@ const Dashboard: React.FC = () => {
         {/* <Sidebar currentView={currentView} onViewChange={handleViewChange} /> */}
         {(isMobile && isMenuClicked) ? (
           <div className="fixed z-50 w-[80%] h-full bg-background shadow-lg transition-all duration-300 ease-in-out overflow-auto">
-            <Sidebar currentView={currentView} onViewChange={handleViewChange} isTablet={isTablet} />
+            <Sidebar currentView={currentView} onViewChange={handleViewChange} isTablet={isTablet} datasets={datasets} />
           </div>
         ) : !isMobile ? (
-          <Sidebar currentView={currentView} onViewChange={handleViewChange} isTablet={isTablet} />
+          <Sidebar currentView={currentView} onViewChange={handleViewChange} isTablet={isTablet} datasets={datasets} />
         ) : null}
 
         <main className="flex-1 p-6 overflow-auto">
