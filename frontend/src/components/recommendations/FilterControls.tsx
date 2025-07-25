@@ -12,9 +12,9 @@ export const FilterControls: React.FC<FilterControlsProps> = ({ filters, onFilte
     onFiltersChange({ ...filters, search });
   };
 
-  const handleLoanTypeChange = (loantype: LoanType | 'all') => {
-    onFiltersChange({ ...filters, loantype });
-  };
+  // const handleLoanTypeChange = (loantype: LoanType | 'all') => {
+  //   onFiltersChange({ ...filters, loantype });
+  // };
 
   const handleRiskLevelChange = (risklevel: RiskLevel | 'all') => {
     onFiltersChange({ ...filters, risklevel });
@@ -45,7 +45,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({ filters, onFilte
         </div>
 
         {/* Loan Type */}
-        <div>
+        {/* <div>
           <select
             value={filters.loantype}
             onChange={(e) => handleLoanTypeChange(e.target.value as LoanType | 'all')}
@@ -59,7 +59,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({ filters, onFilte
             <option value="education">Education Loan</option>
             <option value="no loan">No Loan</option>
           </select>
-        </div>
+        </div> */}
 
         {/* Risk Level */}
         <div>

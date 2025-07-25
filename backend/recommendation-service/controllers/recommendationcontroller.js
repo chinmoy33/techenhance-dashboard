@@ -102,7 +102,7 @@ const getRecommendationsReal = async (req, res) => {
     //   .create({
     //     from: 'whatsapp:+14155238886', // Twilio Sandbox number
     //     to: `whatsapp:+91${cleanedNumber}`,  // Your verified phone number
-    //     body: `Hello ${data[0]["Person's Name"]}. Check out these cool shoes!`,
+    //     body: `Hello ${data[0]["Person's Name"]}. Let your money work for you — start your mutual fund journey today!`,
     //     mediaUrl: ['https://res.cloudinary.com/defslgocx/image/upload/f_auto,q_auto/v1747042778/JEC-Space/v5tlvaymwlfd7zdg5auo.jpg']
     //     //mediaUrl:['https://demo.twilio.com/owl.png']
     //     //mediaUrl: ['https://res.cloudinary.com/defslgocx/image/upload/v1747042778/JEC-Space/v5tlvaymwlfd7zdg5auo.webp'] // Publicly accessible image

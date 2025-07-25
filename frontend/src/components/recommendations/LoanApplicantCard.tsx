@@ -33,17 +33,17 @@ export const LoanApplicantCard: React.FC<RecommendedApplicantProps> = ({ applica
 };
 
   const riskLevel = getRiskLevel(score);
-  const getLoanTypeIcon = (type: string) => {
-    switch (type) {
-      case 'Car Loan': return <Car className="w-4 h-4" />;
-      case 'House Loan': return <Home className="w-4 h-4" />;
-      case 'Education Loan': return <CreditCard className="w-4 h-4" />;
-      case 'Business Loan': return <Briefcase className="w-4 h-4" />;
-      case 'Personal Loan': return <User className="w-4 h-4" />;
-      case 'No Loan': return <CheckCircle className="w-4 h-4 text-emerald-500" />
-      default: return <CreditCard className="w-4 h-4" />;
-    }
-  };
+  // const getLoanTypeIcon = (type: string) => {
+  //   switch (type) {
+  //     case 'Car Loan': return <Car className="w-4 h-4" />;
+  //     case 'House Loan': return <Home className="w-4 h-4" />;
+  //     case 'Education Loan': return <CreditCard className="w-4 h-4" />;
+  //     case 'Business Loan': return <Briefcase className="w-4 h-4" />;
+  //     case 'Personal Loan': return <User className="w-4 h-4" />;
+  //     case 'No Loan': return <CheckCircle className="w-4 h-4 text-emerald-500" />
+  //     default: return <CreditCard className="w-4 h-4" />;
+  //   }
+  // };
 
   const getRiskIcon = (risk: string) => {
     switch (risk) {
@@ -115,10 +115,10 @@ export const LoanApplicantCard: React.FC<RecommendedApplicantProps> = ({ applica
              {getRiskIcon(riskLevel)}
              {riskLevel.toUpperCase()} RISK
             </span>
-            <span className={`px-2 py-1 rounded-md text-xs font-medium border flex items-center gap-1 ${getLoanTypeColor(applicant.loans)}`}>
+            {/* <span className={`px-2 py-1 rounded-md text-xs font-medium border flex items-center gap-1 ${getLoanTypeColor(applicant.loans)}`}>
               {getLoanTypeIcon(applicant.loans)}
               {applicant.loans.toUpperCase()}
-            </span>
+            </span> */}
             {/* <span className={`px-2 py-1 rounded-md text-xs font-medium border flex items-center gap-1 ${getLoanTypeColor(applicant.accountType)}`}>
               {getLoanTypeIcon(applicant.loans)}
               {applicant.accountType.toUpperCase()}
