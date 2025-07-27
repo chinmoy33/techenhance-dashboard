@@ -1,3 +1,4 @@
+// Made for previewing charts in the All Charts Page
 import React from "react";
 import { Line, Bar, Pie, Scatter, Radar } from "react-chartjs-2";
 import { ChartConfig } from "../../types";

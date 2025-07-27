@@ -46,8 +46,6 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
                 return <Scatter {...commonProps} />;
             case "radar":
                 return <Radar {...commonProps} />;
-            // case "polarArea":
-            //     return <PolarArea {...commonProps} />;
             default:
                 return <Line {...commonProps} />;
         }

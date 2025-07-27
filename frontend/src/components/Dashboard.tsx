@@ -40,12 +40,6 @@ const Dashboard: React.FC<DashboardProps> = ({ datasets, onDatasetSelect }) => {
       icon: BarChart3,
       color: "text-purple-400",
     },
-    // {
-    //   label: "Active Users",
-    //   value: "1",
-    //   icon: Users,
-    //   color: "text-orange-400",
-    // },
   ];
 
   return (

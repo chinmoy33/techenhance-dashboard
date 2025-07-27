@@ -6,9 +6,9 @@ import { supabase } from "../supabaseClient";
 // Base URL for API endpoints
 //const API_BASE_URL = "/api";
 const API_BASE_URL =
-  import.meta.env.MODE === 'development'
-    ? '/api' // for local dev with Nginx proxy (Docker)
-    : 'https://core-service-m7so.onrender.com/api'; // for production
+  import.meta.env.MODE === "development"
+    ? "/api" // for local dev with Nginx proxy (Docker)
+    : "https://core-service-m7so.onrender.com/api"; // for production
 
 // Create an Axios instance with default config
 const api = axios.create({
@@ -28,15 +28,15 @@ api.interceptors.request.use((config) => {
 
 // ===== DATA SERVICE =====
 export const dataService = {
-    // Fetch all datasets
-    async getDatasets(): Promise<Dataset[]> {
-      const {
+  // Fetch all datasets
+  async getDatasets(): Promise<Dataset[]> {
+    const {
       data: { user },
       error,
     } = await supabase.auth.getUser();
 
-  // const response = await axios.get(`/api/datasets/user/${user.id}`);
-  
+    // const response = await axios.get(`/api/datasets/user/${user.id}`);
+
     console.log("Fetching all datasets from API");
     // const response = await api.get("/datasets?lite=true");
     const response = await api.get(`/datasets?lite=true&user_id=${user?.id}`);
@@ -109,7 +109,6 @@ export const dataService = {
 
     return response.data;
   },
-
 
   // Generate a dataset of a specific type with options (e.g., count, name)
   async generateData(

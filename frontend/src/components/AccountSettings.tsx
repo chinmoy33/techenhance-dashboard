@@ -722,12 +722,11 @@ const AccountSettings: React.FC = () => {
    * Renders the account management tab
    */
   let attribute1;
-  if(window.innerWidth <=768){
-    attribute1="flex-col items-center"
+  if (window.innerWidth <= 768) {
+    attribute1 = "flex-col items-center"
   }
-  else
-  {
-    attribute1="items-start"
+  else {
+    attribute1 = "items-start"
   }
 
   const renderDangerTab = () => (
