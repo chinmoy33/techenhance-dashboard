@@ -119,10 +119,10 @@ const Header: React.FC<HeaderProps> = ({isMobile}) => {
           {!isMobile && (
             <div>
               <h1 className="text-xl font-bold gradient-text">
-                Data Visualizer Pro
+                FinSight
               </h1>
               <p className="text-xs text-gray-400">
-                Professional data analytics & visualization platform
+                Delivering AI Powered Insights
               </p>
             </div>
           )}

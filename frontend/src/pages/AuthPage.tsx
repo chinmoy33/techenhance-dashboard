@@ -118,8 +118,8 @@ const AuthPage: React.FC = () => {
               <Sparkles size={20} className="absolute -top-1 -right-1 text-accent-400" />
             </div>
             <div className="text-left">
-              <h1 className="text-2xl font-bold gradient-text">Data Visualizer Pro</h1>
-              <p className="text-sm text-gray-400">Professional Analytics</p>
+              <h1 className="text-2xl font-bold gradient-text">FinSight</h1>
+              <p className="text-sm text-gray-400">Delivering AI Powered Insights</p>
             </div>
           </Link>
           

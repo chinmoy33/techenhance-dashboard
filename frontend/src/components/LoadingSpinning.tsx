@@ -16,7 +16,7 @@ const LoadingSpinner: React.FC = () => {
           <BarChart3 size={24} className="text-primary-400" />
           <Sparkles size={16} className="text-accent-400" />
           <h1 className="text-xl font-bold gradient-text">
-            Data Visualizer Pro
+            FinSight
           </h1>
         </div>
 

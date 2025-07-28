@@ -200,10 +200,10 @@ const LandingPage: React.FC = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold gradient-text">
-                Data Visualizer Pro
+                FinSight
               </h1>
               <p className="text-sm text-gray-400">
-                Professional Analytics Platform
+                Delivering AI Powered Insights
               </p>
             </div>
           </div>
@@ -402,11 +402,11 @@ const LandingPage: React.FC = () => {
           <div className="flex items-center justify-center space-x-3 mb-4">
             <BarChart3 size={24} className="text-primary-400" />
             <span className="text-lg font-semibold text-white">
-              Data Visualizer Pro
+              FinSight
             </span>
           </div>
           <p className="text-gray-400">
-            © 2025 Data Visualizer Pro. All rights reserved.
+            © 2025 FinSight. All rights reserved.
           </p>
         </div>
       </footer>
