@@ -1,6 +1,12 @@
 import React from 'react';
 import { RecommendationData } from '../../types/loan';
-import { Users, TrendingUp, DollarSign, AlertTriangle } from 'lucide-react';
+import {
+  Users,
+  TrendingUp,
+  DollarSign,
+  AlertTriangle,
+  Info
+} from 'lucide-react';
 import { scoreApplicant } from '../../utils/ScoreApplicants';
 import { useEffect } from 'react';
 interface StatsOverviewProps {
@@ -9,7 +15,7 @@ interface StatsOverviewProps {
 }
 
 export const StatsOverview: React.FC<StatsOverviewProps> = ({ applicants, filteredApplicants }) => {
-  
+
   //const [creditScore, setCreditScore] = React.useState<number>(0);
   const totalApplicants = filteredApplicants.length;
   //const lowRiskCount = filteredApplicants.filter(a => a.risklevel === 'low').length;
@@ -37,7 +43,8 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ applicants, filter
       value: lowRiskCount.toString(),
       icon: <TrendingUp className="w-6 h-6" />,
       color: 'text-green-400',
-      bgColor: 'bg-green-900/20'
+      bgColor: 'bg-green-900/20',
+      info: `Actual recommendations are made by the Machine Learning model. This tile adds an extra filtering layer to estimate the risk of the recommended candidates.`
     },
     {
       title: 'Avg Income',
@@ -61,7 +68,17 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ applicants, filter
         <div key={index} className="bg-slate-800 rounded-xl p-6 border border-slate-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-slate-400 text-sm font-medium">{stat.title}</p>
+              <p className="text-slate-400 text-sm font-medium flex items-center gap-1">
+                {stat.title}
+                {stat.info && (
+                  <div className="relative group">
+                    <Info className="w-4 h-4 text-gray-400 cursor-pointer hover:text-white" />
+                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-64 p-2 bg-gray-900 text-xs text-gray-200 rounded shadow-lg border border-gray-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                      {stat.info}
+                    </div>
+                  </div>
+                )}
+              </p>
               <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
             </div>
             <div className={`p-3 rounded-lg ${stat.bgColor} ${stat.color}`}>
