@@ -32,32 +32,15 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
   const collapsedWidth = 80;
 
   const menuItems = [
-    { id: "data" as ViewType, label: "Data Manager", icon: Database },
-    { id: "dashboard" as ViewType, label: "Dashboard", icon: LayoutDashboard },
-    {
-      id: "searchcustomerpage" as ViewType,
-      label: "Search Customer",
-      icon: UserSearch,
-    },
-    {
-      id: "recommendations" as ViewType,
-      label: "Recommendations",
-      icon: TrendingUp,
-    },
-    {
-      id: "recommendation history" as ViewType,
-      label: "Recommendation History",
-      icon: History,
-    },
-    {
-      id: "lead tracking" as ViewType,
-      label: "Lead Tracking",
-      icon: NotebookPen,
-    },
-
-    { id: "charts" as ViewType, label: "Charts", icon: BarChart3 },
-    { id: "allCharts" as ViewType, label: "All Charts", icon: Grid3X3 },
-    { id: "account" as ViewType, label: "Account Settings", icon: Settings },
+    { id: "data" as ViewType, label: "Data Manager", icon: Database, color: "text-blue-400" },
+    { id: "dashboard" as ViewType, label: "Dashboard", icon: LayoutDashboard, color: "text-purple-400" },
+    { id: "searchcustomerpage" as ViewType, label: "Search Customer", icon: UserSearch, color: "text-pink-400" },
+    { id: "recommendations" as ViewType, label: "Recommendations", icon: TrendingUp, color: "text-green-400" },
+    { id: "recommendation history" as ViewType, label: "Recommendation History", icon: History, color: "text-yellow-400" },
+    { id: "lead tracking" as ViewType, label: "Lead Tracking", icon: NotebookPen, color: "text-orange-400" },
+    { id: "charts" as ViewType, label: "Charts", icon: BarChart3, color: "text-cyan-400" },
+    { id: "allCharts" as ViewType, label: "All Charts", icon: Grid3X3, color: "text-indigo-400" },
+    { id: "account" as ViewType, label: "Account Settings", icon: Settings, color: "text-teal-400" },
   ];
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -156,7 +139,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet }
                 <Icon size={20} className="flex-shrink-0" />
                 {!isCollapsed && (
                   <>
-                    <span className="font-medium text-left flex-1 break-words">{item.label}</span>
+                    <span
+                      className={`font-medium text-left flex-1 break-words ${!isActive ? item.color : ""
+                        }`}
+                    >
+                      {item.label}
+                    </span>
                     {isActive && (
                       <ArrowRightCircle
                         size={16}
