@@ -59,23 +59,23 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data }) => {
                     label: 'Lead Capture',
                     count: totalApplications,
                     amount: totalRequestedAmount,
-                    color: 'rgba(59, 130, 246, 0.8)', // Blue
-                    borderColor: 'rgba(59, 130, 246, 1)'
+                    color: 'rgba(249, 115, 22, 0.8)', // Orange
+                    borderColor: 'rgba(249, 115, 22, 1)', // Orange
                 },
                 {
                     label: 'Qualified Leads',
                     count: interestedUsers,
                     amount: interestedAmount,
-                    color: 'rgba(249, 115, 22, 0.8)', // Orange
-                    borderColor: 'rgba(249, 115, 22, 1)'
+                    color: 'rgba(245, 158, 11, 0.8)', // Yellow
+                    borderColor: 'rgba(245, 158, 11, 1)', // Yellow
                 },
                 // Removed Stage 3 (3-Propose)
                 {
-                    label: 'Disbursal', 
+                    label: 'Disbursal',
                     count: finalDisbursed,
                     amount: disbursedAmount,
-                    color: 'rgba(245, 158, 11, 0.8)', // Yellow
-                    borderColor: 'rgba(245, 158, 11, 1)'
+                    color: 'rgba(34, 197, 94, 0.8)',  // Green
+                    borderColor: 'rgba(34, 197, 94, 1)',  // Green
                 }
             ]
         };
@@ -152,7 +152,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data }) => {
                 display: false, // Hide x-axis for cleaner funnel look
             },
             y: {
-                display: true,
+                display: false,
                 grid: {
                     display: false, // Hide grid lines
                 },
