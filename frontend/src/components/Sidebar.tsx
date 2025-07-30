@@ -164,7 +164,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet, 
           })}
         </nav>
 
-        {/* Quick Stats */}
+        {/* Quick Stats: 7 Charts- 1 Funnel Chart and 6 charts in All Charts and ChartView */}
         {!isCollapsed && (
           <div className="mt-8 p-4 glass-card rounded-lg">
             <h3 className="text-sm font-semibold text-gray-300 mb-2">
@@ -173,11 +173,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, isTablet, 
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-400">Active Charts</span>
-                <span className="text-primary-400 font-medium">6</span>
+                <span className="text-primary-400 font-medium">7</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Chart Types</span>
-                <span className="text-accent-400 font-medium">6</span>
+                <span className="text-accent-400 font-medium">7</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Data Points</span>
