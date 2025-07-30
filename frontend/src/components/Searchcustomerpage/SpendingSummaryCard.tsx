@@ -11,7 +11,7 @@ import {
     PointElement,
     LineElement,
 } from 'chart.js';
-import { Bar, Pie, Line } from 'react-chartjs-2';
+import { Bar, Pie } from 'react-chartjs-2';
 import { TransactionData } from '../../types/searchcustomerpage';
 import {
     TrendingDown,
@@ -21,7 +21,8 @@ import {
     CreditCard,
     PieChart,
     BarChart3,
-    Target
+    Target,
+    SearchX,
 } from 'lucide-react';
 
 // Register Chart.js components
@@ -41,8 +42,60 @@ interface SpendingSummaryCardProps {
     transactions: TransactionData[];
 }
 
+// Date parsing utility function
+const parseDate = (dateString: string): Date | null => {
+    if (!dateString) return null;
+
+    const trimmedDate = dateString.trim();
+
+    // Handle dd-mm-yyyy format (your data format)
+    if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(trimmedDate)) {
+        const parts = trimmedDate.split('-');
+        if (parts.length === 3) {
+            const day = parseInt(parts[0]);
+            const month = parseInt(parts[1]);
+            const year = parseInt(parts[2]);
+
+            // Basic validation
+            if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900 && year <= 2100) {
+                // Create date with month-1 since JavaScript months are 0-indexed
+                return new Date(year, month - 1, day);
+            }
+        }
+    }
+
+    // Handle other common formats
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(trimmedDate)) {
+        const parts = trimmedDate.split('/');
+        if (parts.length === 3) {
+            const day = parseInt(parts[0]);
+            const month = parseInt(parts[1]);
+            const year = parseInt(parts[2]);
+
+            if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900 && year <= 2100) {
+                return new Date(year, month - 1, day);
+            }
+        }
+    }
+
+    // Fallback to native Date parsing
+    const fallbackDate = new Date(dateString);
+    return isNaN(fallbackDate.getTime()) ? null : fallbackDate;
+};
+
 export const SpendingSummaryCard: React.FC<SpendingSummaryCardProps> = ({ transactions }) => {
     const spendingAnalysis = useMemo(() => {
+
+        // Handle empty transactions
+        if (transactions.length === 0) {
+            return (
+                <div className="text-center py-6 text-gray-400 bg-gradient-to-br from-violet-900/60 to-purple-800/60 rounded-xl p-6 shadow-lg border border-violet-600/50">
+                    <SearchX className="h-12 w-12 mx-auto mb-2" />
+                    <p>No transactions available for analysis.</p>
+                </div>
+            );
+        }
+
         // Calculate totals
         const totalDeposits = transactions.reduce((sum, tx) =>
             sum + (parseInt(tx["Deposit Amount"]) || 0), 0);
@@ -56,9 +109,16 @@ export const SpendingSummaryCard: React.FC<SpendingSummaryCardProps> = ({ transa
             return acc;
         }, {} as Record<string, number>);
 
-        // Monthly spending trend
+        // Monthly spending trend with proper date parsing
         const monthlySpending = transactions.reduce((acc, tx) => {
-            const date = new Date(tx["Date"]);
+            const date = parseDate(tx["Date"]);
+
+            // Skip transactions with invalid dates
+            if (!date) {
+                console.warn(`Invalid date found: ${tx["Date"]}`);
+                return acc;
+            }
+
             const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
             const withdrawal = parseInt(tx["Withdrawal Amount"]) || 0;
             const deposit = parseInt(tx["Deposit Amount"]) || 0;
