@@ -72,7 +72,7 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ applicants, filter
                 {stat.title}
                 {stat.info && (
                   <div className="relative group">
-                    <Info className="w-4 h-4 text-gray-400 cursor-pointer hover:text-white" />
+                    <Info className="w-4 h-4 text-yellow-400 cursor-pointer hover:text-yellow-400" />
                     <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-64 p-2 bg-gray-900 text-xs text-gray-200 rounded shadow-lg border border-gray-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                       {stat.info}
                     </div>

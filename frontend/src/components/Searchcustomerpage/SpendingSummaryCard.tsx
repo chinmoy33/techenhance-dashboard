@@ -211,7 +211,7 @@ export const SpendingSummaryCard: React.FC<SpendingSummaryCardProps> = ({ transa
                 grid: { color: 'rgba(75, 85, 99, 0.3)' }
             },
             y: {
-                ticks: { color: '#9ca3af', font: { size: 10 } },
+                ticks: { color: '#9ca3af', font: { size: 10 }, stepSize: 1 },
                 grid: { color: 'rgba(75, 85, 99, 0.3)' }
             }
         }
@@ -226,7 +226,7 @@ export const SpendingSummaryCard: React.FC<SpendingSummaryCardProps> = ({ transa
     };
 
     return (
-        <div className="bg-gradient-to-br from-violet-900/60 to-purple-800/60 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-violet-600/50">
+        <div className="bg-gradient-to-br from-violet-1000/60 to-purple-800/60 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-violet-600/50">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
@@ -334,7 +334,7 @@ export const SpendingSummaryCard: React.FC<SpendingSummaryCardProps> = ({ transa
                             data={{
                                 labels: Object.keys(spendingAnalysis.amountRanges),
                                 datasets: [{
-                                    label: 'Transactions',
+                                    label: 'No. of transactions',
                                     data: Object.values(spendingAnalysis.amountRanges),
                                     backgroundColor: 'rgba(147, 51, 234, 0.7)',
                                     borderColor: 'rgba(147, 51, 234, 1)',

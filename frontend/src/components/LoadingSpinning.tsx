@@ -15,7 +15,7 @@ const LoadingSpinner: React.FC = () => {
         <div className="flex items-center justify-center space-x-2 mb-4">
           <BarChart3 size={24} className="text-primary-400" />
           <Sparkles size={16} className="text-accent-400" />
-          <h1 className="text-xl font-bold gradient-text">
+          <h1 className="text-2xl font-bold gradient-text">
             FinSight
           </h1>
         </div>

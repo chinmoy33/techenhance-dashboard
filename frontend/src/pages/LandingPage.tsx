@@ -291,11 +291,10 @@ const LandingPage: React.FC = () => {
                       <button
                         key={index}
                         onClick={() => setSelectedDemo(index)}
-                        className={`w-3 h-3 rounded-full transition-all ${
-                          selectedDemo === index
+                        className={`w-3 h-3 rounded-full transition-all ${selectedDemo === index
                             ? "bg-primary-400"
                             : "bg-gray-600"
-                        }`}
+                          }`}
                       />
                     ))}
                   </div>

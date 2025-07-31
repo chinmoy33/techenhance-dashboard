@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BarChart3, Sparkles, User as LucideUser } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import { LogOut,Menu } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { toggleMenu } from "../store/uiSlice";
@@ -11,7 +11,7 @@ interface HeaderProps {
   isMobile: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({isMobile}) => {
+const Header: React.FC<HeaderProps> = ({ isMobile }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -100,8 +100,7 @@ const Header: React.FC<HeaderProps> = ({isMobile}) => {
   // );
   let attributes = "";
 
-  if(!isMobile)
-  {
+  if (!isMobile) {
     attributes = "glass-card px-3 py-2 rounded-lg"
   }
 
@@ -118,7 +117,7 @@ const Header: React.FC<HeaderProps> = ({isMobile}) => {
           </div>
           {!isMobile && (
             <div>
-              <h1 className="text-xl font-bold gradient-text">
+              <h1 className="text-2xl font-bold gradient-text">
                 FinSight
               </h1>
               <p className="text-xs text-gray-400">
@@ -154,16 +153,16 @@ const Header: React.FC<HeaderProps> = ({isMobile}) => {
                 <span className="text-sm text-gray-300">{user.username}</span>
               )}
 
-              
+
             </div>
           )}
           <button
-                onClick={handleLogout}
-                className="glass-button p-2 rounded-lg hover:bg-red-500/20 transition-colors"
-                title="Logout"
-              >
-                <LogOut size={16} className="text-gray-400 hover:text-red-400" />
-              </button>
+            onClick={handleLogout}
+            className="glass-button p-2 rounded-lg hover:bg-red-500/20 transition-colors"
+            title="Logout"
+          >
+            <LogOut size={16} className="text-gray-400 hover:text-red-400" />
+          </button>
         </div>
       </div>
     </header>
