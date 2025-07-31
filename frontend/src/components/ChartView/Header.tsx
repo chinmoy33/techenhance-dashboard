@@ -61,11 +61,15 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <div className={`flex-col  ${attribute1} items-center justify-between`}>
       {/* Left Section: Header Title and Sentences */}
-      <BarChart3 size={32} className="text-primary-400 mr-auto" />
+      <div className="flex items-center space-x-2 mr-auto">
+        <BarChart3 size={32} className="text-primary-400" />
+        <span className="text-2xl font-bold text-primary-400">Charts</span>
+      </div>
+
       <div className="w-full sm:w-auto mb-4 sm:mb-0">
-        <h1 className="text-xl sm:text-2xl font-bold text-white mb-1 break-words">
-          {dataset.name}
-        </h1>
+        <p className="text-gray-300 text-2xl mb-1">
+          Selected Dataset: <span className="font-medium text-white">{dataset.name}</span>
+        </p>
         <p className="text-gray-400 text-sm sm:text-base break-words">
           {dataset.dataPoints || dataset.data?.length || 0} data points •{" "}
           {selectedAttributes.length} attributes selected
