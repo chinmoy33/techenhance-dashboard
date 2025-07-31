@@ -4,11 +4,11 @@ import { History } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react'
 import { recommendationService } from "../services/recommendationService.ts"
 import { RecommendationData } from '../types/loan'
-import { useTransformData,useTransformLead } from "../hooks/useTransformData.ts"
+import { useTransformData, useTransformLead } from "../hooks/useTransformData.ts"
 import { Search, Filter, ListFilter } from 'lucide-react'
 import RecommendationTable from '../components/Recommendation_history/RecommendationTable.tsx';
-import {LoanData} from '../types/LoanData.ts';
-import { useDispatch,useSelector } from 'react-redux';
+import { LoanData } from '../types/LoanData.ts';
+import { useDispatch, useSelector } from 'react-redux';
 import { toggleContactForm } from '../store/uiSlice.ts';
 import { RootState } from '../store';
 
@@ -16,12 +16,12 @@ function RecommendationHistoryPage() {
   const dispatch = useDispatch();
   const showContactForm = useSelector((state: RootState) => state.ui.showContactForm);
   const [history, setHistory] = useState<RecommendationData[]>([]);
-  const [lead, setLead] = useState<LoanData[]>([]);  
+  const [lead, setLead] = useState<LoanData[]>([]);
   const [filteredHistory, setFilteredHistory] = useState<RecommendationData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     interested: '',
-    contacted:'',
+    contacted: '',
   });
 
   useEffect(() => {
@@ -42,63 +42,63 @@ function RecommendationHistoryPage() {
   }, [filteredHistory])
 
   useEffect(() => {
-      const fetchData = async () => {
-        const data = await recommendationService.getLeads();
-        //console.log(data[0].eligible_mutualfunds_clients);
-        const transformedData = useTransformLead(data);
-        console.log("Fetched Leads:", transformedData);
-        if (data) {
-          console.log("inside fetchData");
-          setLead(transformedData);
-        }
-      };
-  
-      // Call immediately once on mount
-      fetchData();
-  
-    }, [showContactForm])
-  
-    const contactedPersonIds = useMemo(() => {
-        return new Set(lead.map(l => l.eligible_person_id));
-    }, [lead]); // Recompute this set only when the 'lead' array changes
+    const fetchData = async () => {
+      const data = await recommendationService.getLeads();
+      //console.log(data[0].eligible_mutualfunds_clients);
+      const transformedData = useTransformLead(data);
+      console.log("Fetched Leads:", transformedData);
+      if (data) {
+        console.log("inside fetchData");
+        setLead(transformedData);
+      }
+    };
 
-    const interestedPersonIds = useMemo(() => {
-        return new Set(lead.map(l => l.interested=== 'yes' ? l.eligible_person_id : null).filter(id => id !== null));
-    }, [lead]); // Recompute this set only when the 'lead' array changes
+    // Call immediately once on mount
+    fetchData();
 
-    const notInterestedPersonIds = useMemo(() => {
-        return new Set(lead.map(l => l.interested=== 'no' ? l.eligible_person_id : null).filter(id => id !== null));
-    }, [lead]);
+  }, [showContactForm])
 
-    const notDecidedPersonIds = useMemo(() => {
-        return new Set(lead.map(l => l.interested=== 'not decided' ? l.eligible_person_id : null).filter(id => id !== null));
-    }, [lead]);
+  const contactedPersonIds = useMemo(() => {
+    return new Set(lead.map(l => l.eligible_person_id));
+  }, [lead]); // Recompute this set only when the 'lead' array changes
+
+  const interestedPersonIds = useMemo(() => {
+    return new Set(lead.map(l => l.interested === 'yes' ? l.eligible_person_id : null).filter(id => id !== null));
+  }, [lead]); // Recompute this set only when the 'lead' array changes
+
+  const notInterestedPersonIds = useMemo(() => {
+    return new Set(lead.map(l => l.interested === 'no' ? l.eligible_person_id : null).filter(id => id !== null));
+  }, [lead]);
+
+  const notDecidedPersonIds = useMemo(() => {
+    return new Set(lead.map(l => l.interested === 'not decided' ? l.eligible_person_id : null).filter(id => id !== null));
+  }, [lead]);
 
   useEffect(() => {
     let updated = [...history];
 
-    if (filters.contacted=== 'yes') {
-    //   updated = updated.filter(item => item.contacted?.toLowerCase() === filters.interested.toLowerCase());
-        updated = updated.filter(item => contactedPersonIds.has(item.id));
+    if (filters.contacted === 'yes') {
+      //   updated = updated.filter(item => item.contacted?.toLowerCase() === filters.interested.toLowerCase());
+      updated = updated.filter(item => contactedPersonIds.has(item.id));
     }
 
-    if (filters.contacted=== 'no') {
-    //   updated = updated.filter(item => item.contacted?.toLowerCase() === filters.interested.toLowerCase());
-        updated = updated.filter(item => !contactedPersonIds.has(item.id));
+    if (filters.contacted === 'no') {
+      //   updated = updated.filter(item => item.contacted?.toLowerCase() === filters.interested.toLowerCase());
+      updated = updated.filter(item => !contactedPersonIds.has(item.id));
     }
 
     if (filters.interested === 'yes') {
       updated = updated.filter(item => interestedPersonIds.has(item.id));
     }
 
-    if (filters.interested=== 'no') {
-    //   updated = updated.filter(item => item.contacted?.toLowerCase() === filters.interested.toLowerCase());
-        updated = updated.filter(item => notInterestedPersonIds.has(item.id));
+    if (filters.interested === 'no') {
+      //   updated = updated.filter(item => item.contacted?.toLowerCase() === filters.interested.toLowerCase());
+      updated = updated.filter(item => notInterestedPersonIds.has(item.id));
     }
 
-    if (filters.interested=== 'not decided') {
-    //   updated = updated.filter(item => item.contacted?.toLowerCase() === filters.interested.toLowerCase());
-        updated = updated.filter(item => notDecidedPersonIds.has(item.id));
+    if (filters.interested === 'not decided') {
+      //   updated = updated.filter(item => item.contacted?.toLowerCase() === filters.interested.toLowerCase());
+      updated = updated.filter(item => notDecidedPersonIds.has(item.id));
     }
 
 
@@ -131,23 +131,23 @@ function RecommendationHistoryPage() {
         </div>
       </header> */}
       <header className="bg-gray-800 shadow-lg border-b border-gray-700">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Modified Header div for responsiveness */}
-                    <div className="flex flex-col sm:flex-row items-center justify-between h-auto sm:h-16 py-3 sm:py-0">
-                    {/* Left side: Icon and Title */}
-                        <div className="flex items-center justify-center mb-2 sm:mb-0"> {/* Added justify-center and margin for mobile */}
-                            <History className="w-8 h-8 text-indigo-400 mr-3 flex-shrink-0" /> {/* flex-shrink-0 to prevent icon from shrinking */}
-                            <h1 className="text-xl sm:text-2xl font-bold text-white text-start sm:text-left leading-tight min-w-0"> {/* Adjusted text size, added text-center, sm:text-left, leading-tight, and min-w-0 */}
-                            All Recommendations
-                            </h1>
-                        </div>
-                    {/* Right side: Total Applications count */}
-                    <div className="text-sm text-gray-400 flex-shrink-0"> {/* flex-shrink-0 to prevent text from shrinking */}
-                    {history.length} total applications
-                    </div>
-                </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Modified Header div for responsiveness */}
+          <div className="flex flex-col sm:flex-row items-center justify-between h-auto sm:h-16 py-3 sm:py-0">
+            {/* Left side: Icon and Title */}
+            <div className="flex items-center justify-center mb-2 sm:mb-0"> {/* Added justify-center and margin for mobile */}
+              <History className="w-8 h-8 text-indigo-400 mr-3 flex-shrink-0" /> {/* flex-shrink-0 to prevent icon from shrinking */}
+              <h1 className="text-2xl sm:text-3xl font-bold text-white text-start sm:text-left leading-tight min-w-0"> {/* Adjusted text size, added text-center, sm:text-left, leading-tight, and min-w-0 */}
+                All Recommendations
+              </h1>
             </div>
-        </header>
+            {/* Right side: Total Applications count */}
+            <div className="text-sm text-gray-400 flex-shrink-0"> {/* flex-shrink-0 to prevent text from shrinking */}
+              {history.length} total applications
+            </div>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
@@ -192,14 +192,14 @@ function RecommendationHistoryPage() {
                 <option value="not decided">Not Decided</option>
               </select>
             </div>
-            
-            
+
+
           </div>
         </div>
 
         {/* DataTable Section */}
         <div className="flex gap-2">
-          <RecommendationTable data={filteredHistory} lead={lead}/>
+          <RecommendationTable data={filteredHistory} lead={lead} />
         </div>
 
       </main>

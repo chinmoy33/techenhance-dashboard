@@ -50,7 +50,7 @@ function Leadtrackingpage() {
     if (filters.interested) {
       if (filters.interested.toLowerCase() === 'not decided') {
         // Filter for items where 'interested' is null, undefined, or an empty string
-        updated = updated.filter(item => 
+        updated = updated.filter(item =>
           item.interested == "not decided"
         );
       } else {
@@ -94,7 +94,7 @@ function Leadtrackingpage() {
   let attribute4;
   let attribute5;
   let attribute6;
-  if(window.innerWidth <= 768) {
+  if (window.innerWidth <= 768) {
     attribute1 = "flex flex-col items-center"
     attribute2 = "w-[95vw]"
     attribute3 = "w-[95vw]"
@@ -102,8 +102,7 @@ function Leadtrackingpage() {
     attribute5 = ""
     attribute6 = "items-center"
   }
-  else
-  {
+  else {
     attribute1 = ""
     attribute2 = ""
     attribute3 = "w-full"
@@ -117,81 +116,81 @@ function Leadtrackingpage() {
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
       <div className={`${attribute1}`}>
-      <header className={`${attribute2} bg-gray-800 shadow-lg border-b border-gray-700`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between h-auto sm:h-16 py-3 sm:py-0"> {/* Added flex-col and sm:flex-row */}
-            <div className="flex items-center justify-center mb-2 sm:mb-0"> {/* Adjusted margin for mobile */}
-              <TrendingUp className="w-8 h-8 text-indigo-400 " />
-              <h1 className="text-xl sm:text-lg font-bold text-white text-left ml-2"> {/* Adjusted text size */}
-                Fund Analytics Dashboard
-              </h1>
-            </div>
-            <div className="text-sm text-gray-400">
-              {Lead.length} total applications
+        <header className={`${attribute2} bg-gray-800 shadow-lg border-b border-gray-700`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between h-auto sm:h-16 py-3 sm:py-0"> {/* Added flex-col and sm:flex-row */}
+              <div className="flex items-center justify-center mb-2 sm:mb-0"> {/* Adjusted margin for mobile */}
+                <TrendingUp className="w-8 h-8 text-indigo-400 " />
+                <h1 className="text-2xl sm:text-3xl font-bold text-white text-left ml-2"> {/* Adjusted text size */}
+                  Fund Analytics Dashboard
+                </h1>
+              </div>
+              <div className="text-sm text-gray-400">
+                {Lead.length} total applications
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
       </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 sm:space-y-12"> {/* Adjusted spacing */}
         <div className={`${attribute1}`}>
-        <div className={`${attribute2} bg-slate-800 rounded-xl p-4 sm:p-6 border border-slate-700 mb-4 sm:mb-6`}> {/* Adjusted padding */}
-          <div className="flex items-center gap-2 mb-4">
-            <Filter className="w-5 h-5 text-blue-400" />
-            <h2 className="text-lg font-semibold text-white">Search & Filter</h2>
-          </div>
-
-          {/* Filter Grid: Now uses grid-cols-1 for very small screens, then expands */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search by Name/Account"
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+          <div className={`${attribute2} bg-slate-800 rounded-xl p-4 sm:p-6 border border-slate-700 mb-4 sm:mb-6`}> {/* Adjusted padding */}
+            <div className="flex items-center gap-2 mb-4">
+              <Filter className="w-5 h-5 text-blue-400" />
+              <h2 className="text-lg font-semibold text-white">Search & Filter</h2>
             </div>
 
-            <div>
-              <select
-                onChange={(e) => setFilters(prev => ({ ...prev, interested: e.target.value }))}
-                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">All Interested</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-                <option value="not decided">Not Decided</option>
-              </select>
-            </div>
+            {/* Filter Grid: Now uses grid-cols-1 for very small screens, then expands */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 
-            <div>
-              <select
-                onChange={(e) => setFilters(prev => ({ ...prev, type_of_mutual_fund: e.target.value }))}
-                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">All Types</option>
-                <option value="SIP">SIP</option>
-                <option value="annually">Annually</option>
-                <option value="biannually">Biannually</option>
-              </select>
-            </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search by Name/Account"
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
 
-            <div>
-              <select
-                onChange={(e) => setFilters(prev => ({ ...prev, kyc_completed: e.target.value }))}
-                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">All KYC</option>
-                <option value="true">Completed</option>
-                <option value="false">Not Completed</option>
-              </select>
-            </div>
+              <div>
+                <select
+                  onChange={(e) => setFilters(prev => ({ ...prev, interested: e.target.value }))}
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Interested</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                  <option value="not decided">Not Decided</option>
+                </select>
+              </div>
 
-            {/* <div className="relative">
+              <div>
+                <select
+                  onChange={(e) => setFilters(prev => ({ ...prev, type_of_mutual_fund: e.target.value }))}
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Types</option>
+                  <option value="SIP">SIP</option>
+                  <option value="annually">Annually</option>
+                  <option value="biannually">Biannually</option>
+                </select>
+              </div>
+
+              <div>
+                <select
+                  onChange={(e) => setFilters(prev => ({ ...prev, kyc_completed: e.target.value }))}
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All KYC</option>
+                  <option value="true">Completed</option>
+                  <option value="false">Not Completed</option>
+                </select>
+              </div>
+
+              {/* <div className="relative">
               <ListFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input
                 type="text"
@@ -201,18 +200,18 @@ function Leadtrackingpage() {
               />
             </div> */}
 
-            <div className="relative">
-              <ListFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Min Disbursed Amount"
-                onChange={(e) => setFilters(prev => ({ ...prev, final_disbursed_amt: e.target.value }))}
-                className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+              <div className="relative">
+                <ListFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Min Disbursed Amount"
+                  onChange={(e) => setFilters(prev => ({ ...prev, final_disbursed_amt: e.target.value }))}
+                  className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
 
+            </div>
           </div>
-        </div>
         </div>
 
         {/* DataTable and FunnelChart Section */}
@@ -220,7 +219,7 @@ function Leadtrackingpage() {
         <div className={`flex flex-col ${attribute6} md:justify-center md:flex-row gap-2 ${attribute5}`}> {/* Adjusted gap and direction */}
           {/* DataTable Wrapper: Added overflow-x-auto for responsiveness */}
           <div className={`${attribute3} md:w-3/5 overflow-x-auto bg-slate-800 rounded-xl border border-slate-700`}>
-             <DataTable data={filteredLead} />
+            <DataTable data={filteredLead} />
           </div>
 
           {/* Funnel Chart Wrapper: Added w-full for small screens and md:w-1/3 for medium and larger */}
@@ -230,13 +229,13 @@ function Leadtrackingpage() {
         </div>
 
         {/* Loan Funnel Grid Below */}
-          {/* Added wrapper for LoanFunnel and adjusted gap */}
-          <div className={`${attribute1}`}>
+        {/* Added wrapper for LoanFunnel and adjusted gap */}
+        <div className={`${attribute1}`}>
           <div className={`${attribute4}`}>
             <LoanFunnel data={filteredLead} />
           </div>
-          </div>
-        
+        </div>
+
       </main>
 
       {/* Footer */}
