@@ -34,8 +34,8 @@ Data Visualizer Pro is a full-stack web application for interactive data visuali
 backend/
   core-service/         # Main API (datasets, users, etc.)
   recommendation-service/ # AI/ML recommendations
+  shared/                 # Shared backend libs/configs
 frontend/               # React app (UI)
-shared/                 # Shared backend libs/configs
 docker-compose.yml      # Multi-service orchestration
 ```
 
